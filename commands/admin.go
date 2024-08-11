@@ -6,7 +6,7 @@ import (
 	"strconv"
 )
 
-const AdminCommandName string = "teachers"
+const AdminCommandName string = "-internal-admin"
 
 func AdminCommand(context Context, responder Responder, formatter Formatter) {
 	user := context.User
