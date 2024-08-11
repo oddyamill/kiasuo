@@ -14,15 +14,9 @@ type Client struct {
 	User users.User
 }
 
-func NewClient(user users.User) Client {
-	return Client{User: user}
-}
-
-func Request[T any](client Client, request *http.Request) (*http.Response, *T, error) {
+func httpRequest[T any](client Client, request *http.Request) (*http.Response, *T, error) {
 	request.Header.Set("Authorization", "Bearer "+client.User.AccessToken)
 	response, err := http.DefaultClient.Do(request)
-
-	println(response.StatusCode, response.Status, request.URL)
 
 	if err != nil {
 		return response, nil, err
@@ -34,6 +28,10 @@ func Request[T any](client Client, request *http.Request) (*http.Response, *T, e
 	err = json.NewDecoder(response.Body).Decode(&result)
 
 	if err != nil {
+		if err.Error() == "EOF" {
+			return response, nil, nil
+		}
+
 		return response, nil, err
 	}
 
@@ -50,7 +48,7 @@ func RefreshToken(client Client) error {
 		return err
 	}
 
-	response, result, err := Request[Token](client, request)
+	response, result, err := httpRequest[Token](client, request)
 
 	if err != nil {
 		return err
@@ -77,7 +75,7 @@ func ClientRequest[T any](client Client, pathname string, method string) (*T, er
 		return nil, err
 	}
 
-	response, result, err := Request[T](client, request)
+	response, result, err := httpRequest[T](client, request)
 
 	if err != nil {
 		return nil, err
@@ -90,7 +88,7 @@ func ClientRequest[T any](client Client, pathname string, method string) (*T, er
 			return nil, err
 		}
 
-		_, result, err = Request[T](client, request)
+		_, result, err = httpRequest[T](client, request)
 
 		if err != nil {
 			return nil, err
@@ -100,17 +98,17 @@ func ClientRequest[T any](client Client, pathname string, method string) (*T, er
 	return result, nil
 }
 
-func (client Client) GetUser() (*User, error) {
-	return ClientRequest[User](client, "/api/user", "GET")
+func (c Client) GetUser() (*User, error) {
+	return ClientRequest[User](c, "/api/user", "GET")
 }
 
-func (client Client) GetRecipients() (*Recipients, error) {
-	rawRecipients, err := ClientRequest[RawRecipient](client, "/api/recipients", "GET")
+func (c Client) GetRecipients() (*Recipients, error) {
+	rawRecipients, err := ClientRequest[RawRecipient](c, "/api/recipients", "GET")
 
 	if err != nil {
 		return nil, err
 	}
 
-	recipients := (*rawRecipients)[client.User.StudentID]
+	recipients := (*rawRecipients)[c.User.StudentID]
 	return &recipients, nil
 }

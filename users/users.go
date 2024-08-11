@@ -21,7 +21,7 @@ const (
 type User struct {
 	ID           primitive.ObjectID `bson:"_id"`
 	TelegramID   int64              `bson:"userId"`
-	DiscordID    string             `bson:"discordId"`
+	DiscordID    string             `bson:"discordId,omitempty"`
 	AccessToken  string             `bson:"accessToken"`
 	RefreshToken string             `bson:"refreshToken"`
 	StudentID    int                `bson:"studentId"`
@@ -58,6 +58,16 @@ func Get(filter bson.D) *User {
 	return &user
 }
 
+func GetByID(id string) *User {
+	objectID, err := primitive.ObjectIDFromHex(id)
+
+	if err != nil {
+		return nil
+	}
+
+	return Get(bson.D{{Key: "_id", Value: objectID}})
+}
+
 func GetByTelegramID(telegramID int64) *User {
 	return Get(bson.D{{Key: "userId", Value: telegramID}})
 }
@@ -76,4 +86,8 @@ func Update(user User, update bson.D) {
 
 func UpdateToken(user User, accessToken string, refreshToken string) {
 	Update(user, bson.D{{Key: "accessToken", Value: accessToken}, {Key: "refreshToken", Value: refreshToken}})
+}
+
+func UpdateState(user User, state UserState) {
+	Update(user, bson.D{{Key: "state", Value: state}})
 }

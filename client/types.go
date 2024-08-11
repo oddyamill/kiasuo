@@ -1,8 +1,8 @@
 package client
 
 type Token struct {
-	AccessToken  string `json:"access_token"`
-	RefreshToken string `json:"refresh_token"`
+	AccessToken  string `json:"accessToken"`
+	RefreshToken string `json:"refreshToken"`
 }
 
 type User struct {
@@ -29,6 +29,6 @@ type Recipients struct {
 }
 
 type Student struct {
-	Parents interface{} `json:"parents"`
-	ID      *int        `json:"id"`
+	Parents any  `json:"parents"`
+	ID      *int `json:"id"`
 }

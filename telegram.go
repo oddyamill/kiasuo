@@ -6,7 +6,10 @@ import (
 	"github.com/kiasuo/bot/users"
 	"log"
 	"os"
+	"strings"
 )
+
+const AdminId int64 = 6135991898
 
 var bot tgbotapi.BotAPI
 
@@ -34,34 +37,92 @@ func main() {
 	updates := bot.GetUpdatesChan(u)
 
 	for update := range updates {
-		if update.Message == nil || !update.Message.IsCommand() {
-			continue
+		if update.Message != nil {
+			handleMessage(update)
+		} else if update.CallbackQuery != nil {
+			handleCallbackQuery(update)
+		}
+	}
+}
+
+func handleMessage(update tgbotapi.Update) {
+	var user *users.User
+	var command string
+
+	responder := commands.TelegramResponder{
+		Bot:    bot,
+		Update: update,
+	}
+
+	if update.Message.ForwardFrom != nil {
+		if update.Message.From.ID != AdminId {
+			return
 		}
 
-		user := users.GetByTelegramID(update.Message.From.ID)
-
-		responder := commands.TelegramResponder{
-			Bot:    bot,
-			Update: update,
-		}
+		user = users.GetByTelegramID(update.Message.ForwardFrom.ID)
 
 		if user == nil {
-			responder.Respond("Ты кто такой? Cъебал.")
-			continue
+			responder.Respond("Пользователь не зарегистрирован")
+			return
+		}
+
+		command = commands.AdminCommandName
+	} else if update.Message.IsCommand() {
+		user = users.GetByTelegramID(update.Message.From.ID)
+
+		if user == nil {
+			responder.Respond("Ты кто такой? Уйди.")
+			return
 		}
 
 		if user.State != users.Ready {
-			responder.Respond("Пошел нахуй.")
-			continue
+			responder.Respond("Пошел отсюда.")
+			return
 		}
 
-		context := commands.Context{
-			Command: update.Message.Command(),
-			User:    *user,
-		}
-
-		formatter := commands.TelegramFormatter{}
-
-		commands.HandleCommand(context, &responder, &formatter)
+		command = update.Message.Command()
 	}
+
+	if command == "" {
+		return
+	}
+
+	context := commands.Context{
+		Command: command,
+		User:    *user,
+	}
+
+	formatter := commands.TelegramFormatter{}
+
+	commands.HandleCommand(context, &responder, &formatter)
+}
+
+func handleCallbackQuery(update tgbotapi.Update) {
+	data := strings.Split(update.CallbackQuery.Data, ":")
+
+	if len(data) < 2 {
+		return
+	}
+
+	var user *users.User
+
+	if data[0] == commands.AdminCommandName {
+		user = users.GetByID(data[2])
+	} else {
+		user = users.GetByTelegramID(update.CallbackQuery.From.ID)
+	}
+
+	context := commands.Context{
+		Command: data[0],
+		User:    *user,
+	}
+
+	responder := commands.TelegramResponder{
+		Bot:    bot,
+		Update: update,
+	}
+
+	formatter := commands.TelegramFormatter{}
+
+	commands.HandleCallback(context, &responder, &formatter, data)
 }

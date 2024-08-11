@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 )
 
@@ -32,12 +33,17 @@ func main() {
 	}
 
 	bot.AddHandler(func(session *discordgo.Session, interaction *discordgo.InteractionCreate) {
-		if interaction.Type != discordgo.InteractionApplicationCommand {
-			return
-		}
+		var command string
+		var data []string
 
-		if err != nil {
-			panic(err)
+		switch interaction.Type {
+		case discordgo.InteractionApplicationCommand:
+			command = interaction.ApplicationCommandData().Name
+		case discordgo.InteractionMessageComponent:
+			data = strings.Split(interaction.MessageComponentData().CustomID, ":")
+			command = data[0]
+		default:
+			return
 		}
 
 		userID := GetUserID(interaction)
@@ -59,11 +65,16 @@ func main() {
 		}
 
 		context := commands.Context{
-			Command: interaction.ApplicationCommandData().Name,
+			Command: command,
 			User:    *user,
 		}
 
 		formatter := commands.DiscordFormatter{}
+
+		if len(data) != 0 {
+			commands.HandleCallback(context, &responder, &formatter, data)
+			return
+		}
 
 		commands.HandleCommand(context, &responder, &formatter)
 	})
