@@ -64,7 +64,7 @@ func RefreshToken(client Client) error {
 
 	client.User.AccessToken = result.AccessToken
 	client.User.RefreshToken = result.RefreshToken
-	users.UpdateToken(client.User)
+	users.UpdateToken(client.User, result.AccessToken, result.RefreshToken)
 	return nil
 }
 

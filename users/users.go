@@ -85,8 +85,8 @@ func update(user User, update bson.D) {
 	}
 }
 
-func UpdateToken(user User) {
-	update(user, bson.D{{Key: "accessToken", Value: user.AccessToken}, {Key: "refreshToken", Value: user.RefreshToken}})
+func UpdateToken(user User, accessToken string, refreshToken string) {
+	update(user, bson.D{{Key: "accessToken", Value: accessToken}, {Key: "refreshToken", Value: refreshToken}})
 }
 
 func UpdateState(user User, state UserState) {
