@@ -33,8 +33,10 @@ func main() {
 	}
 
 	bot.AddHandler(func(session *discordgo.Session, interaction *discordgo.InteractionCreate) {
-		var command string
-		var data []string
+		var (
+			command string
+			data    []string
+		)
 
 		switch interaction.Type {
 		case discordgo.InteractionApplicationCommand:

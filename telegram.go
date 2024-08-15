@@ -46,8 +46,10 @@ func main() {
 }
 
 func handleMessage(update tgbotapi.Update) {
-	var user *users.User
-	var command string
+	var (
+		user    *users.User
+		command string
+	)
 
 	responder := commands.TelegramResponder{
 		Bot:    bot,

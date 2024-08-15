@@ -10,6 +10,8 @@ func HandleCommand(context Context, responder Responder, formatter Formatter) {
 		AdminCommand(context, responder, formatter)
 	case "start":
 		StartCommand(context, responder)
+	case "stop":
+		StopCommand(context, responder)
 	case "settings":
 		SettingsCommand(context, responder, formatter)
 	case "students":
@@ -25,5 +27,9 @@ func HandleCallback(context Context, responder Responder, formatter Formatter, d
 	switch context.Command {
 	case AdminCommandName:
 		AdminCallback(context, responder, formatter, data)
+	case "stop":
+		StopCallback(context, responder, formatter, data)
+	case "settings":
+		SettingsCallback(context, responder, formatter, data)
 	}
 }

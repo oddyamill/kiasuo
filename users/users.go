@@ -19,13 +19,14 @@ const (
 )
 
 type User struct {
-	ID           primitive.ObjectID `bson:"_id"`
-	TelegramID   int64              `bson:"userId"`
-	DiscordID    string             `bson:"discordId,omitempty"`
-	AccessToken  string             `bson:"accessToken"`
-	RefreshToken string             `bson:"refreshToken"`
-	StudentID    int                `bson:"studentId"`
-	State        UserState          `bson:"state"`
+	ID                 primitive.ObjectID `bson:"_id"`
+	TelegramID         int64              `bson:"telegramID"`
+	DiscordID          string             `bson:"discordID,omitempty"`
+	AccessToken        string             `bson:"accessToken"`
+	RefreshToken       string             `bson:"refreshToken"`
+	StudentID          int                `bson:"studentID"`
+	StudentNameAcronym string             `bson:"studentNameAcronym"`
+	State              UserState          `bson:"state"`
 }
 
 var collection *mongo.Collection
@@ -46,7 +47,7 @@ func init() {
 	collection = client.Database("app").Collection("users")
 }
 
-func Get(filter bson.D) *User {
+func get(filter bson.D) *User {
 	var user User
 
 	err := collection.FindOne(context.TODO(), filter).Decode(&user)
@@ -65,18 +66,18 @@ func GetByID(id string) *User {
 		return nil
 	}
 
-	return Get(bson.D{{Key: "_id", Value: objectID}})
+	return get(bson.D{{Key: "_id", Value: objectID}})
 }
 
 func GetByTelegramID(telegramID int64) *User {
-	return Get(bson.D{{Key: "userId", Value: telegramID}})
+	return get(bson.D{{Key: "telegramID", Value: telegramID}})
 }
 
 func GetByDiscordID(discordID string) *User {
-	return Get(bson.D{{Key: "discordId", Value: discordID}})
+	return get(bson.D{{Key: "discordID", Value: discordID}})
 }
 
-func Update(user User, update bson.D) {
+func update(user User, update bson.D) {
 	_, err := collection.UpdateOne(context.TODO(), bson.D{{Key: "_id", Value: user.ID}}, bson.D{{Key: "$set", Value: update}})
 
 	if err != nil {
@@ -84,10 +85,18 @@ func Update(user User, update bson.D) {
 	}
 }
 
-func UpdateToken(user User, accessToken string, refreshToken string) {
-	Update(user, bson.D{{Key: "accessToken", Value: accessToken}, {Key: "refreshToken", Value: refreshToken}})
+func UpdateToken(user User) {
+	update(user, bson.D{{Key: "accessToken", Value: user.AccessToken}, {Key: "refreshToken", Value: user.RefreshToken}})
 }
 
 func UpdateState(user User, state UserState) {
-	Update(user, bson.D{{Key: "state", Value: state}})
+	update(user, bson.D{{Key: "state", Value: state}})
+}
+
+func UpdateStudent(user User, studentID int, studentNameAcronym string) {
+	update(user, bson.D{{Key: "studentID", Value: studentID}, {Key: "studentNameAcronym", Value: studentNameAcronym}})
+}
+
+func UpdateDiscord(user User, discordID string) {
+	update(user, bson.D{{Key: "discordID", Value: discordID}})
 }

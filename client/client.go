@@ -62,9 +62,9 @@ func RefreshToken(client Client) error {
 		return errors.New("empty response")
 	}
 
-	users.UpdateToken(client.User, result.AccessToken, result.RefreshToken)
 	client.User.AccessToken = result.AccessToken
 	client.User.RefreshToken = result.RefreshToken
+	users.UpdateToken(client.User)
 	return nil
 }
 
