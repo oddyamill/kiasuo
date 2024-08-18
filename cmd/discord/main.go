@@ -2,8 +2,8 @@ package main
 
 import (
 	"github.com/bwmarrin/discordgo"
-	"github.com/kiasuo/bot/commands"
-	"github.com/kiasuo/bot/users"
+	"github.com/kiasuo/bot/internal/commands"
+	"github.com/kiasuo/bot/internal/users"
 	"log"
 	"os"
 	"os/signal"

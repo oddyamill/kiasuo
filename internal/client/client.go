@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	"github.com/kiasuo/bot/users"
+	"github.com/kiasuo/bot/internal/users"
 	"net/http"
 )
 

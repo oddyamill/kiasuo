@@ -5,6 +5,8 @@ import "log"
 func HandleCommand(context Context, responder Responder, formatter Formatter) {
 	log.Println("Handling command", context.Command)
 
+	var err error
+
 	switch context.Command {
 	case AdminCommandName:
 		AdminCommand(context, responder, formatter)
@@ -15,14 +17,18 @@ func HandleCommand(context Context, responder Responder, formatter Formatter) {
 	case "settings":
 		SettingsCommand(context, responder, formatter)
 	case "students":
-		StudentsCommand(context, responder, formatter)
+		err = StudentsCommand(context, responder, formatter)
 	case "staff":
-		StaffCommand(context, responder, formatter)
+		err = StaffCommand(context, responder, formatter)
 	}
+
+	handleError(err)
 }
 
 func HandleCallback(context Context, responder Responder, formatter Formatter, data []string) {
 	log.Println("Handling callback", context.Command)
+
+	var err error
 
 	switch context.Command {
 	case AdminCommandName:
@@ -30,6 +36,14 @@ func HandleCallback(context Context, responder Responder, formatter Formatter, d
 	case "stop":
 		StopCallback(context, responder, formatter, data)
 	case "settings":
-		SettingsCallback(context, responder, formatter, data)
+		err = SettingsCallback(context, responder, formatter, data)
+	}
+
+	handleError(err)
+}
+
+func handleError(err error) {
+	if err != nil {
+		log.Printf("Error: %v", err)
 	}
 }

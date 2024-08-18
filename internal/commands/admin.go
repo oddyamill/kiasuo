@@ -1,8 +1,8 @@
 package commands
 
 import (
-	"github.com/kiasuo/bot/helpers"
-	"github.com/kiasuo/bot/users"
+	"github.com/kiasuo/bot/internal/helpers"
+	"github.com/kiasuo/bot/internal/users"
 	"strconv"
 )
 

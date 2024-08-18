@@ -2,8 +2,8 @@ package main
 
 import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
-	"github.com/kiasuo/bot/commands"
-	"github.com/kiasuo/bot/users"
+	"github.com/kiasuo/bot/internal/commands"
+	"github.com/kiasuo/bot/internal/users"
 	"log"
 	"os"
 	"strings"

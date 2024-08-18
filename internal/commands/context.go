@@ -1,8 +1,8 @@
 package commands
 
 import (
-	"github.com/kiasuo/bot/client"
-	"github.com/kiasuo/bot/users"
+	"github.com/kiasuo/bot/internal/client"
+	"github.com/kiasuo/bot/internal/users"
 )
 
 type Context struct {
