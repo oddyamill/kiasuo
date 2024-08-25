@@ -1,0 +1,17 @@
+services:
+  telegram:
+    build:
+      context: .
+      target: final
+      args:
+        - TARGETAPP=telegram
+    env_file:
+        - .env
+  discord:
+    build:
+      context: .
+      target: final
+      args:
+        - TARGETAPP=discord
+    env_file:
+        - .env
