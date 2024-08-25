@@ -1,0 +1,22 @@
+name: Deploy DNS
+
+on:
+  push:
+    branches: ["master"]
+    paths: ["**/*.tf", ".github/workflows/deploy-dns.yml"]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    name: Deploy
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+      - name: Init
+        run: terraform init
+      - name: Plan and deploy
+        run: terraform apply --auto-approve
+        env:
+          TF_VAR_cloudflare_api_token: ${{ secrets.CLOUDFLARE_API_TOKEN }}
