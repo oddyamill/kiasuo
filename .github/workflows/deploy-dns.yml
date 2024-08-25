@@ -4,7 +4,6 @@ on:
   push:
     branches: ["master"]
     paths: ["**/*.tf", ".github/workflows/deploy-dns.yml"]
-  workflow_dispatch:
 
 jobs:
   deploy:

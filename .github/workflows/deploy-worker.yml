@@ -4,7 +4,6 @@ on:
   push:
     branches: ["master"]
     paths: ["**/*.ts", "**/*.json", "wrangler.toml", ".github/workflows/deploy-worker.yml"]
-  workflow_dispatch:
 
 jobs:
   deploy:
