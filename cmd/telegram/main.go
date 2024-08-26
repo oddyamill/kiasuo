@@ -3,9 +3,9 @@ package main
 import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/kiasuo/bot/internal/commands"
+	"github.com/kiasuo/bot/internal/helpers"
 	"github.com/kiasuo/bot/internal/users"
 	"log"
-	"os"
 	"strings"
 )
 
@@ -14,12 +14,7 @@ const AdminId int64 = 6135991898
 var bot tgbotapi.BotAPI
 
 func init() {
-	token, ok := os.LookupEnv("TELEGRAM")
-
-	if !ok {
-		panic("TELEGRAM not set")
-	}
-
+	token := helpers.GetEnv("TELEGRAM")
 	botApi, err := tgbotapi.NewBotAPI(token)
 
 	if err != nil {

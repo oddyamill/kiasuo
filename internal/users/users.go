@@ -2,11 +2,11 @@ package users
 
 import (
 	"context"
+	"github.com/kiasuo/bot/internal/helpers"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
-	"os"
 )
 
 type UserState int
@@ -32,12 +32,7 @@ type User struct {
 var collection *mongo.Collection
 
 func init() {
-	uri, ok := os.LookupEnv("DATABASE")
-
-	if !ok {
-		panic("DATABASE not set")
-	}
-
+	uri := helpers.GetEnv("DATABASE")
 	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(uri))
 
 	if err != nil {

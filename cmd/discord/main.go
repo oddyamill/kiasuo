@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/bwmarrin/discordgo"
 	"github.com/kiasuo/bot/internal/commands"
+	"github.com/kiasuo/bot/internal/helpers"
 	"github.com/kiasuo/bot/internal/users"
 	"log"
 	"os"
@@ -20,12 +21,7 @@ func GetUserID(interaction *discordgo.InteractionCreate) string {
 }
 
 func main() {
-	token, ok := os.LookupEnv("DISCORD")
-
-	if !ok {
-		panic("DISCORD not set")
-	}
-
+	token := helpers.GetEnv("DISCORD")
 	bot, err := discordgo.New(token)
 
 	if err != nil {
