@@ -2,7 +2,7 @@ name: Deploy DNS
 
 on:
   push:
-    branches: ["master"]
+    branches: [master]
     paths: ["**/*.tf", ".github/workflows/deploy-dns.yml"]
 
 jobs:
@@ -12,6 +12,9 @@ jobs:
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v4
+        with:
+          sparse-checkout: "**/*.tf"
+          sparse-checkout-cone-mode: false
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
       - name: Init

@@ -1,0 +1,11 @@
+services:
+  telegram:
+    image: ${TELEGRAM_IMAGE_REF}
+    environment:
+      - DATABASE=${DATABASE}
+      - TELEGRAM=${TELEGRAM}
+  discord:
+    image: ${DISCORD_IMAGE_REF}
+    environment:
+      - DATABASE=${DATABASE}
+      - DISCORD=${DISCORD}

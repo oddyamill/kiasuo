@@ -50,7 +50,7 @@ resource "cloudflare_record" "dns" {
 
   zone_id = var.cloudflare_zone_id
   name    = each.value.name
-  content   = each.value.content
+  content = each.value.content
   comment = each.value.comment
   type    = "A"
   proxied = true

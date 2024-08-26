@@ -2,7 +2,7 @@ name: Deploy worker
 
 on:
   push:
-    branches: ["master"]
+    branches: [master]
     paths: ["**/*.ts", "**/*.json", "wrangler.toml", ".github/workflows/deploy-worker.yml"]
 
 jobs:
