@@ -15,7 +15,7 @@ jobs:
         with:
           sparse-checkout: "**/*.tf"
           sparse-checkout-cone-mode: false
-      - name: Setup Terraform
+      - name: Set up Terraform
         uses: hashicorp/setup-terraform@v3
       - name: Init
         run: terraform init
