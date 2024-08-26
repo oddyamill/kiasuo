@@ -7,6 +7,9 @@ services:
         - TARGETAPP=telegram
     env_file:
         - .env
+    depends_on:
+      postgres:
+        condition: service_healthy
   discord:
     build:
       context: .
@@ -15,3 +18,23 @@ services:
         - TARGETAPP=discord
     env_file:
         - .env
+    depends_on:
+      postgres:
+        condition: service_healthy
+  postgres:
+    image: postgres:alpine
+    restart: always
+    user: postgres
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    env_file:
+      - .env
+    expose:
+      - 5432
+    healthcheck:
+      test: [ "CMD", "pg_isready" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+volumes:
+  postgres-data:
