@@ -4,14 +4,14 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	"github.com/kiasuo/bot/internal/users"
+	"github.com/kiasuo/bot/internal/users_sql"
 	"net/http"
 )
 
 const BaseUrl = "https://kiasuo-proxy.oddya.ru/diary"
 
 type Client struct {
-	User users.User
+	User users_sql.User
 }
 
 func httpRequest[T any](client Client, request *http.Request) (*http.Response, *T, error) {
@@ -64,7 +64,7 @@ func RefreshToken(client Client) error {
 
 	client.User.AccessToken = result.AccessToken
 	client.User.RefreshToken = result.RefreshToken
-	users.UpdateToken(client.User, result.AccessToken, result.RefreshToken)
+	client.User.UpdateToken(result.AccessToken, result.RefreshToken)
 	return nil
 }
 

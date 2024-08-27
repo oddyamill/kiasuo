@@ -80,18 +80,18 @@ func update(user User, update bson.D) {
 	}
 }
 
-func UpdateToken(user User, accessToken string, refreshToken string) {
-	update(user, bson.D{{Key: "accessToken", Value: accessToken}, {Key: "refreshToken", Value: refreshToken}})
+func (u User) UpdateToken(accessToken string, refreshToken string) {
+	update(u, bson.D{{Key: "accessToken", Value: accessToken}, {Key: "refreshToken", Value: refreshToken}})
 }
 
-func UpdateState(user User, state UserState) {
-	update(user, bson.D{{Key: "state", Value: state}})
+func (u User) UpdateState(state UserState) {
+	update(u, bson.D{{Key: "state", Value: state}})
 }
 
-func UpdateStudent(user User, studentID int, studentNameAcronym string) {
-	update(user, bson.D{{Key: "studentID", Value: studentID}, {Key: "studentNameAcronym", Value: studentNameAcronym}})
+func (u User) UpdateStudent(studentID int, studentNameAcronym string) {
+	update(u, bson.D{{Key: "studentID", Value: studentID}, {Key: "studentNameAcronym", Value: studentNameAcronym}})
 }
 
-func UpdateDiscord(user User, discordID string) {
-	update(user, bson.D{{Key: "discordID", Value: discordID}})
+func (u User) UpdateDiscord(discordID string) {
+	update(u, bson.D{{Key: "discordID", Value: discordID}})
 }

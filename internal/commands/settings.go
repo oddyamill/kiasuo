@@ -3,7 +3,6 @@ package commands
 import (
 	"github.com/kiasuo/bot/internal/client"
 	"github.com/kiasuo/bot/internal/helpers"
-	"github.com/kiasuo/bot/internal/users"
 	"strconv"
 )
 
@@ -84,7 +83,7 @@ func updateUserStudent(context Context, responder Responder, formatter Formatter
 		return err
 	}
 
-	users.UpdateStudent(context.User, studentID, studentNameAcronym)
+	context.User.UpdateStudent(studentID, studentNameAcronym)
 	responder.Respond("Ученик %s успешно выбран!", formatter.Bold(studentNameAcronym))
 	return nil
 }
@@ -95,6 +94,6 @@ func getDiscord(context Context, responder Responder) {
 		return
 	}
 
-	users.UpdateDiscord(context.User, "")
+	context.User.UpdateDiscord("")
 	responder.Respond("Аккаунт Discord успешно отвязан!")
 }

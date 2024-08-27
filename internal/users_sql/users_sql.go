@@ -98,18 +98,18 @@ func GetByDiscordID(discordID string) *User {
 	return queryRow("SELECT * FROM users WHERE discord_id = $1", discordID)
 }
 
-func UpdateToken(user User, accessToken string, refreshToken string) {
-	query("UPDATE users SET access_token = $1, refresh_token = $2 WHERE id = $3", accessToken, refreshToken, user.ID)
+func (u User) UpdateToken(accessToken string, refreshToken string) {
+	query("UPDATE users SET access_token = $1, refresh_token = $2 WHERE id = $3", accessToken, refreshToken, u.ID)
 }
 
-func UpdateState(user User, state UserState) {
-	query("UPDATE users SET state = $1 WHERE id = $2", state, user.ID)
+func (u User) UpdateState(state UserState) {
+	query("UPDATE users SET state = $1 WHERE id = $2", state, u.ID)
 }
 
-func UpdateStudent(user User, studentID int, studentNameAcronym string) {
-	query("UPDATE users SET student_id = $1, student_name_acronym = $2 WHERE id = $3", studentID, studentNameAcronym, user.ID)
+func (u User) UpdateStudent(studentID int, studentNameAcronym string) {
+	query("UPDATE users SET student_id = $1, student_name_acronym = $2 WHERE id = $3", studentID, studentNameAcronym, u.ID)
 }
 
-func UpdateDiscord(user User, discordID string) {
-	query("UPDATE users SET discord_id = $1 WHERE id = $2", discordID, user.ID)
+func (u User) UpdateDiscord(discordID string) {
+	query("UPDATE users SET discord_id = $1 WHERE id = $2", discordID, u.ID)
 }

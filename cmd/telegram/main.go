@@ -4,7 +4,7 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/kiasuo/bot/internal/commands"
 	"github.com/kiasuo/bot/internal/helpers"
-	"github.com/kiasuo/bot/internal/users"
+	"github.com/kiasuo/bot/internal/users_sql"
 	"log"
 	"strings"
 )
@@ -42,7 +42,7 @@ func main() {
 
 func handleMessage(update tgbotapi.Update) {
 	var (
-		user    *users.User
+		user    *users_sql.User
 		command string
 	)
 
@@ -56,7 +56,7 @@ func handleMessage(update tgbotapi.Update) {
 			return
 		}
 
-		user = users.GetByTelegramID(update.Message.ForwardFrom.ID)
+		user = users_sql.GetByTelegramID(update.Message.ForwardFrom.ID)
 
 		if user == nil {
 			responder.Respond("Пользователь не зарегистрирован")
@@ -65,14 +65,14 @@ func handleMessage(update tgbotapi.Update) {
 
 		command = commands.AdminCommandName
 	} else if update.Message.IsCommand() {
-		user = users.GetByTelegramID(update.Message.From.ID)
+		user = users_sql.GetByTelegramID(update.Message.From.ID)
 
 		if user == nil {
 			responder.Respond("Ты кто такой? Уйди.")
 			return
 		}
 
-		if user.State != users.Ready {
+		if user.State != users_sql.Ready {
 			responder.Respond("Пошел отсюда.")
 			return
 		}
@@ -101,12 +101,12 @@ func handleCallbackQuery(update tgbotapi.Update) {
 		return
 	}
 
-	var user *users.User
+	var user *users_sql.User
 
 	if data[0] == commands.AdminCommandName {
-		user = users.GetByID(data[2])
+		user = users_sql.GetByID(data[2])
 	} else {
-		user = users.GetByTelegramID(update.CallbackQuery.From.ID)
+		user = users_sql.GetByTelegramID(update.CallbackQuery.From.ID)
 	}
 
 	context := commands.Context{

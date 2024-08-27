@@ -4,7 +4,7 @@ import (
 	"github.com/bwmarrin/discordgo"
 	"github.com/kiasuo/bot/internal/commands"
 	"github.com/kiasuo/bot/internal/helpers"
-	"github.com/kiasuo/bot/internal/users"
+	"github.com/kiasuo/bot/internal/users_sql"
 	"log"
 	"os"
 	"os/signal"
@@ -45,7 +45,7 @@ func main() {
 		}
 
 		userID := GetUserID(interaction)
-		user := users.GetByDiscordID(userID)
+		user := users_sql.GetByDiscordID(userID)
 
 		responder := commands.DiscordResponder{
 			Interaction: *interaction.Interaction,
@@ -57,7 +57,7 @@ func main() {
 			return
 		}
 
-		if user.State != users.Ready {
+		if user.State != users_sql.Ready {
 			responder.Respond("Пошел нахуй.")
 			return
 		}
