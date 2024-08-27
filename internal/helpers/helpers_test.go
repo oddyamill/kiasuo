@@ -31,7 +31,7 @@ const UnknownVariable = "RANDOM_VARIABLE_THAT_DOES_NOT_EXIST"
 func TestGetEnvNonExistent(t *testing.T) {
 	defer func() {
 		if r := recover(); r == nil {
-			t.Errorf("GetEnv(%s) did not panic", UnknownVariable)
+			t.Errorf("GetEnv() with non-existent variable did not panic")
 		}
 	}()
 
@@ -61,6 +61,6 @@ func TestGetEnvFile(t *testing.T) {
 	value := GetEnv(UnknownVariable)
 
 	if value != "test" {
-		t.Errorf("GetEnv(%s) = %s; want test", UnknownVariable, value)
+		t.Errorf("GetEnv() = %s; want test", value)
 	}
 }
