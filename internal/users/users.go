@@ -5,6 +5,7 @@ import (
 	"errors"
 	"github.com/kiasuo/bot/internal/helpers"
 	_ "github.com/lib/pq"
+	"log"
 )
 
 type UserState int
@@ -42,6 +43,7 @@ func init() {
 		panic(err)
 	}
 
+	log.Println("Connected to database")
 	createTable()
 }
 

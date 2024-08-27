@@ -38,7 +38,7 @@ func httpRequest[T any](client Client, request *http.Request) (*http.Response, *
 	return response, result, nil
 }
 
-func RefreshToken(client Client) error {
+func RefreshToken(client *Client) error {
 	body := []byte(`{"refresh-token":"` + client.User.RefreshToken + `"}`)
 
 	request, err := http.NewRequest("POST", BaseUrl+"/refresh", bytes.NewBuffer(body))
@@ -48,7 +48,7 @@ func RefreshToken(client Client) error {
 		return err
 	}
 
-	response, result, err := httpRequest[Token](client, request)
+	response, result, err := httpRequest[Token](*client, request)
 
 	if err != nil {
 		return err
@@ -82,7 +82,7 @@ func ClientRequest[T any](client Client, pathname string, method string) (*T, er
 	}
 
 	if response.StatusCode == http.StatusUnauthorized {
-		err = RefreshToken(client)
+		err = RefreshToken(&client)
 
 		if err != nil {
 			return nil, err
