@@ -41,6 +41,8 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
+
+	createTable()
 }
 
 func createTable() {
@@ -50,7 +52,7 @@ func createTable() {
 			telegram_id BIGINT NOT NULL UNIQUE,
 			discord_id TEXT UNIQUE,
 			access_token TEXT,
-			refresh_token TEXT,
+			refresh_token VARCHAR(32),
 			student_id INTEGER,
 			student_name_acronym TEXT,
 			state INTEGER NOT NULL
