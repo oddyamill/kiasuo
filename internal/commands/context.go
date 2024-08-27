@@ -2,12 +2,12 @@ package commands
 
 import (
 	"github.com/kiasuo/bot/internal/client"
-	"github.com/kiasuo/bot/internal/users_sql"
+	"github.com/kiasuo/bot/internal/users"
 )
 
 type Context struct {
 	Command string
-	User    users_sql.User
+	User    users.User
 }
 
 func (c Context) GetClient() client.Client {

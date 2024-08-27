@@ -1,12 +1,10 @@
 package users
 
 import (
-	"context"
+	"database/sql"
+	"errors"
 	"github.com/kiasuo/bot/internal/helpers"
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
+	_ "github.com/lib/pq"
 )
 
 type UserState int
@@ -19,79 +17,99 @@ const (
 )
 
 type User struct {
-	ID                 primitive.ObjectID `bson:"_id"`
-	TelegramID         int64              `bson:"telegramID"`
-	DiscordID          string             `bson:"discordID,omitempty"`
-	AccessToken        string             `bson:"accessToken"`
-	RefreshToken       string             `bson:"refreshToken"`
-	StudentID          int                `bson:"studentID"`
-	StudentNameAcronym string             `bson:"studentNameAcronym"`
-	State              UserState          `bson:"state"`
+	ID                 int
+	TelegramID         int64
+	DiscordID          string
+	AccessToken        string
+	RefreshToken       string
+	StudentID          int
+	StudentNameAcronym string
+	State              UserState
 }
 
-var collection *mongo.Collection
+var db *sql.DB
 
 func init() {
-	uri := helpers.GetEnv("DATABASE")
-	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(uri))
+	uri := "user=" + helpers.GetEnv("POSTGRES_USER") +
+		" dbname=" + helpers.GetEnv("POSTGRES_DB") +
+		" password=" + helpers.GetEnv("POSTGRES_PASSWORD") +
+		" sslmode=disable"
+
+	var err error
+	db, err = sql.Open("postgres", uri)
 
 	if err != nil {
 		panic(err)
 	}
 
-	collection = client.Database("app").Collection("users")
+	createTable()
 }
 
-func get(filter bson.D) *User {
-	var user User
+func createTable() {
+	query(`
+		CREATE TABLE IF NOT EXISTS users (
+			id SERIAL PRIMARY KEY,
+			telegram_id BIGINT NOT NULL UNIQUE,
+			discord_id TEXT UNIQUE,
+			access_token TEXT,
+			refresh_token VARCHAR(32),
+			student_id INTEGER,
+			student_name_acronym TEXT,
+			state INTEGER NOT NULL
+		)
+	`)
+}
 
-	err := collection.FindOne(context.TODO(), filter).Decode(&user)
+func query(query string, args ...any) {
+	_, err := db.Query(query, args...)
 
 	if err != nil {
-		return nil
+		panic(err)
+	}
+}
+
+func queryRow(query string, args ...any) *User {
+	rows := db.QueryRow(query, args...)
+
+	var user User
+
+	err := rows.Scan(&user.ID, &user.TelegramID, &user.DiscordID, &user.AccessToken, &user.RefreshToken, &user.StudentID, &user.StudentNameAcronym, &user.State)
+
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil
+		}
+
+		panic(err)
 	}
 
 	return &user
 }
 
 func GetByID(id string) *User {
-	objectID, err := primitive.ObjectIDFromHex(id)
-
-	if err != nil {
-		return nil
-	}
-
-	return get(bson.D{{Key: "_id", Value: objectID}})
+	return queryRow("SELECT * FROM users WHERE id = $1", id)
 }
 
 func GetByTelegramID(telegramID int64) *User {
-	return get(bson.D{{Key: "telegramID", Value: telegramID}})
+	return queryRow("SELECT * FROM users WHERE telegram_id = $1", telegramID)
 }
 
 func GetByDiscordID(discordID string) *User {
-	return get(bson.D{{Key: "discordID", Value: discordID}})
-}
-
-func update(user User, update bson.D) {
-	_, err := collection.UpdateOne(context.TODO(), bson.D{{Key: "_id", Value: user.ID}}, bson.D{{Key: "$set", Value: update}})
-
-	if err != nil {
-		panic(err)
-	}
+	return queryRow("SELECT * FROM users WHERE discord_id = $1", discordID)
 }
 
 func (u User) UpdateToken(accessToken string, refreshToken string) {
-	update(u, bson.D{{Key: "accessToken", Value: accessToken}, {Key: "refreshToken", Value: refreshToken}})
+	query("UPDATE users SET access_token = $1, refresh_token = $2 WHERE id = $3", accessToken, refreshToken, u.ID)
 }
 
 func (u User) UpdateState(state UserState) {
-	update(u, bson.D{{Key: "state", Value: state}})
+	query("UPDATE users SET state = $1 WHERE id = $2", state, u.ID)
 }
 
 func (u User) UpdateStudent(studentID int, studentNameAcronym string) {
-	update(u, bson.D{{Key: "studentID", Value: studentID}, {Key: "studentNameAcronym", Value: studentNameAcronym}})
+	query("UPDATE users SET student_id = $1, student_name_acronym = $2 WHERE id = $3", studentID, studentNameAcronym, u.ID)
 }
 
 func (u User) UpdateDiscord(discordID string) {
-	update(u, bson.D{{Key: "discordID", Value: discordID}})
+	query("UPDATE users SET discord_id = $1 WHERE id = $2", discordID, u.ID)
 }

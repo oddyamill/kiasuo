@@ -2,7 +2,7 @@ package commands
 
 import (
 	"github.com/kiasuo/bot/internal/helpers"
-	"github.com/kiasuo/bot/internal/users_sql"
+	"github.com/kiasuo/bot/internal/users"
 	"strconv"
 )
 
@@ -11,11 +11,11 @@ const AdminCommandName string = "-internal-admin"
 func AdminCommand(context Context, responder Responder, formatter Formatter) {
 	user := context.User
 
-	state := map[users_sql.UserState]string{
-		users_sql.Unknown:     "неизвестно",
-		users_sql.Ready:       "готов",
-		users_sql.Pending:     "ожидает",
-		users_sql.Blacklisted: "заблокирован",
+	state := map[users.UserState]string{
+		users.Unknown:     "неизвестно",
+		users.Ready:       "готов",
+		users.Pending:     "ожидает",
+		users.Blacklisted: "заблокирован",
 	}[user.State]
 
 	template := formatter.Title("Панель управления") +
@@ -26,7 +26,7 @@ func AdminCommand(context Context, responder Responder, formatter Formatter) {
 	keyboard := Keyboard{
 		KeyboardRow{
 			KeyboardButton{
-				Text:     helpers.If(user.State == users_sql.Blacklisted, "Разблокировать", "Заблокировать"),
+				Text:     helpers.If(user.State == users.Blacklisted, "Разблокировать", "Заблокировать"),
 				Callback: AdminCommandName + ":blacklist:" + string(rune(user.ID)),
 			},
 		},
@@ -44,8 +44,8 @@ func AdminCommand(context Context, responder Responder, formatter Formatter) {
 func AdminCallback(context Context, responder Responder, formatter Formatter, data []string) {
 	switch data[1] {
 	case "blacklist":
-		isBlacklisted := context.User.State == users_sql.Blacklisted
-		context.User.UpdateState(helpers.If(isBlacklisted, users_sql.Ready, users_sql.Blacklisted))
+		isBlacklisted := context.User.State == users.Blacklisted
+		context.User.UpdateState(helpers.If(isBlacklisted, users.Ready, users.Blacklisted))
 	default:
 		responder.Respond("Неизвестная команда. Меню устарело?")
 		return

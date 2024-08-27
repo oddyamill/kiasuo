@@ -4,14 +4,14 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	"github.com/kiasuo/bot/internal/users_sql"
+	"github.com/kiasuo/bot/internal/users"
 	"net/http"
 )
 
 const BaseUrl = "https://kiasuo-proxy.oddya.ru/diary"
 
 type Client struct {
-	User users_sql.User
+	User users.User
 }
 
 func httpRequest[T any](client Client, request *http.Request) (*http.Response, *T, error) {
