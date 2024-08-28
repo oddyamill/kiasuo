@@ -6,7 +6,6 @@ import (
 	"github.com/kiasuo/bot/internal/helpers"
 	_ "github.com/lib/pq"
 	"log"
-	"os"
 )
 
 type UserState int
@@ -32,8 +31,7 @@ type User struct {
 var db *sql.DB
 
 func init() {
-	// todo
-	if os.Getenv("TESTING") == "true" {
+	if helpers.IsTesting() {
 		return
 	}
 
