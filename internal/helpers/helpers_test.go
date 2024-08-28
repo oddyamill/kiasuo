@@ -64,3 +64,9 @@ func TestGetEnvFile(t *testing.T) {
 		t.Errorf("GetEnv() = %s; want test", value)
 	}
 }
+
+func TestIsTesting(t *testing.T) {
+	if !IsTesting() {
+		t.Errorf("IsTesting() = false; want true")
+	}
+}

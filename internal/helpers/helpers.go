@@ -34,3 +34,12 @@ func GetEnv(key string) string {
 
 	panic("Environment variable " + key + " not set")
 }
+
+func IsTesting() bool {
+	for _, arg := range os.Args {
+		if strings.HasPrefix(arg, "-test.") {
+			return true
+		}
+	}
+	return false
+}
