@@ -2,11 +2,10 @@ package commands
 
 import (
 	"github.com/kiasuo/bot/internal/client"
-	"github.com/kiasuo/bot/internal/helpers"
 	"strconv"
 )
 
-func SettingsCommand(context Context, responder Responder, formatter Formatter) {
+var SettingsCommand = Command(func(context Context, responder Responder, formatter Formatter) error {
 	user := context.User
 
 	keyboard := Keyboard{
@@ -18,27 +17,27 @@ func SettingsCommand(context Context, responder Responder, formatter Formatter) 
 		},
 		KeyboardRow{
 			KeyboardButton{
-				Text:     helpers.If(user.DiscordID == "", "Привязать Discord", "Отвязать Discord"),
+				Text:     "Привязать Discord",
 				Callback: "settings:discord",
 			},
 		},
 	}
 
-	responder.RespondWithKeyboard(keyboard, "Ученик: %s", formatter.Bold(user.StudentNameAcronym))
-}
+	return responder.RespondWithKeyboard(keyboard, "Ученик: %s", formatter.Bold(user.StudentNameAcronym))
+})
 
-func SettingsCallback(context Context, responder Responder, formatter Formatter, data []string) error {
+var SettingsCallback = Callback(func(context Context, responder Responder, formatter Formatter, data []string) error {
 	switch data[1] {
 	case "userStudents":
 		return getUserStudents(context, responder)
 	case "userStudent":
 		return updateUserStudent(context, responder, formatter, data)
 	case "discord":
-		getDiscord(context, responder)
+		return getDiscord(context, responder)
 	}
 
 	return nil
-}
+})
 
 func getName(child client.Child) string {
 	return child.LastName + " " + child.FirstName + " " + child.MiddleName
@@ -56,8 +55,7 @@ func getUserStudents(context Context, responder Responder) error {
 	}
 
 	if len(user.Children) == 0 {
-		responder.Respond("У вас нет детей.")
-		return nil
+		return responder.Respond("У вас нет детей.")
 	}
 
 	keyboard := Keyboard{}
@@ -71,8 +69,7 @@ func getUserStudents(context Context, responder Responder) error {
 		})
 	}
 
-	responder.RespondWithKeyboard(keyboard, "Выберите ребенка из списка:")
-	return nil
+	return responder.RespondWithKeyboard(keyboard, "Выберите ребенка из списка:")
 }
 
 func updateUserStudent(context Context, responder Responder, formatter Formatter, data []string) error {
@@ -84,16 +81,14 @@ func updateUserStudent(context Context, responder Responder, formatter Formatter
 	}
 
 	context.User.UpdateStudent(studentID, studentNameAcronym)
-	responder.Respond("Ученик %s успешно выбран!", formatter.Bold(studentNameAcronym))
-	return nil
+	return responder.Respond("Ученик %s успешно выбран!", formatter.Bold(studentNameAcronym))
 }
 
-func getDiscord(context Context, responder Responder) {
+func getDiscord(context Context, responder Responder) error {
 	if context.User.DiscordID == "" {
-		responder.Respond("Привязка аккаунта Discord пока не доступна.")
-		return
+		return responder.Respond("Привязка аккаунта Discord пока не доступна.")
 	}
 
 	context.User.UpdateDiscord("")
-	responder.Respond("Аккаунт Discord успешно отвязан!")
+	return responder.Respond("Аккаунт Discord успешно отвязан!")
 }

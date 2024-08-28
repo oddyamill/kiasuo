@@ -2,44 +2,47 @@ package commands
 
 import "log"
 
+type Command func(Context, Responder, Formatter) error
+
+var CommandMap = map[string]Command{
+	AdminCommandName: AdminCommand,
+	"start":          StartCommand,
+	"stop":           StopCommand,
+	"settings":       SettingsCommand,
+	"students":       StudentsCommand,
+	"staff":          StaffCommand,
+}
+
+type Callback func(Context, Responder, Formatter, []string) error
+
+var CallbackMap = map[string]Callback{
+	AdminCommandName: AdminCallback,
+	"stop":           StopCallback,
+	"settings":       SettingsCallback,
+}
+
 func HandleCommand(context Context, responder Responder, formatter Formatter) {
-	log.Println("Handling command", context.Command)
+	command := CommandMap[context.Command]
 
-	var err error
-
-	switch context.Command {
-	case AdminCommandName:
-		AdminCommand(context, responder, formatter)
-	case "start":
-		StartCommand(context, responder)
-	case "stop":
-		StopCommand(context, responder)
-	case "settings":
-		SettingsCommand(context, responder, formatter)
-	case "students":
-		err = StudentsCommand(context, responder, formatter)
-	case "staff":
-		err = StaffCommand(context, responder, formatter)
+	if command == nil {
+		log.Println("Someone tried to execute unknown command", context.Command)
+		return
 	}
 
-	handleError(err)
+	log.Println("Handling command", context.Command)
+	handleError(command(context, responder, formatter))
 }
 
 func HandleCallback(context Context, responder Responder, formatter Formatter, data []string) {
-	log.Println("Handling callback", context.Command)
+	callback := CallbackMap[context.Command]
 
-	var err error
-
-	switch context.Command {
-	case AdminCommandName:
-		AdminCallback(context, responder, formatter, data)
-	case "stop":
-		StopCallback(context, responder, formatter, data)
-	case "settings":
-		err = SettingsCallback(context, responder, formatter, data)
+	if callback == nil {
+		log.Println("Someone tried to execute unknown callback", context.Command)
+		return
 	}
 
-	handleError(err)
+	log.Println("Handling callback", context.Command)
+	handleError(callback(context, responder, formatter, data))
 }
 
 func handleError(err error) {

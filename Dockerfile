@@ -39,4 +39,4 @@ USER appuser
 
 COPY --from=build /bin/app /bin/
 
-ENTRYPOINT [ "/bin/app" ]
+ENTRYPOINT ["/bin/app"]

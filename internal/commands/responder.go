@@ -9,8 +9,8 @@ import (
 // TODO
 
 type Responder interface {
-	Respond(template string, a ...any)
-	RespondWithKeyboard(keyboard Keyboard, template string, a ...any)
+	Respond(template string, a ...any) error
+	RespondWithKeyboard(keyboard Keyboard, template string, a ...any) error
 }
 
 type TelegramResponder struct {
@@ -18,7 +18,7 @@ type TelegramResponder struct {
 	Update tgbotapi.Update
 }
 
-func (r TelegramResponder) Respond(template string, a ...any) {
+func (r TelegramResponder) Respond(template string, a ...any) error {
 	text := fmt.Sprintf(template, a...)
 
 	var msg tgbotapi.Chattable
@@ -42,10 +42,11 @@ func (r TelegramResponder) Respond(template string, a ...any) {
 		}
 	}
 
-	r.Bot.Send(msg)
+	_, err := r.Bot.Send(msg)
+	return err
 }
 
-func (r TelegramResponder) RespondWithKeyboard(keyboard Keyboard, template string, a ...any) {
+func (r TelegramResponder) RespondWithKeyboard(keyboard Keyboard, template string, a ...any) error {
 	text := fmt.Sprintf(template, a...)
 	markup := ParseTelegramKeyboard(keyboard)
 
@@ -72,7 +73,8 @@ func (r TelegramResponder) RespondWithKeyboard(keyboard Keyboard, template strin
 		}
 	}
 
-	r.Bot.Send(msg)
+	_, err := r.Bot.Send(msg)
+	return err
 }
 
 type DiscordResponder struct {
@@ -80,10 +82,10 @@ type DiscordResponder struct {
 	Session     *discordgo.Session
 }
 
-func (r DiscordResponder) Respond(template string, a ...any) {
+func (r DiscordResponder) Respond(template string, a ...any) error {
 	text := fmt.Sprintf(template, a...)
 
-	r.Session.InteractionRespond(&r.Interaction, &discordgo.InteractionResponse{
+	return r.Session.InteractionRespond(&r.Interaction, &discordgo.InteractionResponse{
 		Type: discordgo.InteractionResponseChannelMessageWithSource,
 		Data: &discordgo.InteractionResponseData{
 			Content: text,
@@ -92,10 +94,10 @@ func (r DiscordResponder) Respond(template string, a ...any) {
 	})
 }
 
-func (r DiscordResponder) RespondWithKeyboard(keyboard Keyboard, template string, a ...any) {
+func (r DiscordResponder) RespondWithKeyboard(keyboard Keyboard, template string, a ...any) error {
 	text := fmt.Sprintf(template, a...)
 
-	r.Session.InteractionRespond(&r.Interaction, &discordgo.InteractionResponse{
+	return r.Session.InteractionRespond(&r.Interaction, &discordgo.InteractionResponse{
 		Type: discordgo.InteractionResponseChannelMessageWithSource,
 		Data: &discordgo.InteractionResponseData{
 			Content:    text,

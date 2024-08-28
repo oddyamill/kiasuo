@@ -1,6 +1,6 @@
 package commands
 
-func StaffCommand(context Context, responder Responder, formatter Formatter) error {
+var StaffCommand = Command(func(context Context, responder Responder, formatter Formatter) error {
 	recipients, err := context.GetClient().GetRecipients()
 
 	if err != nil {
@@ -21,6 +21,5 @@ func StaffCommand(context Context, responder Responder, formatter Formatter) err
 		}
 	}
 
-	responder.Respond(result)
-	return nil
-}
+	return responder.Respond(result)
+})

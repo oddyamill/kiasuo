@@ -1,6 +1,6 @@
 package commands
 
-func StopCommand(_ Context, responder Responder) {
+var StopCommand = Command(func(_ Context, responder Responder, _ Formatter) error {
 	keyboard := Keyboard{
 		KeyboardRow{
 			KeyboardButton{
@@ -10,9 +10,9 @@ func StopCommand(_ Context, responder Responder) {
 		},
 	}
 
-	responder.RespondWithKeyboard(keyboard, "Нам очень жаль, что Вы решили покинуть нас. Нажмите ниже, чтобы удалить все данные.")
-}
+	return responder.RespondWithKeyboard(keyboard, "Нам очень жаль, что Вы решили покинуть нас. Нажмите ниже, чтобы удалить все данные.")
+})
 
-func StopCallback(_ Context, responder Responder, formatter Formatter, data []string) {
-	responder.Respond("Скоро сделаю!")
-}
+var StopCallback = Callback(func(context Context, responder Responder, formatter Formatter, data []string) error {
+	return responder.Respond("Скоро сделаю!")
+})

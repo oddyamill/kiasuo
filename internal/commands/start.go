@@ -1,5 +1,5 @@
 package commands
 
-func StartCommand(_ Context, responder Responder) {
-	responder.Respond("Привет!")
-}
+var StartCommand = Command(func(_ Context, responder Responder, _ Formatter) error {
+	return responder.Respond("Привет!")
+})
