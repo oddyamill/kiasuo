@@ -15,6 +15,8 @@ jobs:
         with:
           sparse-checkout: "scripts/deploy-commands.sh"
           sparse-checkout-cone-mode: false
+      - name: Set permissions
+        run: git update-index --chmod=+x scripts/deploy-commands.sh
       - name: Deploy commands
         run: scripts/deploy-commands.sh
         env:
