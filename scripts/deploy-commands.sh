@@ -1,6 +1,6 @@
 applicationId=$(curl https://discord.com/api/v10/applications/@me -H "Authorization: $DISCORD" | jq -r '.id')
 
-curl -X PUT "https://discord.com/api/v10/applications/$(applicationId)/commands" \
+curl -X PUT "https://discord.com/api/v10/applications/${applicationId}/commands" \
 	-H "Authorization: $DISCORD" \
 	-H "Content-Type: application/json" \
 	-d '[
