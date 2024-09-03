@@ -49,6 +49,7 @@ func init() {
 
 	log.Println("Connected to database")
 	createTable()
+	createIndex()
 }
 
 func createTable() {
@@ -64,6 +65,11 @@ func createTable() {
 			state INTEGER NOT NULL
 		)
 	`)
+}
+
+func createIndex() {
+	query("CREATE INDEX IF NOT EXISTS telegram_id_index ON users (telegram_id)")
+	query("CREATE INDEX IF NOT EXISTS discord_id_index ON users (discord_id)")
 }
 
 func query(query string, args ...any) {
