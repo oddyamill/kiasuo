@@ -83,11 +83,21 @@ func main() {
 		panic(err)
 	}
 
+	_, err = bot.ApplicationCommandBulkOverwrite(bot.State.User.ID, "", commands.ParseDiscordCommands())
+
+	if err != nil {
+		panic(err)
+	}
+
 	log.Println("Authorized on account", bot.State.User.Username)
 
 	sc := make(chan os.Signal, 1)
 	signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, os.Interrupt)
 	<-sc
 
-	bot.Close()
+	err = bot.Close()
+
+	if err != nil {
+		panic(err)
+	}
 }
