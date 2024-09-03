@@ -16,11 +16,11 @@ var StudentsCommand = Command(func(context Context, responder Responder, formatt
 	}
 
 	sort.Strings(students)
-	result := formatter.Title("Список учеников")
+	result := formatter.Title("Список учеников (%d)")
 
 	for _, student := range students {
 		result += formatter.Item(student)
 	}
 
-	return responder.Respond(result)
+	return responder.Respond(result, len(students))
 })
