@@ -43,3 +43,20 @@ func IsTesting() bool {
 	}
 	return false
 }
+
+func HumanizeLesson(lesson string) string {
+	lesson = strings.TrimSpace(lesson)
+
+	switch strings.ToLower(lesson) {
+	case "основы безопасности жизнедеятельности", "основы безопасности и защиты родины":
+		return "ОБЖ"
+	case "физическая культура":
+		return "Физ-ра"
+	case "алгебра и начала математического анализа":
+		return "Алгебра"
+	case "искусственный интеллект":
+		return "ИИ"
+	default:
+		return lesson
+	}
+}

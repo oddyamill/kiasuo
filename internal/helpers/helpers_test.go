@@ -70,3 +70,25 @@ func TestIsTesting(t *testing.T) {
 		t.Errorf("IsTesting() = false; want true")
 	}
 }
+
+func TestHumanizeLesson(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected string
+	}{
+		{"Основы безопасности жизнедеятельности", "ОБЖ"},
+		{"Основы безопасности и защиты родины", "ОБЖ"},
+		{"Физическая культура", "Физ-ра"},
+		{"Алгебра и начала математического анализа", "Алгебра"},
+		{"Искусственный интеллект", "ИИ"},
+		{"Unknown", "Unknown"},
+	}
+
+	for _, test := range tests {
+		result := HumanizeLesson(test.input)
+
+		if result != test.expected {
+			t.Errorf("HumanizeLesson(%s) = %s; want %s", test.input, result, test.expected)
+		}
+	}
+}
