@@ -21,6 +21,22 @@ func TestIfFalse(t *testing.T) {
 	}
 }
 
+func TestStringToBytes(t *testing.T) {
+	result := StringToBytes("test")
+
+	if string(result) != "test" {
+		t.Errorf("StringToBytes() = %s; want test", result)
+	}
+}
+
+func TestBytesToString(t *testing.T) {
+	result := BytesToString([]byte("test"))
+
+	if result != "test" {
+		t.Errorf("BytesToString() = %s; want test", result)
+	}
+}
+
 func TestGetEnvPath(t *testing.T) {
 	// I think PATH variable is set on every system
 	GetEnv("PATH")

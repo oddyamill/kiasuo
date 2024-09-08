@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"github.com/kiasuo/bot/internal/helpers"
 	"github.com/kiasuo/bot/internal/users"
 	"net/http"
 )
@@ -39,7 +40,7 @@ func httpRequest[T any](client Client, request *http.Request) (*http.Response, *
 }
 
 func RefreshToken(client *Client) error {
-	body := []byte(`{"refresh-token":"` + client.User.RefreshToken + `"}`)
+	body := helpers.StringToBytes(`{"refresh-token":"` + client.User.RefreshToken + `"}`)
 
 	request, err := http.NewRequest("POST", BaseUrl+"/refresh", bytes.NewBuffer(body))
 	request.Header.Set("Content-Type", "application/json")

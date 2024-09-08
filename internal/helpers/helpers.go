@@ -3,6 +3,7 @@ package helpers
 import (
 	"os"
 	"strings"
+	"unsafe"
 )
 
 func If[T any](condition bool, truth, falsity T) T {
@@ -11,6 +12,14 @@ func If[T any](condition bool, truth, falsity T) T {
 	}
 
 	return falsity
+}
+
+func StringToBytes(str string) []byte {
+	return unsafe.Slice(unsafe.StringData(str), len(str))
+}
+
+func BytesToString(bytes []byte) string {
+	return unsafe.String(unsafe.SliceData(bytes), len(bytes))
 }
 
 func GetEnv(key string) string {
@@ -29,7 +38,7 @@ func GetEnv(key string) string {
 			panic(err)
 		}
 
-		return strings.TrimSpace(string(buffer))
+		return strings.TrimSpace(BytesToString(buffer))
 	}
 
 	panic("Environment variable " + key + " not set")
