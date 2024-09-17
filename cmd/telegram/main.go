@@ -65,7 +65,7 @@ func handleMessage(update tgbotapi.Update) {
 		user = users.GetByTelegramID(update.Message.ForwardFrom.ID)
 
 		if user == nil {
-			responder.Respond("Пользователь не зарегистрирован")
+			_ = responder.Respond("Пользователь не зарегистрирован")
 			return
 		}
 
@@ -74,12 +74,12 @@ func handleMessage(update tgbotapi.Update) {
 		user = users.GetByTelegramID(update.Message.From.ID)
 
 		if user == nil {
-			responder.Respond("Ты кто такой? Уйди.")
+			_ = responder.Respond("Ты кто такой? Уйди.")
 			return
 		}
 
 		if user.State != users.Ready {
-			responder.Respond("Пошел отсюда.")
+			_ = responder.Respond("Пошел отсюда.")
 			return
 		}
 
@@ -95,7 +95,7 @@ func handleMessage(update tgbotapi.Update) {
 		User:    *user,
 	}
 
-	formatter := commands.TelegramFormatter{}
+	formatter := helpers.TelegramFormatter{}
 
 	commands.HandleCommand(context, &responder, &formatter)
 }
@@ -125,7 +125,7 @@ func handleCallbackQuery(update tgbotapi.Update) {
 		Update: update,
 	}
 
-	formatter := commands.TelegramFormatter{}
+	formatter := helpers.TelegramFormatter{}
 
 	commands.HandleCallback(context, &responder, &formatter, data)
 }

@@ -8,7 +8,7 @@ import (
 
 const AdminCommandName string = "-internal-admin"
 
-var AdminCommand = Command(func(context Context, responder Responder, formatter Formatter) error {
+var AdminCommand = Command(func(context Context, responder Responder, formatter helpers.Formatter) error {
 	user := context.User
 
 	state := map[users.UserState]string{
@@ -27,7 +27,7 @@ var AdminCommand = Command(func(context Context, responder Responder, formatter 
 		KeyboardRow{
 			KeyboardButton{
 				Text:     helpers.If(user.State == users.Blacklisted, "Разблокировать", "Заблокировать"),
-				Callback: AdminCommandName + ":blacklist:" + string(rune(user.ID)),
+				Callback: AdminCommandName + ":blacklist:" + strconv.Itoa(user.ID),
 			},
 		},
 	}
@@ -41,7 +41,7 @@ var AdminCommand = Command(func(context Context, responder Responder, formatter 
 	)
 })
 
-var AdminCallback = Callback(func(context Context, responder Responder, formatter Formatter, data []string) error {
+var AdminCallback = Callback(func(context Context, responder Responder, formatter helpers.Formatter, data []string) error {
 	switch data[1] {
 	case "blacklist":
 		isBlacklisted := context.User.State == users.Blacklisted

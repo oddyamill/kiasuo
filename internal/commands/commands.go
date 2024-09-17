@@ -3,16 +3,19 @@ package commands
 import (
 	"github.com/bwmarrin/discordgo"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"github.com/kiasuo/bot/internal/helpers"
 	"log"
 )
 
-type Command func(Context, Responder, Formatter) error
+type Command func(Context, Responder, helpers.Formatter) error
 
 var commandMap = map[string]Command{
 	AdminCommandName: AdminCommand,
 	"start":          StartCommand,
 	"stop":           StopCommand,
 	"settings":       SettingsCommand,
+	"schedule":       ScheduleCommand,
+	"marks":          MarksCommand,
 	"classmates":     ClassmatesCommand,
 	"teachers":       TeachersCommand,
 }
@@ -37,6 +40,14 @@ var publicCommands = []commandConfig{
 	{
 		Name:        "settings",
 		Description: "Настройки",
+	},
+	{
+		Name:        "schedule",
+		Description: "Расписание",
+	},
+	{
+		Name:        "marks",
+		Description: "Оценки",
 	},
 	{
 		Name:        "classmates",
@@ -78,15 +89,17 @@ func ParseTelegramCommands() tgbotapi.SetMyCommandsConfig {
 	return tgbotapi.NewSetMyCommands(commands...)
 }
 
-type Callback func(Context, Responder, Formatter, []string) error
+type Callback func(Context, Responder, helpers.Formatter, []string) error
 
 var callbackMap = map[string]Callback{
 	AdminCommandName: AdminCallback,
 	"stop":           StopCallback,
 	"settings":       SettingsCallback,
+	"schedule":       ScheduleCallback,
+	"marks":          MarksCallback,
 }
 
-func HandleCommand(context Context, responder Responder, formatter Formatter) {
+func HandleCommand(context Context, responder Responder, formatter helpers.Formatter) {
 	command := commandMap[context.Command]
 
 	if command == nil {
@@ -95,10 +108,10 @@ func HandleCommand(context Context, responder Responder, formatter Formatter) {
 	}
 
 	log.Println("Handling command", context.Command)
-	handleError(command(context, responder, formatter))
+	handleError(responder, command(context, responder, formatter))
 }
 
-func HandleCallback(context Context, responder Responder, formatter Formatter, data []string) {
+func HandleCallback(context Context, responder Responder, formatter helpers.Formatter, data []string) {
 	callback := callbackMap[context.Command]
 
 	if callback == nil {
@@ -107,11 +120,12 @@ func HandleCallback(context Context, responder Responder, formatter Formatter, d
 	}
 
 	log.Println("Handling callback", context.Command)
-	handleError(callback(context, responder, formatter, data))
+	handleError(responder, callback(context, responder, formatter, data))
 }
 
-func handleError(err error) {
+func handleError(responder Responder, err error) {
 	if err != nil {
 		log.Printf("Error: %v", err)
+		_ = responder.Respond("Произошла ошибка. Попробуйте позже.")
 	}
 }

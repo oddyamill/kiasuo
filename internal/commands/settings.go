@@ -2,10 +2,11 @@ package commands
 
 import (
 	"github.com/kiasuo/bot/internal/client"
+	"github.com/kiasuo/bot/internal/helpers"
 	"strconv"
 )
 
-var SettingsCommand = Command(func(context Context, responder Responder, formatter Formatter) error {
+var SettingsCommand = Command(func(context Context, responder Responder, formatter helpers.Formatter) error {
 	user := context.User
 
 	keyboard := Keyboard{
@@ -26,7 +27,7 @@ var SettingsCommand = Command(func(context Context, responder Responder, formatt
 	return responder.RespondWithKeyboard(keyboard, "Ученик: %s", formatter.Bold(user.StudentNameAcronym))
 })
 
-var SettingsCallback = Callback(func(context Context, responder Responder, formatter Formatter, data []string) error {
+var SettingsCallback = Callback(func(context Context, responder Responder, formatter helpers.Formatter, data []string) error {
 	switch data[1] {
 	case "userStudents":
 		return getUserStudents(context, responder)
@@ -72,7 +73,7 @@ func getUserStudents(context Context, responder Responder) error {
 	return responder.RespondWithKeyboard(keyboard, "Выберите ребенка из списка:")
 }
 
-func updateUserStudent(context Context, responder Responder, formatter Formatter, data []string) error {
+func updateUserStudent(context Context, responder Responder, formatter helpers.Formatter, data []string) error {
 	studentID, err := strconv.Atoi(data[2])
 	studentNameAcronym := data[3]
 

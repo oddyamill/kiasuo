@@ -7,6 +7,8 @@ import (
 	"github.com/kiasuo/bot/internal/helpers"
 	"github.com/kiasuo/bot/internal/users"
 	"net/http"
+	"strconv"
+	"time"
 )
 
 const BaseUrl = "https://kiasuo-proxy.oddya.ru/diary"
@@ -69,7 +71,7 @@ func RefreshToken(client *Client) error {
 	return nil
 }
 
-func ClientRequest[T any](client Client, pathname string, method string) (*T, error) {
+func requestWithClient[T any](client Client, pathname string, method string) (*T, error) {
 	request, err := http.NewRequest(method, BaseUrl+pathname, nil)
 
 	if err != nil {
@@ -100,11 +102,11 @@ func ClientRequest[T any](client Client, pathname string, method string) (*T, er
 }
 
 func (c Client) GetUser() (*User, error) {
-	return ClientRequest[User](c, "/api/user", "GET")
+	return requestWithClient[User](c, "/api/user", "GET")
 }
 
 func (c Client) GetRecipients() (*Recipients, error) {
-	rawRecipients, err := ClientRequest[RawRecipient](c, "/api/recipients", "GET")
+	rawRecipients, err := requestWithClient[RawRecipient](c, "/api/recipients", "GET")
 
 	if err != nil {
 		return nil, err
@@ -112,4 +114,24 @@ func (c Client) GetRecipients() (*Recipients, error) {
 
 	recipients := (*rawRecipients)[c.User.StudentID]
 	return &recipients, nil
+}
+
+func (c Client) GetStudyPeriods() (*[]StudyPeriod, error) {
+	return requestWithClient[[]StudyPeriod](c, "/api/study_periods", "GET")
+}
+
+func (c Client) GetLessons(id int) (*[]Lesson, error) {
+	rawMarks, err := requestWithClient[RawLessons](c, "/api/lesson_marks/"+strconv.Itoa(id), "GET")
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &rawMarks.Lessons, nil
+}
+
+func (c Client) GetSchedule(time time.Time) (*RawSchedule, error) {
+	year, week := time.ISOWeek()
+
+	return requestWithClient[RawSchedule](c, "/api/schedule?year="+strconv.Itoa(year)+"&week="+strconv.Itoa(week), "GET")
 }

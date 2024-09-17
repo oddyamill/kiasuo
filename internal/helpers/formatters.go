@@ -1,10 +1,12 @@
-package commands
+package helpers
 
 type Formatter interface {
 	Title(title string) string
 	Item(item string) string
 	Bold(text string) string
 	Code(text string) string
+	Line(text string) string
+	Link(text, url string) string
 }
 
 type TelegramFormatter struct{}
@@ -25,6 +27,14 @@ func (f TelegramFormatter) Bold(text string) string {
 	return "*" + text + "*"
 }
 
+func (f TelegramFormatter) Line(text string) string {
+	return text + "\n"
+}
+
+func (f TelegramFormatter) Link(text, url string) string {
+	return "[" + text + "](" + url + ")"
+}
+
 type DiscordFormatter struct{}
 
 func (f DiscordFormatter) Title(title string) string {
@@ -41,4 +51,12 @@ func (f DiscordFormatter) Bold(text string) string {
 
 func (f DiscordFormatter) Code(text string) string {
 	return "`" + text + "`"
+}
+
+func (f DiscordFormatter) Line(text string) string {
+	return text + "\n"
+}
+
+func (f DiscordFormatter) Link(text, url string) string {
+	return "[" + text + "](" + url + ")"
 }

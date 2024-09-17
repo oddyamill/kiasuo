@@ -53,12 +53,12 @@ func main() {
 		}
 
 		if user == nil {
-			responder.Respond("Ты кто такой? Cъебал.")
+			_ = responder.Respond("Ты кто такой? Cъебал.")
 			return
 		}
 
 		if user.State != users.Ready {
-			responder.Respond("Пошел нахуй.")
+			_ = responder.Respond("Пошел нахуй.")
 			return
 		}
 
@@ -67,9 +67,9 @@ func main() {
 			User:    *user,
 		}
 
-		formatter := commands.DiscordFormatter{}
+		formatter := helpers.DiscordFormatter{}
 
-		if len(data) != 0 {
+		if len(data) > 0 {
 			commands.HandleCallback(context, &responder, &formatter, data)
 			return
 		}

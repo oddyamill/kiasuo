@@ -6,6 +6,7 @@ import (
 	"github.com/kiasuo/bot/internal/helpers"
 	_ "github.com/lib/pq"
 	"log"
+	"time"
 )
 
 type UserState int
@@ -26,6 +27,7 @@ type User struct {
 	StudentID          int
 	StudentNameAcronym string
 	State              UserState
+	LastMarksUpdate    time.Time
 }
 
 var db *sql.DB
@@ -62,7 +64,8 @@ func createTable() {
 			refresh_token VARCHAR(32),
 			student_id INTEGER,
 			student_name_acronym TEXT,
-			state INTEGER NOT NULL
+			state INTEGER NOT NULL,
+		  last_marks_update TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 		)
 	`)
 }
@@ -85,7 +88,7 @@ func queryRow(query string, args ...any) *User {
 
 	var user User
 
-	err := rows.Scan(&user.ID, &user.TelegramID, &user.DiscordID, &user.AccessToken, &user.RefreshToken, &user.StudentID, &user.StudentNameAcronym, &user.State)
+	err := rows.Scan(&user.ID, &user.TelegramID, &user.DiscordID, &user.AccessToken, &user.RefreshToken, &user.StudentID, &user.StudentNameAcronym, &user.State, &user.LastMarksUpdate)
 
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -124,4 +127,8 @@ func (u User) UpdateStudent(studentID int, studentNameAcronym string) {
 
 func (u User) UpdateDiscord(discordID string) {
 	query("UPDATE users SET discord_id = $1 WHERE id = $2", discordID, u.ID)
+}
+
+func (u User) UpdateLastMarksUpdate() {
+	query("UPDATE users SET last_marks_update = CURRENT_TIMESTAMP WHERE id = $1", u.ID)
 }

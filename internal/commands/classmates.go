@@ -1,8 +1,11 @@
 package commands
 
-import "sort"
+import (
+	"github.com/kiasuo/bot/internal/helpers"
+	"sort"
+)
 
-var ClassmatesCommand = Command(func(context Context, responder Responder, formatter Formatter) error {
+var ClassmatesCommand = Command(func(context Context, responder Responder, formatter helpers.Formatter) error {
 	recipients, err := context.GetClient().GetRecipients()
 
 	if err != nil {

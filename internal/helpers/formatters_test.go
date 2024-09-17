@@ -1,4 +1,4 @@
-package commands
+package helpers
 
 import "testing"
 
@@ -39,6 +39,22 @@ func TestTelegramFormatterCode(t *testing.T) {
 	}
 }
 
+func TestTelegramFormatterLine(t *testing.T) {
+	result := telegramFormatter.Line("test")
+
+	if result != "test\n" {
+		t.Errorf("TelegramFormatter.Line() = %s; want test\n", result)
+	}
+}
+
+func TestTelegramFormatterLink(t *testing.T) {
+	result := telegramFormatter.Link("test", "http://example.com")
+
+	if result != "[test](http://example.com)" {
+		t.Errorf("TelegramFormatter.Link() = %s; want [test](http://example.com)", result)
+	}
+}
+
 func TestDiscordFormatterTitle(t *testing.T) {
 	result := discordFormatter.Title("test")
 
@@ -68,5 +84,21 @@ func TestDiscordFormatterCode(t *testing.T) {
 
 	if result != "`test`" {
 		t.Errorf("DiscordFormatter.Code() = %s; want `test`", result)
+	}
+}
+
+func TestDiscordFormatterLine(t *testing.T) {
+	result := discordFormatter.Line("test")
+
+	if result != "test\n" {
+		t.Errorf("DiscordFormatter.Line() = %s; want test\n", result)
+	}
+}
+
+func TestDiscordFormatterLink(t *testing.T) {
+	result := discordFormatter.Link("test", "http://example.com")
+
+	if result != "[test](http://example.com)" {
+		t.Errorf("DiscordFormatter.Link() = %s; want [test](http://example.com)", result)
 	}
 }

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-var TeachersCommand = Command(func(context Context, responder Responder, formatter Formatter) error {
+var TeachersCommand = Command(func(context Context, responder Responder, formatter helpers.Formatter) error {
 	recipients, err := context.GetClient().GetRecipients()
 
 	if err != nil {
