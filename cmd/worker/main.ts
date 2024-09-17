@@ -6,7 +6,7 @@ function proxy(url: URL, request: Request, cf?: CfProperties) {
 		cf,
 	}
 
-	if (request.method === 'POST') {
+	if (request.method === "POST") {
 		init.body = request.body
 	}
 
