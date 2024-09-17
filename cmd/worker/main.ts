@@ -2,9 +2,12 @@ function proxy(url: URL, request: Request, cf?: CfProperties) {
 	const init: RequestInit = {
 		headers: request.headers,
 		method: request.method,
-		body: request.body,
 		redirect: "manual",
 		cf,
+	}
+
+	if (request.method === 'POST') {
+		init.body = request.body
 	}
 
 	return fetch(url, init)
