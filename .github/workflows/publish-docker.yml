@@ -19,6 +19,7 @@ jobs:
       contents: read
       packages: write
       id-token: write
+    name: Build image for ${{ matrix.target }}
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
       - name: Checkout repository
