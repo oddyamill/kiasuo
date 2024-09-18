@@ -4,10 +4,9 @@ import (
 	"fmt"
 	"github.com/bwmarrin/discordgo"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"github.com/kiasuo/bot/internal/helpers"
 	"strings"
 )
-
-// TODO
 
 type Responder interface {
 	Write(template string, a ...any) Responder
@@ -28,7 +27,7 @@ func (r *TelegramResponder) Write(template string, a ...any) Responder {
 	return r
 }
 
-func (r TelegramResponder) Respond() error {
+func (r *TelegramResponder) Respond() error {
 	var msg tgbotapi.Chattable
 	markup := ParseTelegramKeyboard(r.Keyboard)
 
@@ -46,7 +45,7 @@ func (r TelegramResponder) Respond() error {
 			BaseEdit: tgbotapi.BaseEdit{
 				ChatID:      r.Update.CallbackQuery.Message.Chat.ID,
 				MessageID:   r.Update.CallbackQuery.Message.MessageID,
-				ReplyMarkup: &markup,
+				ReplyMarkup: markup,
 			},
 			Text:      r.Builder.String(),
 			ParseMode: tgbotapi.ModeMarkdown,
@@ -75,9 +74,13 @@ func (r *DiscordResponder) Write(template string, a ...any) Responder {
 	return r
 }
 
-func (r DiscordResponder) Respond() error {
+func (r *DiscordResponder) Respond() error {
 	return r.Session.InteractionRespond(&r.Interaction, &discordgo.InteractionResponse{
-		Type: discordgo.InteractionResponseChannelMessageWithSource,
+		Type: helpers.If(
+			r.Interaction.Type == discordgo.InteractionApplicationCommand,
+			discordgo.InteractionResponseChannelMessageWithSource,
+			discordgo.InteractionResponseUpdateMessage,
+		),
 		Data: &discordgo.InteractionResponseData{
 			Content:    r.Builder.String(),
 			Flags:      discordgo.MessageFlagsEphemeral,

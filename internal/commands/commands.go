@@ -108,7 +108,7 @@ func HandleCommand(context Context, responder Responder, formatter helpers.Forma
 	}
 
 	log.Println("Handling command", context.Command)
-	handleError(responder, command(context, responder, formatter))
+	handleError(command(context, responder, formatter))
 }
 
 func HandleCallback(context Context, responder Responder, formatter helpers.Formatter, data []string) {
@@ -120,19 +120,11 @@ func HandleCallback(context Context, responder Responder, formatter helpers.Form
 	}
 
 	log.Println("Handling callback", context.Command)
-	handleError(responder, callback(context, responder, formatter, data))
+	handleError(callback(context, responder, formatter, data))
 }
 
-func handleError(responder Responder, err error) {
-	if err == nil {
-		//err = responder.Respond()
-
-		//if err == nil {
-		//	return
-		//}
-
-		return
+func handleError(err error) {
+	if err != nil {
+		log.Printf("Error: %v", err)
 	}
-
-	log.Printf("Error: %v", err)
 }
