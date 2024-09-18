@@ -66,8 +66,8 @@ func TestDiscordFormatterTitle(t *testing.T) {
 func TestDiscordFormatterItem(t *testing.T) {
 	result := discordFormatter.Item("test")
 
-	if result != "- test\n" {
-		t.Errorf("DiscordFormatter.Item() = %s; want - test\n", result)
+	if result != "  - test\n" {
+		t.Errorf("DiscordFormatter.Item() = %s; want   - test\n", result)
 	}
 }
 
