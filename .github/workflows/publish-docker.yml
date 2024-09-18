@@ -3,7 +3,7 @@ name: Publish Docker image
 on:
   workflow_run:
     types: [completed]
-    workflows: ["Test"]
+    workflows: [Test]
 
 env:
   REGISTRY: ghcr.io
@@ -20,7 +20,7 @@ jobs:
       packages: write
       id-token: write
     name: Build image for ${{ matrix.target }}
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    if: ${{ github.event.workflow_run.event != 'pull_request' && github.event.workflow_run.conclusion == 'success' }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4

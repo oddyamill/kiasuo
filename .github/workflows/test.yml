@@ -4,6 +4,9 @@ on:
   push:
     branches: [master]
     paths: ["**/*.go", "go.mod", "go.sum", "Dockerfile", ".github/workflows/test.yml", ".github/workflows/publish-docker.yml"]
+  pull_request:
+    branches: [master]
+    paths: ["**/*.go", "go.mod", "go.sum", "Dockerfile", ".github/workflows/test.yml", ".github/workflows/publish-docker.yml"]
 
 jobs:
   test:
@@ -14,6 +17,6 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: "1.22.6"
+          go-version-file: "go.mod"
       - name: Test
         run: go test -v ./...
