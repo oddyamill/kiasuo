@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/bwmarrin/discordgo"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
-	"github.com/kiasuo/bot/internal/helpers"
 	"strings"
 )
 
@@ -75,21 +74,46 @@ func (r *DiscordResponder) Write(template string, a ...any) Responder {
 }
 
 func (r *DiscordResponder) Respond() error {
-	return r.Session.InteractionRespond(&r.Interaction, &discordgo.InteractionResponse{
-		Type: helpers.If(
-			r.Interaction.Type == discordgo.InteractionApplicationCommand,
-			discordgo.InteractionResponseChannelMessageWithSource,
-			discordgo.InteractionResponseUpdateMessage,
-		),
-		Data: &discordgo.InteractionResponseData{
-			Content:    r.Builder.String(),
-			Flags:      discordgo.MessageFlagsEphemeral,
-			Components: ParseDiscordKeyboard(r.Keyboard),
-		},
+	content := r.Builder.String()
+	components := ParseDiscordKeyboard(r.Keyboard)
+
+	_, err := r.Session.InteractionResponseEdit(&r.Interaction, &discordgo.WebhookEdit{
+		Content:    &content,
+		Components: &components,
 	})
+
+	return err
 }
 
 func (r *DiscordResponder) RespondWithKeyboard(keyboard Keyboard) error {
 	r.Keyboard = keyboard
 	return r.Respond()
+}
+
+func (r *DiscordResponder) RespondWithDefer() error {
+	if r.Interaction.Type == discordgo.InteractionApplicationCommand {
+		return r.Session.InteractionRespond(&r.Interaction, &discordgo.InteractionResponse{
+			Type: discordgo.InteractionResponseDeferredChannelMessageWithSource,
+			Data: &discordgo.InteractionResponseData{
+				Flags: discordgo.MessageFlagsEphemeral,
+			},
+		})
+	} else {
+		for _, component := range r.Interaction.Message.Components {
+			row := component.(*discordgo.ActionsRow)
+
+			for _, button := range row.Components {
+				btn := button.(*discordgo.Button)
+				btn.Disabled = true
+			}
+		}
+
+		return r.Session.InteractionRespond(&r.Interaction, &discordgo.InteractionResponse{
+			Type: discordgo.InteractionResponseUpdateMessage,
+			Data: &discordgo.InteractionResponseData{
+				Content:    r.Interaction.Message.Content,
+				Components: r.Interaction.Message.Components,
+			},
+		})
+	}
 }

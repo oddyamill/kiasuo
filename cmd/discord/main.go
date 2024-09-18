@@ -52,6 +52,13 @@ func main() {
 			Session:     session,
 		}
 
+		err = responder.RespondWithDefer()
+
+		if err != nil {
+			log.Println(err)
+			return
+		}
+
 		if user == nil {
 			_ = responder.Write("Ты кто такой? Cъебал.").Respond()
 			return
