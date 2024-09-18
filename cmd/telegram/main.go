@@ -65,7 +65,7 @@ func handleMessage(update tgbotapi.Update) {
 		user = users.GetByTelegramID(update.Message.ForwardFrom.ID)
 
 		if user == nil {
-			_ = responder.Respond("Пользователь не зарегистрирован")
+			_ = responder.Write("Пользователь не зарегистрирован").Respond()
 			return
 		}
 
@@ -74,12 +74,12 @@ func handleMessage(update tgbotapi.Update) {
 		user = users.GetByTelegramID(update.Message.From.ID)
 
 		if user == nil {
-			_ = responder.Respond("Ты кто такой? Уйди.")
+			_ = responder.Write("Ты кто такой? Уйди.").Respond()
 			return
 		}
 
-		if user.State != users.Ready {
-			_ = responder.Respond("Пошел отсюда.")
+		if !user.IsReady() {
+			_ = responder.Write("Пошел отсюда.").Respond()
 			return
 		}
 

@@ -11,7 +11,10 @@ import (
 	"time"
 )
 
-const BaseUrl = "https://kiasuo-proxy.oddya.ru/diary"
+const (
+	PublicUrl = "https://dnevnik.kiasuo.ru"
+	BaseUrl   = "https://kiasuo-proxy.oddya.ru/diary"
+)
 
 type Client struct {
 	User users.User

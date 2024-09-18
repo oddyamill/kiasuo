@@ -2,7 +2,6 @@ package commands
 
 import (
 	"github.com/kiasuo/bot/internal/helpers"
-	"strings"
 	"time"
 )
 
@@ -27,23 +26,21 @@ func scheduleCommand(context Context, responder Responder, formatter helpers.For
 	}
 
 	if len(data.Schedule) == 0 {
-		return responder.RespondWithKeyboard(keyboard, "Расписания нет. Отдыхаем?")
+		return responder.Write("Расписания нет. Отдыхаем?").RespondWithKeyboard(keyboard)
 	}
 
-	var result strings.Builder
-	result.WriteString(formatter.Title("Расписание"))
 	date := ""
 
 	for _, event := range data.Schedule {
 		if event.LessonDate != date {
-			result.WriteString(formatter.Title(formatDate(event.Date())))
+			responder.Write(formatter.Title(formatDate(event.Date())))
 			date = event.LessonDate
 		}
 
-		result.WriteString(formatter.Line(event.String()))
+		responder.Write(formatter.Line(event.String()))
 
 		if len(event.Marks) > 0 {
-			marks := "Оценки: "
+			marks := ""
 
 			for i, mark := range event.Marks {
 				if i > 0 {
@@ -53,7 +50,7 @@ func scheduleCommand(context Context, responder Responder, formatter helpers.For
 				marks += mark.Mark
 			}
 
-			result.WriteString(formatter.Item(marks))
+			responder.Write(formatter.Item("Оценки: " + formatter.Code(marks)))
 		}
 
 		for _, homeworkId := range event.Homeworks {
@@ -63,21 +60,21 @@ func scheduleCommand(context Context, responder Responder, formatter helpers.For
 				}
 
 				if homework.Text != "" {
-					result.WriteString(formatter.Item(homework.Text))
+					responder.Write(formatter.Item(homework.Text))
 				}
 
 				for _, file := range homework.Files {
-					result.WriteString(formatter.Item(file.String(formatter)))
+					responder.Write(formatter.Item(file.String(formatter)))
 				}
 
 				for _, link := range homework.Links {
-					result.WriteString(formatter.Item(link.String(formatter)))
+					responder.Write(formatter.Item(link.String(formatter)))
 				}
 			}
 		}
 	}
 
-	return responder.RespondWithKeyboard(keyboard, result.String())
+	return responder.RespondWithKeyboard(keyboard)
 }
 
 var ScheduleCommand = Command(func(context Context, responder Responder, formatter helpers.Formatter) error {

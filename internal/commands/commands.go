@@ -124,8 +124,15 @@ func HandleCallback(context Context, responder Responder, formatter helpers.Form
 }
 
 func handleError(responder Responder, err error) {
-	if err != nil {
-		log.Printf("Error: %v", err)
-		_ = responder.Respond("Произошла ошибка. Попробуйте позже.")
+	if err == nil {
+		//err = responder.Respond()
+
+		//if err == nil {
+		//	return
+		//}
+
+		return
 	}
+
+	log.Printf("Error: %v", err)
 }

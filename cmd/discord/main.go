@@ -53,12 +53,12 @@ func main() {
 		}
 
 		if user == nil {
-			_ = responder.Respond("Ты кто такой? Cъебал.")
+			_ = responder.Write("Ты кто такой? Cъебал.").Respond()
 			return
 		}
 
-		if user.State != users.Ready {
-			_ = responder.Respond("Пошел нахуй.")
+		if !user.IsReady() {
+			_ = responder.Write("Пошел нахуй.").Respond()
 			return
 		}
 

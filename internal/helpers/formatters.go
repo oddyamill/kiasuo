@@ -42,7 +42,7 @@ func (f DiscordFormatter) Title(title string) string {
 }
 
 func (f DiscordFormatter) Item(item string) string {
-	return "- " + item + "\n"
+	return "**•** " + item + "\n"
 }
 
 func (f DiscordFormatter) Bold(text string) string {

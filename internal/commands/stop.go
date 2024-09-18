@@ -12,9 +12,11 @@ var StopCommand = Command(func(_ Context, responder Responder, _ helpers.Formatt
 		},
 	}
 
-	return responder.RespondWithKeyboard(keyboard, "Нам очень жаль, что Вы решили покинуть нас. Нажмите ниже, чтобы удалить все данные.")
+	return responder.
+		Write("Нам очень жаль, что Вы решили покинуть нас. Нажмите ниже, чтобы удалить все данные.").
+		RespondWithKeyboard(keyboard)
 })
 
 var StopCallback = Callback(func(context Context, responder Responder, formatter helpers.Formatter, data []string) error {
-	return responder.Respond("Скоро сделаю!")
+	return responder.Write(`Скоро сделаю!`).Respond()
 })
