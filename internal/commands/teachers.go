@@ -13,8 +13,6 @@ var TeachersCommand = Command(func(context Context, responder Responder, formatt
 		return err
 	}
 
-	result := ""
-
 	roles := make([]string, 0, len(recipients.Staff))
 
 	for role := range recipients.Staff {
@@ -28,14 +26,14 @@ var TeachersCommand = Command(func(context Context, responder Responder, formatt
 			continue
 		}
 
-		result += formatter.Title(role)
+		responder.Write(formatter.Title(role))
 
 		for staff := range recipients.Staff[role] {
-			result += formatter.Item(formatTeacher(staff))
+			responder.Write(formatter.Item(formatTeacher(staff)))
 		}
 	}
 
-	return responder.Respond(result)
+	return responder.Respond()
 })
 
 func formatTeacher(staff string) string {

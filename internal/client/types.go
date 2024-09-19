@@ -120,7 +120,7 @@ type File struct {
 }
 
 func (f File) String(formatter helpers.Formatter) string {
-	return formatter.Link(f.Title, f.Url)
+	return formatter.Link(f.Title, PublicUrl+f.Url)
 }
 
 type Link struct {

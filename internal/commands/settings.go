@@ -24,7 +24,7 @@ var SettingsCommand = Command(func(context Context, responder Responder, formatt
 		},
 	}
 
-	return responder.RespondWithKeyboard(keyboard, "Ученик: %s", formatter.Bold(user.StudentNameAcronym))
+	return responder.Write("Ученик: " + formatter.Bold(user.StudentNameAcronym)).RespondWithKeyboard(keyboard)
 })
 
 var SettingsCallback = Callback(func(context Context, responder Responder, formatter helpers.Formatter, data []string) error {
@@ -56,7 +56,7 @@ func getUserStudents(context Context, responder Responder) error {
 	}
 
 	if len(user.Children) == 0 {
-		return responder.Respond("У вас нет детей.")
+		return responder.Write("У вас нет детей.").Respond()
 	}
 
 	keyboard := Keyboard{}
@@ -70,7 +70,7 @@ func getUserStudents(context Context, responder Responder) error {
 		})
 	}
 
-	return responder.RespondWithKeyboard(keyboard, "Выберите ребенка из списка:")
+	return responder.Write("Выберите ученика из списка:").RespondWithKeyboard(keyboard)
 }
 
 func updateUserStudent(context Context, responder Responder, formatter helpers.Formatter, data []string) error {
@@ -82,14 +82,17 @@ func updateUserStudent(context Context, responder Responder, formatter helpers.F
 	}
 
 	context.User.UpdateStudent(studentID, studentNameAcronym)
-	return responder.Respond("Ученик %s успешно выбран!", formatter.Bold(studentNameAcronym))
+
+	return responder.
+		Write("Ученик %s успешно выбран!", formatter.Bold(studentNameAcronym)).
+		Respond()
 }
 
 func getDiscord(context Context, responder Responder) error {
 	if context.User.DiscordID == "" {
-		return responder.Respond("Привязка аккаунта Discord пока не доступна.")
+		return responder.Write("Привязка аккаунта Discord пока не доступна.").Respond()
 	}
 
 	context.User.UpdateDiscord("")
-	return responder.Respond("Аккаунт Discord успешно отвязан!")
+	return responder.Write("Аккаунт Discord успешно отвязан!").Respond()
 }

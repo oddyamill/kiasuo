@@ -4,7 +4,6 @@ import (
 	"github.com/kiasuo/bot/internal/client"
 	"github.com/kiasuo/bot/internal/helpers"
 	"strconv"
-	"strings"
 	"time"
 )
 
@@ -33,7 +32,7 @@ func marksCommand(context Context, responder Responder, formatter helpers.Format
 	keyboard := Keyboard{row}
 
 	if period == nil {
-		return responder.RespondWithKeyboard(keyboard, "Каникулы?")
+		return responder.Write("Каникулы?").RespondWithKeyboard(keyboard)
 	}
 
 	marks, err := context.GetClient().GetLessons(period.ID)
@@ -42,8 +41,7 @@ func marksCommand(context Context, responder Responder, formatter helpers.Format
 		return err
 	}
 
-	var result strings.Builder
-	result.WriteString(formatter.Title("Оценки за " + period.Text))
+	responder.Write(formatter.Title("Оценки за " + period.Text))
 
 	for _, lesson := range *marks {
 		line := lesson.String()
@@ -68,11 +66,12 @@ func marksCommand(context Context, responder Responder, formatter helpers.Format
 			line += ": " + formatter.Code("-")
 		}
 
-		result.WriteString(formatter.Item(line))
+		responder.Write(formatter.Item(line))
 	}
 
 	context.User.UpdateLastMarksUpdate()
-	return responder.RespondWithKeyboard(keyboard, result.String())
+
+	return responder.RespondWithKeyboard(keyboard)
 }
 
 var MarksCommand = Command(func(context Context, responder Responder, formatter helpers.Formatter) error {

@@ -2,7 +2,7 @@ package commands
 
 import (
 	"github.com/kiasuo/bot/internal/helpers"
-	"sort"
+	"slices"
 )
 
 var ClassmatesCommand = Command(func(context Context, responder Responder, formatter helpers.Formatter) error {
@@ -18,12 +18,12 @@ var ClassmatesCommand = Command(func(context Context, responder Responder, forma
 		students = append(students, student)
 	}
 
-	sort.Strings(students)
-	result := formatter.Title("Список учеников (%d)")
+	slices.Sort(students)
+	responder.Write(formatter.Title("Список учеников (%d)"), len(students))
 
 	for _, student := range students {
-		result += formatter.Item(student)
+		responder.Write(formatter.Item(student))
 	}
 
-	return responder.Respond(result, len(students))
+	return responder.Respond()
 })

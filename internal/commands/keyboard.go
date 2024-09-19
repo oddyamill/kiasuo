@@ -14,7 +14,13 @@ type KeyboardButton struct {
 	Callback string
 }
 
-func ParseTelegramKeyboard(keyboard Keyboard) (tgKeyboard tgbotapi.InlineKeyboardMarkup) {
+func ParseTelegramKeyboard(keyboard Keyboard) *tgbotapi.InlineKeyboardMarkup {
+	if len(keyboard) == 0 {
+		return nil
+	}
+
+	result := &tgbotapi.InlineKeyboardMarkup{}
+
 	for _, row := range keyboard {
 		var buttons []tgbotapi.InlineKeyboardButton
 
@@ -22,13 +28,13 @@ func ParseTelegramKeyboard(keyboard Keyboard) (tgKeyboard tgbotapi.InlineKeyboar
 			buttons = append(buttons, tgbotapi.NewInlineKeyboardButtonData(button.Text, button.Callback))
 		}
 
-		tgKeyboard.InlineKeyboard = append(tgKeyboard.InlineKeyboard, buttons)
+		result.InlineKeyboard = append(result.InlineKeyboard, buttons)
 	}
 
-	return
+	return result
 }
 
-func ParseDiscordKeyboard(keyboard Keyboard) (dgKeyboard []discordgo.MessageComponent) {
+func ParseDiscordKeyboard(keyboard Keyboard) (result []discordgo.MessageComponent) {
 	for _, row := range keyboard {
 		var components []discordgo.MessageComponent
 
@@ -39,7 +45,7 @@ func ParseDiscordKeyboard(keyboard Keyboard) (dgKeyboard []discordgo.MessageComp
 			})
 		}
 
-		dgKeyboard = append(dgKeyboard, discordgo.ActionsRow{
+		result = append(result, discordgo.ActionsRow{
 			Components: components,
 		})
 	}

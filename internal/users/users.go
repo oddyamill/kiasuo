@@ -30,6 +30,10 @@ type User struct {
 	LastMarksUpdate    time.Time
 }
 
+func (u User) IsReady() bool {
+	return u.State == Ready
+}
+
 var db *sql.DB
 
 func init() {

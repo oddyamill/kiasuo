@@ -50,6 +50,7 @@ func IsTesting() bool {
 			return true
 		}
 	}
+
 	return false
 }
 

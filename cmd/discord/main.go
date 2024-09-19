@@ -52,13 +52,20 @@ func main() {
 			Session:     session,
 		}
 
-		if user == nil {
-			_ = responder.Respond("Ты кто такой? Cъебал.")
+		err = responder.RespondWithDefer()
+
+		if err != nil {
+			log.Println(err)
 			return
 		}
 
-		if user.State != users.Ready {
-			_ = responder.Respond("Пошел нахуй.")
+		if user == nil {
+			_ = responder.Write("Ты кто такой? Cъебал.").Respond()
+			return
+		}
+
+		if !user.IsReady() {
+			_ = responder.Write("Пошел нахуй.").Respond()
 			return
 		}
 

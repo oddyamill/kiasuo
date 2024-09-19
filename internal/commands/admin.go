@@ -18,10 +18,10 @@ var AdminCommand = Command(func(context Context, responder Responder, formatter 
 		users.Blacklisted: "заблокирован",
 	}[user.State]
 
-	template := formatter.Title("Панель управления") +
-		formatter.Item("Telegram: %s") +
-		formatter.Item("Discord: %s") +
-		formatter.Item("Статус: %s")
+	text := formatter.Title("Панель управления") +
+		formatter.Item("Telegram: "+strconv.FormatInt(user.TelegramID, 10)) +
+		formatter.Item("Discord: "+helpers.If(user.DiscordID == "", "не указан", user.DiscordID)) +
+		formatter.Item("Статус: "+state)
 
 	keyboard := Keyboard{
 		KeyboardRow{
@@ -32,13 +32,7 @@ var AdminCommand = Command(func(context Context, responder Responder, formatter 
 		},
 	}
 
-	return responder.RespondWithKeyboard(
-		keyboard,
-		template,
-		formatter.Code(strconv.FormatInt(user.TelegramID, 10)),
-		formatter.Code(helpers.If(user.DiscordID == "", "не указан", user.DiscordID)),
-		formatter.Code(state),
-	)
+	return responder.Write(text).RespondWithKeyboard(keyboard)
 })
 
 var AdminCallback = Callback(func(context Context, responder Responder, formatter helpers.Formatter, data []string) error {
@@ -47,7 +41,7 @@ var AdminCallback = Callback(func(context Context, responder Responder, formatte
 		isBlacklisted := context.User.State == users.Blacklisted
 		context.User.UpdateState(helpers.If(isBlacklisted, users.Ready, users.Blacklisted))
 	default:
-		return responder.Respond("Неизвестная команда. Меню устарело?")
+		return responder.Write("Неизвестная команда. Меню устарело?").Respond()
 	}
 
 	return AdminCommand(context, responder, formatter)
