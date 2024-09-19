@@ -17,7 +17,7 @@ const (
 )
 
 type Client struct {
-	User users.User
+	User *users.User
 }
 
 func httpRequest[T any](client Client, request *http.Request) (*http.Response, *T, error) {
@@ -68,33 +68,39 @@ func RefreshToken(client *Client) error {
 		return errors.New("empty response")
 	}
 
-	client.User.AccessToken = result.AccessToken
-	client.User.RefreshToken = result.RefreshToken
 	client.User.UpdateToken(result.AccessToken, result.RefreshToken)
 	return nil
 }
 
-func requestWithClient[T any](client Client, pathname string, method string) (*T, error) {
+func requestWithClient[T any](client *Client, pathname string, method string) (*T, error) {
 	request, err := http.NewRequest(method, BaseUrl+pathname, nil)
 
 	if err != nil {
 		return nil, err
 	}
 
-	response, result, err := httpRequest[T](client, request)
+	if client.User.IsTokenExpired() {
+		err = RefreshToken(client)
+
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	response, result, err := httpRequest[T](*client, request)
 
 	if err != nil {
 		return nil, err
 	}
 
 	if response.StatusCode == http.StatusUnauthorized {
-		err = RefreshToken(&client)
+		err = RefreshToken(client)
 
 		if err != nil {
 			return nil, err
 		}
 
-		_, result, err = httpRequest[T](client, request)
+		_, result, err = httpRequest[T](*client, request)
 
 		if err != nil {
 			return nil, err
@@ -104,11 +110,11 @@ func requestWithClient[T any](client Client, pathname string, method string) (*T
 	return result, nil
 }
 
-func (c Client) GetUser() (*User, error) {
+func (c *Client) GetUser() (*User, error) {
 	return requestWithClient[User](c, "/api/user", "GET")
 }
 
-func (c Client) GetRecipients() (*Recipients, error) {
+func (c *Client) GetRecipients() (*Recipients, error) {
 	rawRecipients, err := requestWithClient[RawRecipient](c, "/api/recipients", "GET")
 
 	if err != nil {
@@ -119,11 +125,11 @@ func (c Client) GetRecipients() (*Recipients, error) {
 	return &recipients, nil
 }
 
-func (c Client) GetStudyPeriods() (*[]StudyPeriod, error) {
+func (c *Client) GetStudyPeriods() (*[]StudyPeriod, error) {
 	return requestWithClient[[]StudyPeriod](c, "/api/study_periods", "GET")
 }
 
-func (c Client) GetLessons(id int) (*[]Lesson, error) {
+func (c *Client) GetLessons(id int) (*[]Lesson, error) {
 	rawMarks, err := requestWithClient[RawLessons](c, "/api/lesson_marks/"+strconv.Itoa(id), "GET")
 
 	if err != nil {
@@ -133,7 +139,7 @@ func (c Client) GetLessons(id int) (*[]Lesson, error) {
 	return &rawMarks.Lessons, nil
 }
 
-func (c Client) GetSchedule(time time.Time) (*RawSchedule, error) {
+func (c *Client) GetSchedule(time time.Time) (*RawSchedule, error) {
 	year, week := time.ISOWeek()
 
 	return requestWithClient[RawSchedule](c, "/api/schedule?year="+strconv.Itoa(year)+"&week="+strconv.Itoa(week), "GET")

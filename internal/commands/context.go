@@ -10,6 +10,6 @@ type Context struct {
 	User    users.User
 }
 
-func (c Context) GetClient() client.Client {
-	return client.Client{User: c.User}
+func (c *Context) GetClient() *client.Client {
+	return &client.Client{User: &c.User}
 }

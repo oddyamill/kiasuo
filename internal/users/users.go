@@ -2,10 +2,13 @@ package users
 
 import (
 	"database/sql"
+	"encoding/base64"
+	"encoding/json"
 	"errors"
 	"github.com/kiasuo/bot/internal/helpers"
 	_ "github.com/lib/pq"
 	"log"
+	"strings"
 	"time"
 )
 
@@ -28,10 +31,6 @@ type User struct {
 	StudentNameAcronym string
 	State              UserState
 	LastMarksUpdate    time.Time
-}
-
-func (u User) IsReady() bool {
-	return u.State == Ready
 }
 
 var db *sql.DB
@@ -92,7 +91,17 @@ func queryRow(query string, args ...any) *User {
 
 	var user User
 
-	err := rows.Scan(&user.ID, &user.TelegramID, &user.DiscordID, &user.AccessToken, &user.RefreshToken, &user.StudentID, &user.StudentNameAcronym, &user.State, &user.LastMarksUpdate)
+	err := rows.Scan(
+		&user.ID,
+		&user.TelegramID,
+		&user.DiscordID,
+		&user.AccessToken,
+		&user.RefreshToken,
+		&user.StudentID,
+		&user.StudentNameAcronym,
+		&user.State,
+		&user.LastMarksUpdate,
+	)
 
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -117,22 +126,61 @@ func GetByDiscordID(discordID string) *User {
 	return queryRow("SELECT * FROM users WHERE discord_id = $1", discordID)
 }
 
-func (u User) UpdateToken(accessToken string, refreshToken string) {
+func (u *User) IsReady() bool {
+	return u.State == Ready
+}
+
+func (u *User) UpdateToken(accessToken string, refreshToken string) {
+	u.AccessToken = accessToken
+	u.RefreshToken = refreshToken
 	query("UPDATE users SET access_token = $1, refresh_token = $2 WHERE id = $3", accessToken, refreshToken, u.ID)
 }
 
-func (u User) UpdateState(state UserState) {
+func (u *User) UpdateState(state UserState) {
 	query("UPDATE users SET state = $1 WHERE id = $2", state, u.ID)
 }
 
-func (u User) UpdateStudent(studentID int, studentNameAcronym string) {
+func (u *User) UpdateStudent(studentID int, studentNameAcronym string) {
 	query("UPDATE users SET student_id = $1, student_name_acronym = $2 WHERE id = $3", studentID, studentNameAcronym, u.ID)
 }
 
-func (u User) UpdateDiscord(discordID string) {
+func (u *User) UpdateDiscord(discordID string) {
 	query("UPDATE users SET discord_id = $1 WHERE id = $2", discordID, u.ID)
 }
 
-func (u User) UpdateLastMarksUpdate() {
+func (u *User) UpdateLastMarksUpdate() {
 	query("UPDATE users SET last_marks_update = CURRENT_TIMESTAMP WHERE id = $1", u.ID)
+}
+
+func (u *User) IsTokenExpired() bool {
+	segments := strings.Split(u.AccessToken, ".")
+
+	if len(segments) != 3 {
+		return true
+	}
+
+	raw := segments[1]
+	padding := len(raw) % 4
+
+	if padding > 0 {
+		raw += strings.Repeat("=", 4-padding)
+	}
+
+	plain, err := base64.StdEncoding.DecodeString(raw)
+
+	if err != nil {
+		return true
+	}
+
+	var tokenPayload struct {
+		Exp int `json:"exp"`
+	}
+
+	err = json.Unmarshal(plain, &tokenPayload)
+
+	if err != nil {
+		return true
+	}
+
+	return time.Unix(int64(tokenPayload.Exp), 0).Before(time.Now())
 }
