@@ -4,7 +4,7 @@ import { test, expect, beforeAll, afterEach } from "vitest"
 let mocked = false
 
 beforeAll(async () => {
-	const response = await fetch("https://cloudflare.com/cdn-cgi/trace")
+	const response = await fetch("https://1.1.1.1/cdn-cgi/trace")
 
 	if (!(await response.text()).includes("loc=RU")) {
 		mocked = true
