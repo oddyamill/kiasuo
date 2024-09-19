@@ -1,12 +1,45 @@
-import { SELF } from "cloudflare:test"
-import { test, expect } from "vitest"
+import { fetchMock, SELF } from "cloudflare:test"
+import { test, expect, beforeAll, afterEach } from "vitest"
+
+let mocked = false
+
+beforeAll(async () => {
+	const response = await fetch("https://cloudflare.com/cdn-cgi/trace")
+
+	if (!(await response.text()).includes("loc=RU")) {
+		mocked = true
+		fetchMock.activate();
+		fetchMock.disableNetConnect();
+	}
+
+	console.log("mocked:", mocked)
+})
+
+afterEach(() => mocked && fetchMock.assertNoPendingInterceptors())
 
 test("worker must responds with 401", async () => {
+	fetchMock
+		.get("https://dnevnik.kiasuo.ru")
+		.intercept({ path: "/diary/api/schedule" })
+		.reply(401);
+
 	const response = await SELF.fetch("https://example.com/diary/api/schedule")
 	expect(response.status).toBe(401)
 })
 
 test("worker must response with 404", async () => {
+	fetchMock
+		.get("https://dnevnik.kiasuo.ru")
+		.intercept({ path: "/diary/api/unknown" })
+		.reply(404, `
+			<body>
+					<div class="dialog">
+							<h1>Страница не найдена</h1>
+							<p>Страница, которую Вы пытаетесь посмотреть не найдена. Возможно, Вы ошиблись при наборе адреса или страница была удалена с сайта.</p>
+					</div>
+			</body>
+		`)
+
 	const response = await SELF.fetch("https://example.com/diary/api/unknown")
 	expect(await response.text())
 		.include("Страница не найдена")

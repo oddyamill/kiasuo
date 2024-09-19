@@ -1,14 +1,15 @@
 name: Deploy worker
 
 on:
-  push:
-    branches: [master]
-    paths: ["**/*.ts", "**/*.json", "wrangler.toml", ".github/workflows/deploy-worker.yml"]
+  workflow_run:
+    types: [completed]
+    workflows: [Test worker]
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     name: Deploy
+    if: ${{ github.event.workflow_run.event != 'pull_request' && github.event.workflow_run.conclusion == 'success' }}
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v4

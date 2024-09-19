@@ -3,7 +3,7 @@ name: Publish Docker image
 on:
   workflow_run:
     types: [completed]
-    workflows: [Test]
+    workflows: [Test apps]
 
 env:
   REGISTRY: ghcr.io
