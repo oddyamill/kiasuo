@@ -6,8 +6,7 @@ let mocked = false
 beforeAll(async () => {
 	const response = await fetch("https://1.1.1.1/cdn-cgi/trace")
 
-	if (!(await response.text()).includes("loc=RU")) {
-		mocked = true
+	if ((mocked = !(await response.text()).includes("loc=RU"))) {
 		fetchMock.activate();
 		fetchMock.disableNetConnect();
 	}
