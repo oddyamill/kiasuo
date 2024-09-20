@@ -4,6 +4,7 @@ on:
   workflow_run:
     workflows: [Publish Docker image]
     types: [completed]
+  workflow_dispatch:
 
 env:
   REGISTRY: ghcr.io
@@ -58,6 +59,8 @@ jobs:
           POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
           POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
           POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+        :
+          tags: ${{ fromJSON(steps.meta.outputs.json).tags }}
         run: |
           docker compose pull
           docker compose -f compose.prod.yaml up -d
