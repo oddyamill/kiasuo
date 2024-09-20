@@ -21,8 +21,11 @@ env.ps1
 .dev.vars
 
 # ide
-.idea
-.vscode
+.idea/shelf/
+.idea/workspace.xml
+.idea/httpRequests/
+.idea/dataSources/
+.idea/dataSources.local.xml
 
 # dependency directories
 node_modules/
