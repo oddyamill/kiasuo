@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 
 ARG GO_VERSION=1.22.6
-FROM --platform=$BUILDPLATFORM golang:${GO_VERSION} AS build
+FROM --platform=$BUILDPLATFORM golang:${GO_VERSION}-alpine AS build
 WORKDIR /src
 
 RUN --mount=type=cache,target=/go/pkg/mod/ \
