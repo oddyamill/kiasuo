@@ -152,6 +152,10 @@ func (u *User) UpdateLastMarksUpdate() {
 	query("UPDATE users SET last_marks_update = CURRENT_TIMESTAMP WHERE id = $1", u.ID)
 }
 
+func (u *User) Delete() {
+	query("DELETE FROM users WHERE id = $1", u.ID)
+}
+
 func (u *User) IsTokenExpired() bool {
 	segments := strings.Split(u.AccessToken, ".")
 

@@ -18,5 +18,6 @@ var StopCommand = Command(func(_ Context, responder Responder, _ helpers.Formatt
 })
 
 var StopCallback = Callback(func(context Context, responder Responder, formatter helpers.Formatter, data []string) error {
-	return responder.Write("Скоро сделаю!").Respond()
+	context.User.Delete()
+	return responder.Write("Все данные удалены. Если захотите вернуться, напишите /start").Respond()
 })
