@@ -2,16 +2,20 @@ services:
   telegram:
     image: ${TELEGRAM_IMAGE_REF}
     environment:
-      - DATABASE=${DATABASE}
       - TELEGRAM=${TELEGRAM}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     depends_on:
       postgres:
         condition: service_healthy
   discord:
     image: ${DISCORD_IMAGE_REF}
     environment:
-      - DATABASE=${DATABASE}
       - DISCORD=${DISCORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     depends_on:
       postgres:
         condition: service_healthy
