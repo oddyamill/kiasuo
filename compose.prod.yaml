@@ -4,8 +4,31 @@ services:
     environment:
       - DATABASE=${DATABASE}
       - TELEGRAM=${TELEGRAM}
+    depends_on:
+      postgres:
+        condition: service_healthy
   discord:
     image: ${DISCORD_IMAGE_REF}
     environment:
       - DATABASE=${DATABASE}
       - DISCORD=${DISCORD}
+    depends_on:
+      postgres:
+        condition: service_healthy
+  postgres:
+    image: postgres:alpine
+    restart: always
+    user: postgres
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    env_file:
+      - .env
+    expose:
+      - 5432
+    ports:
+      - 5432:5432
+    healthcheck:
+      test: ["CMD", "pg_isready", "-d", "$POSTGRES_DB", "-U", "$POSTGRES_USER"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
