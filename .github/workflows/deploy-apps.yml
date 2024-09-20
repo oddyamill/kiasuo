@@ -2,9 +2,8 @@ name: Deploy apps
 
 on:
   workflow_run:
-    workflows: [Publish Docker image]
+    workflows: [Build apps]
     types: [completed]
-  workflow_dispatch:
 
 env:
   REGISTRY: ghcr.io
@@ -56,7 +55,6 @@ jobs:
           DISCORD_IMAGE_REF: ${{ fromJSON(steps.meta.outputs.json).tags[1] }}
           TELEGRAM: ${{ secrets.TELEGRAM }}
           DISCORD: ${{ secrets.DISCORD }}
-          POSTGRES_HOST: postgres
           POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
           POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
           POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
