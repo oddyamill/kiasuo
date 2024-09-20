@@ -40,7 +40,8 @@ func init() {
 		return
 	}
 
-	uri := "user=" + helpers.GetEnv("POSTGRES_USER") +
+	uri := "host=" + helpers.GetEnv("POSTGRES_HOST") +
+		" user=" + helpers.GetEnv("POSTGRES_USER") +
 		" dbname=" + helpers.GetEnv("POSTGRES_DB") +
 		" password=" + helpers.GetEnv("POSTGRES_PASSWORD") +
 		" sslmode=disable"
