@@ -3,10 +3,22 @@ name: Test apps
 on:
   push:
     branches: [master]
-    paths: ["**/*.go", "go.mod", "go.sum", "Dockerfile", ".github/workflows/test.yml", ".github/workflows/publish-docker.yml"]
+    paths:
+      - "**/*.go"
+      - go.mod
+      - go.sum
+      - Dockerfile
+      - .github/workflows/test-apps.yml
+      - .github/workflows/build-apps.yml
   pull_request:
     branches: [master]
-    paths: ["**/*.go", "go.mod", "go.sum", "Dockerfile", ".github/workflows/test.yml", ".github/workflows/publish-docker.yml"]
+    paths:
+      - "**/*.go"
+      - go.mod
+      - go.sum
+      - Dockerfile
+      - .github/workflows/test-apps.yml
+      - .github/workflows/build-apps.yml
 
 jobs:
   test:

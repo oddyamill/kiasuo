@@ -3,10 +3,20 @@ name: Test worker
 on:
   push:
     branches: [master]
-    paths: ["**/*.ts", "**/*.json", "wrangler.toml", ".github/workflows/deploy-worker.yml"]
+    paths:
+      - "**/*.ts"
+      - "**/*.json"
+      - wrangler.toml
+      - .github/workflows/deploy-worker.yml
+      - .github/workflows/test-worker.yml
   pull_request:
     branches: [master]
-    paths: ["**/*.ts", "**/*.json", "wrangler.toml", ".github/workflows/deploy-worker.yml"]
+    paths:
+      - "**/*.ts"
+      - "**/*.json"
+      - wrangler.toml
+      - .github/workflows/deploy-worker.yml
+      - .github/workflows/test-worker.yml
 
 jobs:
   test:
