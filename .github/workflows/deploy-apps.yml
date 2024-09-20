@@ -60,5 +60,5 @@ jobs:
           POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
           POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
         run: |
-          docker compose pull
+          docker compose -f compose.prod.yaml pull
           docker compose -f compose.prod.yaml up -d
