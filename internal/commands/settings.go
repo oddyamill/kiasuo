@@ -15,10 +15,8 @@ var SettingsCommand = Command(func(context Context, responder Responder, formatt
 				Text:     "Выбрать ученика",
 				Callback: "settings:userStudents",
 			},
-		},
-		KeyboardRow{
 			KeyboardButton{
-				Text:     "Привязать Discord",
+				Text:     helpers.If(user.DiscordID == "", "Привязать", "Отвязать") + " Discord",
 				Callback: "settings:discord",
 			},
 		},

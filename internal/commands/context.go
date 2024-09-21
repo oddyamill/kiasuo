@@ -6,8 +6,9 @@ import (
 )
 
 type Context struct {
-	Command string
-	User    users.User
+	Command   string
+	Arguments string
+	User      users.User
 }
 
 func (c *Context) GetClient() *client.Client {
