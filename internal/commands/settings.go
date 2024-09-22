@@ -22,7 +22,9 @@ var SettingsCommand = Command(func(context Context, responder Responder, formatt
 		},
 	}
 
-	return responder.Write("Ученик: " + formatter.Bold(user.StudentNameAcronym)).RespondWithKeyboard(keyboard)
+	return responder.
+		Write("Ученик: " + formatter.Bold(user.StudentNameAcronym.Decrypt())).
+		RespondWithKeyboard(keyboard)
 })
 
 var SettingsCallback = Callback(func(context Context, responder Responder, formatter helpers.Formatter, data []string) error {

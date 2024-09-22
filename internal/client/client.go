@@ -21,7 +21,7 @@ type Client struct {
 }
 
 func httpRequest[T any](client Client, request *http.Request) (*http.Response, *T, error) {
-	request.Header.Set("Authorization", "Bearer "+client.User.AccessToken)
+	request.Header.Set("Authorization", "Bearer "+client.User.AccessToken.Decrypt())
 	response, err := http.DefaultClient.Do(request)
 
 	if err != nil {
@@ -45,7 +45,7 @@ func httpRequest[T any](client Client, request *http.Request) (*http.Response, *
 }
 
 func RefreshToken(client *Client) error {
-	body := helpers.StringToBytes(`{"refresh-token":"` + client.User.RefreshToken + `"}`)
+	body := helpers.StringToBytes(`{"refresh-token":"` + client.User.RefreshToken.Decrypt() + `"}`)
 
 	request, err := http.NewRequest("POST", BaseUrl+"/refresh", bytes.NewBuffer(body))
 	request.Header.Set("Content-Type", "application/json")

@@ -2,6 +2,7 @@ package commands
 
 import (
 	"github.com/kiasuo/bot/internal/client"
+	"github.com/kiasuo/bot/internal/crypto"
 	"github.com/kiasuo/bot/internal/helpers"
 )
 
@@ -9,7 +10,7 @@ var StartCommand = Command(func(context Context, responder Responder, _ helpers.
 	token := context.Arguments
 
 	if len(token) == 32 {
-		context.User.RefreshToken = token
+		context.User.RefreshToken = crypto.Encrypt(token)
 		err := client.RefreshToken(context.GetClient())
 
 		if err != nil {

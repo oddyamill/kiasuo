@@ -5,11 +5,13 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"errors"
-	"github.com/kiasuo/bot/internal/helpers"
-	_ "github.com/lib/pq"
 	"log"
 	"strings"
 	"time"
+
+	"github.com/kiasuo/bot/internal/crypto"
+	"github.com/kiasuo/bot/internal/helpers"
+	_ "github.com/lib/pq"
 )
 
 type UserState int
@@ -25,10 +27,10 @@ type User struct {
 	ID                 int
 	TelegramID         int64
 	DiscordID          string
-	AccessToken        string
-	RefreshToken       string
+	AccessToken        crypto.Crypt
+	RefreshToken       crypto.Crypt
 	StudentID          int
-	StudentNameAcronym string
+	StudentNameAcronym crypto.Crypt
 	State              UserState
 	LastMarksUpdate    time.Time
 }
@@ -56,6 +58,7 @@ func init() {
 	log.Println("Connected to database")
 	createTable()
 	createIndex()
+	runMigration()
 }
 
 func createTable() {
@@ -65,7 +68,7 @@ func createTable() {
 			telegram_id BIGINT NOT NULL UNIQUE,
 			discord_id TEXT UNIQUE,
 			access_token TEXT,
-			refresh_token VARCHAR(32),
+			refresh_token VARCHAR(96),
 			student_id INTEGER,
 			student_name_acronym TEXT,
 			state INTEGER NOT NULL,
@@ -77,6 +80,19 @@ func createTable() {
 func createIndex() {
 	query("CREATE INDEX IF NOT EXISTS telegram_id_index ON users (telegram_id)")
 	query("CREATE INDEX IF NOT EXISTS discord_id_index ON users (discord_id)")
+}
+
+func runMigration() {
+	//query("ALTER TABLE users ALTER COLUMN refresh_token TYPE VARCHAR(96)")
+	//
+	//user := GetByID("1")
+	//
+	//if user == nil {
+	//	return
+	//}
+	//
+	//user.UpdateToken(user.AccessToken.Encrypted, user.RefreshToken.Encrypted)
+	//user.UpdateStudent(user.StudentID, user.StudentNameAcronym.Encrypted)
 }
 
 func query(query string, args ...any) {
@@ -132,9 +148,15 @@ func (u *User) IsReady() bool {
 }
 
 func (u *User) UpdateToken(accessToken string, refreshToken string) {
-	u.AccessToken = accessToken
-	u.RefreshToken = refreshToken
-	query("UPDATE users SET access_token = $1, refresh_token = $2 WHERE id = $3", accessToken, refreshToken, u.ID)
+	u.AccessToken = crypto.Encrypt(accessToken)
+	u.RefreshToken = crypto.Encrypt(refreshToken)
+
+	query(
+		"UPDATE users SET access_token = $1, refresh_token = $2 WHERE id = $3",
+		u.AccessToken.Encrypted,
+		u.RefreshToken.Encrypted,
+		u.ID,
+	)
 }
 
 func (u *User) UpdateState(state UserState) {
@@ -142,7 +164,12 @@ func (u *User) UpdateState(state UserState) {
 }
 
 func (u *User) UpdateStudent(studentID int, studentNameAcronym string) {
-	query("UPDATE users SET student_id = $1, student_name_acronym = $2 WHERE id = $3", studentID, studentNameAcronym, u.ID)
+	query(
+		"UPDATE users SET student_id = $1, student_name_acronym = $2 WHERE id = $3",
+		studentID,
+		crypto.Encrypt(studentNameAcronym).Encrypted,
+		u.ID,
+	)
 }
 
 func (u *User) UpdateDiscord(discordID string) {
@@ -158,7 +185,7 @@ func (u *User) Delete() {
 }
 
 func (u *User) IsTokenExpired() bool {
-	segments := strings.Split(u.AccessToken, ".")
+	segments := strings.Split(u.AccessToken.Decrypt(), ".")
 
 	if len(segments) != 3 {
 		return true
