@@ -83,16 +83,18 @@ func createIndex() {
 }
 
 func runMigration() {
-	//query("ALTER TABLE users ALTER COLUMN refresh_token TYPE VARCHAR(96)")
-	//
-	//user := GetByID("1")
-	//
-	//if user == nil {
-	//	return
-	//}
-	//
-	//user.UpdateToken(user.AccessToken.Encrypted, user.RefreshToken.Encrypted)
-	//user.UpdateStudent(user.StudentID, user.StudentNameAcronym.Encrypted)
+	query("ALTER TABLE users ALTER COLUMN refresh_token TYPE VARCHAR(96)")
+
+	user := GetByID("1")
+
+	if user == nil {
+		return
+	}
+
+	if len(user.RefreshToken.Encrypted) == 32 {
+		user.UpdateToken(user.AccessToken.Encrypted, user.RefreshToken.Encrypted)
+		user.UpdateStudent(user.StudentID, user.StudentNameAcronym.Encrypted)
+	}
 }
 
 func query(query string, args ...any) {
