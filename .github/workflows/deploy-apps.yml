@@ -57,7 +57,6 @@ jobs:
           TELEGRAM: ${{ secrets.TELEGRAM }}
           DISCORD: ${{ secrets.DISCORD }}
           CRYPTO: ${{ secrets.CRYPTO }}
-          POSTGRES_HOST: postgres
           POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
           POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
           POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}

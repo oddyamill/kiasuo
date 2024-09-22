@@ -4,7 +4,7 @@ services:
     environment:
       - TELEGRAM=${TELEGRAM}
       - CRYPTO=${CRYPTO}
-      - POSTGRES_HOST=${POSTGRES_HOST}
+      - POSTGRES_HOST=postgres
       - POSTGRES_DB=${POSTGRES_DB}
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
@@ -15,8 +15,8 @@ services:
     image: ${DISCORD_IMAGE_REF}
     environment:
       - DISCORD=${DISCORD}
-      - CRYPTO:${CRYPTO}
-      - POSTGRES_HOST=${POSTGRES_HOST}
+      - CRYPTO=${CRYPTO}
+      - POSTGRES_HOST=postgres
       - POSTGRES_DB=${POSTGRES_DB}
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
