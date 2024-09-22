@@ -58,7 +58,6 @@ func init() {
 	log.Println("Connected to database")
 	createTable()
 	createIndex()
-	runMigration()
 }
 
 func createTable() {
@@ -80,21 +79,6 @@ func createTable() {
 func createIndex() {
 	query("CREATE INDEX IF NOT EXISTS telegram_id_index ON users (telegram_id)")
 	query("CREATE INDEX IF NOT EXISTS discord_id_index ON users (discord_id)")
-}
-
-func runMigration() {
-	query("ALTER TABLE users ALTER COLUMN refresh_token TYPE VARCHAR(96)")
-
-	user := GetByID("1")
-
-	if user == nil {
-		return
-	}
-
-	if len(user.RefreshToken.Encrypted) == 32 {
-		user.UpdateToken(user.AccessToken.Encrypted, user.RefreshToken.Encrypted)
-		user.UpdateStudent(user.StudentID, user.StudentNameAcronym.Encrypted)
-	}
 }
 
 func query(query string, args ...any) {
