@@ -21,7 +21,10 @@ jobs:
       packages: write
       id-token: write
     name: Build image for ${{ matrix.target }}
-    if: ${{ github.event.workflow_run.event != 'pull_request' && github.event.workflow_run.conclusion == 'success' }}
+    if: ${{
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.event != 'pull_request' && github.event.workflow_run.conclusion == 'success')
+      }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
