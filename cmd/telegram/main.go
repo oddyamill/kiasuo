@@ -48,8 +48,9 @@ func main() {
 
 func handleMessage(update tgbotapi.Update) {
 	var (
-		user    *users.User
-		command string
+		user      *users.User
+		command   string
+		arguments string
 	)
 
 	responder := commands.TelegramResponder{
@@ -83,7 +84,7 @@ func handleMessage(update tgbotapi.Update) {
 			return
 		}
 
-		command = update.Message.Command()
+		command, arguments = update.Message.Command(), update.Message.CommandArguments()
 	}
 
 	if command == "" {
@@ -91,8 +92,9 @@ func handleMessage(update tgbotapi.Update) {
 	}
 
 	context := commands.Context{
-		Command: command,
-		User:    *user,
+		Command:   command,
+		Arguments: arguments,
+		User:      *user,
 	}
 
 	formatter := helpers.TelegramFormatter{}

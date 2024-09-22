@@ -29,12 +29,7 @@ type commandConfig struct {
 var publicCommands = []commandConfig{
 	{
 		Name:         "start",
-		Description:  "Начать работу",
-		TelegramOnly: true,
-	},
-	{
-		Name:         "stop",
-		Description:  "Завершить работу с ботом",
+		Description:  "Начать",
 		TelegramOnly: true,
 	},
 	{
@@ -56,6 +51,11 @@ var publicCommands = []commandConfig{
 	{
 		Name:        "teachers",
 		Description: "Список учителей",
+	},
+	{
+		Name:         "stop",
+		Description:  "Остановить",
+		TelegramOnly: true,
 	},
 }
 
