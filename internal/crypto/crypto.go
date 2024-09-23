@@ -82,7 +82,7 @@ func (c *Crypt) Scan(src any) error {
 	text, ok := src.(string)
 
 	if !ok {
-		return errors.New("type assertion .([]byte) failed")
+		return errors.New("type assertion .(string) failed")
 	}
 
 	c.Encrypted = text

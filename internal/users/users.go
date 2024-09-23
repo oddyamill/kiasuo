@@ -133,7 +133,7 @@ func (u *User) IsReady() bool {
 	return u.State == Ready
 }
 
-func (u *User) UpdateToken(accessToken string, refreshToken string) {
+func (u *User) UpdateToken(accessToken, refreshToken string) {
 	u.AccessToken = crypto.Encrypt(accessToken)
 	u.RefreshToken = crypto.Encrypt(refreshToken)
 

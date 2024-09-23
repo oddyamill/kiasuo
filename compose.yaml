@@ -1,6 +1,7 @@
 services:
   telegram:
     image: ${TELEGRAM_IMAGE_REF}
+    restart: always
     environment:
       - TELEGRAM_FILE=/run/secrets/telegram
       - CRYPTO_FILE=/run/secrets/crypto

@@ -13,7 +13,7 @@ import (
 
 const (
 	PublicUrl = "https://dnevnik.kiasuo.ru"
-	BaseUrl   = "https://kiasuo-proxy.oddya.ru/diary"
+	ApiUrl    = "https://kiasuo-proxy.oddya.ru/diary"
 )
 
 type Client struct {
@@ -47,7 +47,7 @@ func httpRequest[T any](client Client, request *http.Request) (*http.Response, *
 func RefreshToken(client *Client) error {
 	body := helpers.StringToBytes(`{"refresh-token":"` + client.User.RefreshToken.Decrypt() + `"}`)
 
-	request, err := http.NewRequest("POST", BaseUrl+"/refresh", bytes.NewBuffer(body))
+	request, err := http.NewRequest("POST", ApiUrl+"/refresh", bytes.NewBuffer(body))
 	request.Header.Set("Content-Type", "application/json")
 
 	if err != nil {
@@ -73,7 +73,7 @@ func RefreshToken(client *Client) error {
 }
 
 func requestWithClient[T any](client *Client, pathname string, method string) (*T, error) {
-	request, err := http.NewRequest(method, BaseUrl+pathname, nil)
+	request, err := http.NewRequest(method, ApiUrl+pathname, nil)
 
 	if err != nil {
 		return nil, err
