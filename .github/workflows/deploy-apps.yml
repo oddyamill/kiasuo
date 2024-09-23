@@ -23,7 +23,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          sparse-checkout: compose.prod.yaml
+          sparse-checkout: compose.yaml
           sparse-checkout-cone-mode: false
       - name: Log into registry ${{ env.REGISTRY }}
         uses: docker/login-action@v3.0.0
@@ -54,12 +54,6 @@ jobs:
           TUNNEL_SERVICE_TOKEN_SECRET: ${{ secrets.CLOUDFLARE_ACCESS_SECRET }}
           TELEGRAM_IMAGE_REF: ${{ fromJSON(steps.meta.outputs.json).tags[0] }}
           DISCORD_IMAGE_REF: ${{ fromJSON(steps.meta.outputs.json).tags[1] }}
-          TELEGRAM: ${{ secrets.TELEGRAM }}
-          DISCORD: ${{ secrets.DISCORD }}
-          CRYPTO: ${{ secrets.CRYPTO }}
-          POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
-          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
-          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
         run: |
-          docker compose -f compose.prod.yaml pull
-          docker compose -f compose.prod.yaml up -d
+          docker compose pull
+          docker compose up -d
