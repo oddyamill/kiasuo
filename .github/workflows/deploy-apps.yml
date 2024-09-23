@@ -4,6 +4,7 @@ on:
   workflow_run:
     workflows: [Build apps]
     types: [completed]
+  workflow_dispatch:
 
 env:
   REGISTRY: ghcr.io
@@ -14,7 +15,10 @@ env:
 jobs:
   deploy:
     name: Deploy
-    if: ${{ github.event.workflow_run.event != 'pull_request' && github.event.workflow_run.conclusion == 'success' }}
+    if: ${{
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.event != 'pull_request' && github.event.workflow_run.conclusion == 'success')
+      }}
     runs-on: ubuntu-latest
     permissions:
       packages: read
