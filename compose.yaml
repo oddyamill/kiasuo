@@ -53,12 +53,12 @@ services:
       retries: 5
 secrets:
   telegram:
-    file: ~/.kiasuo-secrets/telegram.txt
+    file: /~/.kiasuo-secrets/telegram.txt
   discord:
-    file: ~/.kiasuo-secrets/discord.txt
+    file: /~/.kiasuo-secrets/discord.txt
   crypto:
-    file: ~/.kiasuo-secrets/crypto.txt
+    file: /~/.kiasuo-secrets/crypto.txt
   postgres:
-    file: ~/.kiasuo-secrets/postgres.txt
+    file: /~/.kiasuo-secrets/postgres.txt
 volumes:
   postgres-data:
