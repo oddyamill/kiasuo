@@ -75,12 +75,12 @@ func handleMessage(update tgbotapi.Update) {
 		user = users.GetByTelegramID(update.Message.From.ID)
 
 		if user == nil {
-			_ = responder.Write("Ты кто такой? Уйди.").Respond()
+			_ = responder.Write("Да, привет.").Respond()
 			return
 		}
 
 		if !user.IsReady() {
-			_ = responder.Write("Пошел отсюда.").Respond()
+			_ = responder.Write("Токен обнови.").Respond()
 			return
 		}
 

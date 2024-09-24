@@ -60,12 +60,12 @@ func main() {
 		}
 
 		if user == nil {
-			_ = responder.Write("Ты кто такой? Cъебал.").Respond()
+			_ = responder.Write("Ты кто?").Respond()
 			return
 		}
 
 		if !user.IsReady() {
-			_ = responder.Write("Пошел нахуй.").Respond()
+			_ = responder.Write("Токен обнови.").Respond()
 			return
 		}
 
