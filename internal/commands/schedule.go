@@ -2,6 +2,7 @@ package commands
 
 import (
 	"github.com/kiasuo/bot/internal/helpers"
+	"strings"
 	"time"
 )
 
@@ -59,8 +60,14 @@ func scheduleCommand(context Context, responder Responder, formatter helpers.For
 					continue
 				}
 
-				if homework.Text != "" {
-					responder.Write(formatter.Item(homework.Text))
+				text := homework.String()
+
+				if text != "" {
+					if strings.Contains(text, "\n") {
+						responder.Write(formatter.Item(formatter.Block(text)))
+					} else {
+						responder.Write(formatter.Item(text))
+					}
 				}
 
 				for _, file := range homework.Files {

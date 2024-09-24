@@ -3,6 +3,7 @@ package client
 import (
 	"github.com/kiasuo/bot/internal/helpers"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -112,6 +113,14 @@ type Homework struct {
 	Text  string `json:"text"`
 	Files []File `json:"files"`
 	Links []Link `json:"links"`
+}
+
+func (h Homework) String() string {
+	if h.Text == "Без задания" {
+		return ""
+	}
+
+	return strings.TrimSpace(h.Text)
 }
 
 type File struct {

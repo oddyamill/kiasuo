@@ -39,6 +39,20 @@ func TestTelegramFormatterCode(t *testing.T) {
 	}
 }
 
+func TestTelegramFormatterBlock(t *testing.T) {
+	result := telegramFormatter.Block("test")
+
+	if result != "`test`" {
+		t.Errorf("TelegramFormatter.Block() = %s; want `test`", result)
+	}
+
+	result = telegramFormatter.Block("test\ntest")
+
+	if result != "`test\n test`" {
+		t.Errorf("TelegramFormatter.Block() = %s; want `test\n test`", result)
+	}
+}
+
 func TestTelegramFormatterLine(t *testing.T) {
 	result := telegramFormatter.Line("test")
 
@@ -84,6 +98,20 @@ func TestDiscordFormatterCode(t *testing.T) {
 
 	if result != "`test`" {
 		t.Errorf("DiscordFormatter.Code() = %s; want `test`", result)
+	}
+}
+
+func TestDiscordFormatterBlock(t *testing.T) {
+	result := discordFormatter.Block("test")
+
+	if result != "```test```" {
+		t.Errorf("DiscordFormatter.Block() = %s; want ```test```", result)
+	}
+
+	result = discordFormatter.Block("test\ntest")
+
+	if result != "```test\n    test```" {
+		t.Errorf("DiscordFormatter.Block() = %s; want ```test\n    test```", result)
 	}
 }
 
