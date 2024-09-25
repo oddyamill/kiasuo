@@ -77,11 +77,17 @@ func (r *DiscordResponder) Respond() error {
 	content := r.Builder.String()
 	components := ParseDiscordKeyboard(r.Keyboard)
 
-	_, err := r.Session.InteractionResponseEdit(&r.Interaction, &discordgo.WebhookEdit{
-		Content:    &content,
+	payload := &discordgo.WebhookEdit{
 		Components: &components,
-	})
+	}
 
+	if len(content) > 2000 {
+		payload.Embeds = &[]*discordgo.MessageEmbed{{Description: content}}
+	} else {
+		payload.Content = &content
+	}
+
+	_, err := r.Session.InteractionResponseEdit(&r.Interaction, payload)
 	return err
 }
 
@@ -112,6 +118,7 @@ func (r *DiscordResponder) RespondWithDefer() error {
 			Type: discordgo.InteractionResponseUpdateMessage,
 			Data: &discordgo.InteractionResponseData{
 				Content:    r.Interaction.Message.Content,
+				Embeds:     r.Interaction.Message.Embeds,
 				Components: r.Interaction.Message.Components,
 			},
 		})
