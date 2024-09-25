@@ -20,6 +20,7 @@ jobs:
       contents: read
       packages: write
       id-token: write
+      attestations: write
     name: Build image for ${{ matrix.target }}
     if: ${{
       github.event_name == 'workflow_dispatch' ||
@@ -28,10 +29,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      - name: Install cosign
-        uses: sigstore/cosign-installer@v3.6.0
-        with:
-          cosign-release: "v2.2.4"
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3.6.1
       - name: Log into registry ${{ env.REGISTRY }}
@@ -57,8 +54,9 @@ jobs:
           cache-to: type=gha,mode=max
           build-args: |
             TARGETAPP=${{ matrix.target }}
-      - name: Sign the published Docker image
-        env:
-          TAGS: ${{ steps.meta.outputs.tags }}
-          DIGEST: ${{ steps.build-and-push.outputs.digest }}
-        run: echo "${TAGS}" | xargs -I {} cosign sign --yes {}@${DIGEST}
+      - name: Attest
+        uses: actions/attest-build-provenance@v1
+        with:
+          subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-${{ matrix.target }}
+          subject-digest: ${{ steps.build-and-push.outputs.digest }}
+          push-to-registry: true
