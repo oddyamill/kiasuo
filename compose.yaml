@@ -34,7 +34,7 @@ services:
       postgres:
         condition: service_healthy
   postgres:
-    image: postgres:alpine
+    image: postgres:16-alpine
     restart: always
     user: postgres
     volumes:
