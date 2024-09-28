@@ -82,9 +82,12 @@ func (r *DiscordResponder) Respond() error {
 	}
 
 	if len(content) > 2000 {
+		emptyContent := ""
+		payload.Content = &emptyContent
 		payload.Embeds = &[]*discordgo.MessageEmbed{{Description: content}}
 	} else {
 		payload.Content = &content
+		payload.Embeds = &[]*discordgo.MessageEmbed{}
 	}
 
 	_, err := r.Session.InteractionResponseEdit(&r.Interaction, payload)
