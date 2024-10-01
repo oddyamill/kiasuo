@@ -2,6 +2,7 @@ package commands
 
 import (
 	"github.com/kiasuo/bot/internal/helpers"
+	"slices"
 	"strings"
 	"time"
 )
@@ -54,6 +55,8 @@ func scheduleCommand(context Context, responder Responder, formatter helpers.For
 			responder.Write(formatter.Item("Оценки: " + formatter.Code(marks)))
 		}
 
+		var checked []string
+
 		for _, homeworkId := range event.Homeworks {
 			for _, homework := range data.Homeworks {
 				if homework.ID != homeworkId {
@@ -62,12 +65,16 @@ func scheduleCommand(context Context, responder Responder, formatter helpers.For
 
 				text := homework.String()
 
-				if text != "" {
-					if strings.Contains(text, "\n") {
-						responder.Write(formatter.Item(formatter.Block(text)))
-					} else {
-						responder.Write(formatter.Item(text))
+				if !slices.Contains(checked, text) {
+					if text != "" {
+						if strings.Contains(text, "\n") {
+							responder.Write(formatter.Item(formatter.Block(text)))
+						} else {
+							responder.Write(formatter.Item(text))
+						}
 					}
+
+					checked = append(checked, text)
 				}
 
 				for _, file := range homework.Files {
