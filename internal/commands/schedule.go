@@ -32,11 +32,13 @@ func scheduleCommand(context Context, responder Responder, formatter helpers.For
 	}
 
 	date := ""
+	var checked []string
 
 	for _, event := range data.Schedule {
 		if event.LessonDate != date {
 			responder.Write(formatter.Title(formatDate(event.Date())))
 			date = event.LessonDate
+			checked = []string{}
 		}
 
 		responder.Write(formatter.Line(event.String()))
@@ -54,8 +56,6 @@ func scheduleCommand(context Context, responder Responder, formatter helpers.For
 
 			responder.Write(formatter.Item("Оценки: " + formatter.Code(marks)))
 		}
-
-		var checked []string
 
 		for _, homeworkId := range event.Homeworks {
 			for _, homework := range data.Homeworks {
