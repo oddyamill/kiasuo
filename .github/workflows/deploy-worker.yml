@@ -27,4 +27,6 @@ jobs:
             AUTH
         env:
           EDGE: ${{ vars.CLOUDFLARE_WORKER_EDGE }}
+          ZONE: ${{ vars.CLOUDFLARE_ZONE_ID }}
+          CLOUDFLARE: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           AUTH: ${{ secrets.CLOUDFLARE_WORKER_AUTH }}

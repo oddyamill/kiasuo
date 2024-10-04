@@ -1,4 +1,6 @@
-function proxy(url: URL, request: Request, cf?: CfProperties): Promise<Response> {
+import { AUTH_HEADER, CACHE_HEADER, CACHE_ROUTES, CACHE_TTL, ORIGIN_DOMAIN } from "./config"
+
+function proxyRequest(url: URL, request: Request, cf?: CfProperties): Promise<Response> {
 	const init: RequestInit = {
 		headers: request.headers,
 		method: request.method,
@@ -13,33 +15,61 @@ function proxy(url: URL, request: Request, cf?: CfProperties): Promise<Response>
 	return fetch(url, init)
 }
 
-function proxyEdge(url: URL, request: Request, env: Env): Promise<Response>{
-	return proxy(url, request, { resolveOverride: `cloudflare-edge-${env.EDGE}.oddya.ru` })
+function proxyEdge(url: URL, request: Request, env: Env): Promise<Response> {
+	return proxyRequest(url, request, { resolveOverride: `cloudflare-edge-${env.EDGE}.oddya.ru` })
 }
-
-const CACHE_HEADER = "Worker-Cache", AUTH_HEADER = "Worker-Authorization"
 
 async function proxyKiasuo(url: URL, request: Request, env: Env): Promise<Response> {
 	const cf: CfProperties = {}
 
-	if (request.headers.get(CACHE_HEADER) === "true") {
+	if (request.headers.has(AUTH_HEADER)) {
 		if (request.headers.get(AUTH_HEADER) !== env.AUTH) {
-			return new Response(null, { status: 401 })
+			return new Response(null, { status: 407 })
 		}
 
-		request.headers.delete(CACHE_HEADER)
+		if (CACHE_ROUTES.includes(url.pathname) && request.headers.get(CACHE_HEADER) !== "no") {
+			cf.cacheEverything = true
+			cf.cacheTtlByStatus = { "200-299": CACHE_TTL }
+		}
+
 		request.headers.delete(AUTH_HEADER)
-		cf.cacheEverything = true
-		cf.cacheTtlByStatus = { "200-299": 86400 }
+		request.headers.delete(CACHE_HEADER)
 	}
 
-	url.hostname = "dnevnik.kiasuo.ru"
-	return proxy(url, request, cf)
+	url.hostname = ORIGIN_DOMAIN
+	return proxyRequest(url, request, cf)
+}
+
+async function purgeCache(url: URL, request: Request, env: Env): Promise<Response> {
+	if (request.method !== "POST") {
+		return new Response(null, { status: 405 })
+	}
+
+	if (request.headers.get(AUTH_HEADER) !== env.AUTH) {
+		return new Response(null, { status: 401 })
+	}
+
+	const response = await fetch(`https://api.cloudflare.com/client/v4/zones/${env.ZONE}/purge_cache`, {
+		headers: {
+			Authorization: "Bearer " + env.CLOUDFLARE,
+			"Content-Type": "application/json",
+		},
+		method: "POST",
+		body: JSON.stringify({
+			files: CACHE_ROUTES.map((route) => `https://${ORIGIN_DOMAIN}${route}${url.search}`),
+		}),
+	})
+
+	return new Response(null, { status: response.status })
 }
 
 export default {
 	async fetch(request, env): Promise<Response> {
 		const url = new URL(request.url)
+
+		if (url.pathname === "/purge-cache") {
+			return purgeCache(url, request, env)
+		}
 
 		if (request.cf !== undefined && !["KJA", "KLD", "LED"].includes(request.cf.colo)) {
 			return proxyEdge(url, request, env)

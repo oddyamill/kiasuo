@@ -20,6 +20,7 @@
 	},
 	"include": [
 		"worker-configuration.d.ts",
-		"cmd/worker/main.ts"
+		"cmd/worker/main.ts",
+		"cmd/worker/config.ts"
 	]
 }

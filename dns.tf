@@ -9,7 +9,6 @@ terraform {
 
 variable "cloudflare_zone_id" {
   type = string
-  default = "b0800b8f194e7efaa540618f63885f01"
 }
 
 locals {

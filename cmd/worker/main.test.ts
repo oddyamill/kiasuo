@@ -1,5 +1,6 @@
 import { fetchMock, SELF } from "cloudflare:test"
 import { test, expect, beforeAll, afterEach } from "vitest"
+import { AUTH_HEADER } from "./config"
 
 let mocked = false
 
@@ -48,12 +49,11 @@ test("worker must response with 404", async () => {
 	expect(response.status).toBe(404)
 })
 
-test("worker must response with 401 (Worker-Cache: true)", async () => {
-	const response = await SELF.fetch("https://example.com/diary/api/schedule", {
+test("worker must response with 407", async () => {
+	const response = await SELF.fetch("https://example.com/diary/api/recipients", {
 		headers: {
-			"Worker-Cache": "true",
-			"Worker-Authorization": "123456",
+			[AUTH_HEADER]: "123456",
 		},
 	})
-	expect(response.status).toBe(401)
+	expect(response.status).toBe(407)
 })

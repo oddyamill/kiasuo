@@ -111,11 +111,13 @@ func requestWithClient[T any](client *Client, pathname string, method string) (*
 }
 
 func (c *Client) GetUser() (*User, error) {
-	return requestWithClient[User](c, "/api/user", "GET")
+	// TODO:
+	return requestWithClient[User](c, "/api/user?id="+strconv.Itoa(c.User.StudentID), "GET")
 }
 
 func (c *Client) GetRecipients() (*Recipients, error) {
-	rawRecipients, err := requestWithClient[RawRecipient](c, "/api/recipients", "GET")
+	// TODO:
+	rawRecipients, err := requestWithClient[RawRecipient](c, "/api/recipients?id="+strconv.Itoa(c.User.StudentID), "GET")
 
 	if err != nil {
 		return nil, err
@@ -126,7 +128,8 @@ func (c *Client) GetRecipients() (*Recipients, error) {
 }
 
 func (c *Client) GetStudyPeriods() (*[]StudyPeriod, error) {
-	return requestWithClient[[]StudyPeriod](c, "/api/study_periods", "GET")
+	// TODO:
+	return requestWithClient[[]StudyPeriod](c, "/api/study_periods?id="+strconv.Itoa(c.User.StudentID), "GET")
 }
 
 func (c *Client) GetLessons(id int) (*[]Lesson, error) {
