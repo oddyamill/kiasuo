@@ -25,7 +25,6 @@ jobs:
           secrets: |
             EDGE
             AUTH
-          wranglerVersion: "3.3.0"
         env:
           EDGE: ${{ vars.CLOUDFLARE_WORKER_EDGE }}
           AUTH: ${{ secrets.CLOUDFLARE_WORKER_AUTH }}
