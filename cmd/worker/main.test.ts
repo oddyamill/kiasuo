@@ -7,8 +7,8 @@ beforeAll(async () => {
 	const response = await fetch("https://1.1.1.1/cdn-cgi/trace")
 
 	if ((mocked = !(await response.text()).includes("loc=RU"))) {
-		fetchMock.activate();
-		fetchMock.disableNetConnect();
+		fetchMock.activate()
+		fetchMock.disableNetConnect()
 	}
 
 	console.log("mocked:", mocked)
@@ -20,7 +20,7 @@ test("worker must responds with 401", async () => {
 	fetchMock
 		.get("https://dnevnik.kiasuo.ru")
 		.intercept({ path: "/diary/api/schedule" })
-		.reply(401);
+		.reply(401)
 
 	const response = await SELF.fetch("https://example.com/diary/api/schedule")
 	expect(response.status).toBe(401)
@@ -46,4 +46,14 @@ test("worker must response with 404", async () => {
 			"Страница, которую Вы пытаетесь посмотреть не найдена. Возможно, Вы ошиблись при наборе адреса или страница была удалена с сайта."
 		)
 	expect(response.status).toBe(404)
+})
+
+test("worker must response with 401 (Worker-Cache: true)", async () => {
+	const response = await SELF.fetch("https://example.com/diary/api/schedule", {
+		headers: {
+			"Worker-Cache": "true",
+			"Worker-Authorization": "123456",
+		},
+	})
+	expect(response.status).toBe(401)
 })
