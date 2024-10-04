@@ -1,4 +1,4 @@
-function proxy(url: URL, request: Request, cf?: CfProperties) {
+function proxy(url: URL, request: Request, cf?: CfProperties): Promise<Response> {
 	const init: RequestInit = {
 		headers: request.headers,
 		method: request.method,
@@ -13,13 +13,28 @@ function proxy(url: URL, request: Request, cf?: CfProperties) {
 	return fetch(url, init)
 }
 
-function proxyEdge(url: URL, request: Request, env: Env) {
+function proxyEdge(url: URL, request: Request, env: Env): Promise<Response>{
 	return proxy(url, request, { resolveOverride: `cloudflare-edge-${env.EDGE}.oddya.ru` })
 }
 
-async function proxyKiasuo(url: URL, request: Request) {
+const CACHE_HEADER = "Worker-Cache", AUTH_HEADER = "Worker-Authorization"
+
+async function proxyKiasuo(url: URL, request: Request, env: Env): Promise<Response> {
+	const cf: CfProperties = {}
+
+	if (request.headers.get(CACHE_HEADER) === "true") {
+		if (request.headers.get(AUTH_HEADER) !== env.AUTH) {
+			return new Response(null, { status: 401 })
+		}
+
+		request.headers.delete(CACHE_HEADER)
+		request.headers.delete(AUTH_HEADER)
+		cf.cacheEverything = true
+		cf.cacheTtlByStatus = { "200-299": 86400 }
+	}
+
 	url.hostname = "dnevnik.kiasuo.ru"
-	return proxy(url, request)
+	return proxy(url, request, cf)
 }
 
 export default {
@@ -30,6 +45,6 @@ export default {
 			return proxyEdge(url, request, env)
 		}
 
-		return proxyKiasuo(url, request)
+		return proxyKiasuo(url, request, env)
 	},
 } satisfies ExportedHandler<Env>

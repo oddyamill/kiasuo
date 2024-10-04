@@ -1,3 +1,4 @@
 interface Env {
-	EDGE: "kld";
+	EDGE: string
+	AUTH: string
 }
