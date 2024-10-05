@@ -2,11 +2,8 @@ package users
 
 import (
 	"database/sql"
-	"encoding/base64"
-	"encoding/json"
 	"errors"
 	"log"
-	"strings"
 	"time"
 
 	"github.com/kiasuo/bot/internal/crypto"
@@ -168,37 +165,4 @@ func (u *User) UpdateLastMarksUpdate() {
 
 func (u *User) Delete() {
 	query("DELETE FROM users WHERE id = $1", u.ID)
-}
-
-func (u *User) IsTokenExpired() bool {
-	segments := strings.Split(u.AccessToken.Decrypt(), ".")
-
-	if len(segments) != 3 {
-		return true
-	}
-
-	raw := segments[1]
-	padding := len(raw) % 4
-
-	if padding > 0 {
-		raw += strings.Repeat("=", 4-padding)
-	}
-
-	plain, err := base64.StdEncoding.DecodeString(raw)
-
-	if err != nil {
-		return true
-	}
-
-	var tokenPayload struct {
-		Exp int `json:"exp"`
-	}
-
-	err = json.Unmarshal(plain, &tokenPayload)
-
-	if err != nil {
-		return true
-	}
-
-	return time.Unix(int64(tokenPayload.Exp), 0).Before(time.Now())
 }

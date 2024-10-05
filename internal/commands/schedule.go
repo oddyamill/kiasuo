@@ -57,9 +57,9 @@ func scheduleCommand(context Context, responder Responder, formatter helpers.For
 			responder.Write(formatter.Item("Оценки: " + formatter.Code(marks)))
 		}
 
-		for _, homeworkId := range event.Homeworks {
+		for _, homeworkID := range event.Homeworks {
 			for _, homework := range data.Homeworks {
-				if homework.ID != homeworkId {
+				if homework.ID != homeworkID {
 					continue
 				}
 

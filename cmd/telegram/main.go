@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-const AdminId int64 = 6135991898
+const AdminID int64 = 6135991898
 
 var bot tgbotapi.BotAPI
 
@@ -59,7 +59,7 @@ func handleMessage(update tgbotapi.Update) {
 	}
 
 	if update.Message.ForwardFrom != nil {
-		if update.Message.From.ID != AdminId {
+		if update.Message.From.ID != AdminID {
 			return
 		}
 

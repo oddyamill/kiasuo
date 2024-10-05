@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-func marksCommand(context Context, responder Responder, formatter helpers.Formatter, periodId int) error {
+func marksCommand(context Context, responder Responder, formatter helpers.Formatter, periodID int) error {
 	periods, err := context.GetClient().GetStudyPeriods()
 
 	if err != nil {
@@ -24,7 +24,7 @@ func marksCommand(context Context, responder Responder, formatter helpers.Format
 			Callback: "marks:" + strconv.Itoa(p.ID),
 		})
 
-		if periodId == p.ID || (periodId == 0 && p.Match(now)) {
+		if periodID == p.ID || (periodID == 0 && p.Match(now)) {
 			period = &p
 		}
 	}
