@@ -31,11 +31,25 @@ async function proxyKiasuo(url: URL, request: Request, env: Env): Promise<Respon
 			cf.cacheEverything = true
 			cf.cacheTtlByStatus = { "200-299": CACHE_TTL }
 		}
-
-		request.headers.delete(AUTH_HEADER)
-		request.headers.delete(CACHE_HEADER)
 	}
 
+	const headers = new Headers()
+
+	if (request.headers.has("Accept-Encoding")) {
+		headers.set("Accept-Encoding", request.headers.get("Accept-Encoding")!)
+	}
+
+	if (request.headers.has("Authorization")) {
+		headers.set("Authorization", request.headers.get("Authorization")!)
+	}
+
+	if (request.headers.has("Content-Type")) {
+		headers.set("Content-Type", request.headers.get("Content-Type")!)
+		headers.set("Content-Length", request.headers.get("Content-Length") ?? "0")
+	}
+
+	// @ts-expect-error
+	request.headers = headers
 	url.hostname = ORIGIN_DOMAIN
 	return proxyRequest(url, request, cf)
 }
