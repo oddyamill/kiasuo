@@ -71,7 +71,6 @@ func createTable() {
 			student_name_acronym TEXT,
 			state INTEGER NOT NULL,
 		  last_marks_update TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-		  cache BOOLEAN DEFAULT TRUE,
 		  cache BOOLEAN DEFAULT TRUE
 		)
 	`)
