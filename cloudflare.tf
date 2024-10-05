@@ -48,17 +48,3 @@ resource "cloudflare_record" "dns" {
   proxied         = true
   allow_overwrite = true
 }
-
-resource "cloudflare_ruleset" "firewall" {
-  zone_id = var.cloudflare_zone_id
-  name = "Kiasuo ruleset"
-  kind    = "zone"
-  phase   = "http_request_firewall_custom"
-
-  rules {
-    action      = "block"
-    expression  = "(http.host eq \"${local.subdomain}.oddya.ru\" and starts_with(http.request.uri.path, \"/internal/\") and http.request.uri.path ne \"/internal/purge-cache\")"
-    description = "Block requests to /internal/ except /internal/purge-cache"
-    enabled     = true
-  }
-}
