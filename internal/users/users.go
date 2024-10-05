@@ -70,9 +70,9 @@ func createTable() {
 			student_id INTEGER,
 			student_name_acronym TEXT,
 			state INTEGER NOT NULL,
-		  last_marks_update TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 		  last_marks_update TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 		  cache BOOLEAN DEFAULT TRUE,
+		  cache BOOLEAN DEFAULT TRUE
 		)
 	`)
 }
@@ -85,6 +85,7 @@ func createIndex() {
 func migrate() {
 	query("ALTER TABLE users ADD COLUMN IF NOT EXISTS cache BOOLEAN DEFAULT TRUE")
 }
+
 func query(query string, args ...any) {
 	_, err := db.Query(query, args...)
 
