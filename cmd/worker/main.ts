@@ -1,8 +1,8 @@
 import { AUTH_HEADER, CACHE_HEADER, CACHE_ROUTES, CACHE_TTL, ORIGIN_DOMAIN } from "./config"
 
-function proxyRequest(url: URL, request: Request, cf?: CfProperties): Promise<Response> {
+function proxyRequest(url: URL, request: Request, cf: CfProperties, headers?: Headers): Promise<Response> {
 	const init: RequestInit = {
-		headers: request.headers,
+		headers: headers ?? request.headers,
 		method: request.method,
 		redirect: "manual",
 		cf,
@@ -16,7 +16,7 @@ function proxyRequest(url: URL, request: Request, cf?: CfProperties): Promise<Re
 }
 
 function proxyEdge(url: URL, request: Request, env: Env): Promise<Response> {
-	return proxyRequest(url, request, { resolveOverride: `cloudflare-edge-${env.EDGE}.oddya.ru` })
+	return proxyRequest(url, request,{ resolveOverride: `cloudflare-edge-${env.EDGE}.oddya.ru` })
 }
 
 async function proxyKiasuo(url: URL, request: Request, env: Env): Promise<Response> {
@@ -48,10 +48,8 @@ async function proxyKiasuo(url: URL, request: Request, env: Env): Promise<Respon
 		headers.set("Content-Length", request.headers.get("Content-Length") ?? "0")
 	}
 
-	// @ts-expect-error
-	request.headers = headers
 	url.hostname = ORIGIN_DOMAIN
-	return proxyRequest(url, request, cf)
+	return proxyRequest(url, request, cf, headers)
 }
 
 async function purgeCache(url: URL, request: Request, env: Env): Promise<Response> {
