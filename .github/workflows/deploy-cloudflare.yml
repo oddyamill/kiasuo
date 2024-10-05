@@ -1,9 +1,9 @@
-name: Deploy DNS
+name: Deploy Cloudflare
 
 on:
   push:
     branches: [master]
-    paths: ["**/*.tf", ".github/workflows/deploy-dns.yml"]
+    paths: ["**/*.tf", ".github/workflows/deploy-cloudflare.yml"]
 
 jobs:
   deploy:

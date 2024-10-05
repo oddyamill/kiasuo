@@ -14,9 +14,5 @@ pattern = "kiasuo-proxy.oddya.ru/diary/refresh"
 zone_id = "b0800b8f194e7efaa540618f63885f01"
 
 [[routes]]
-pattern = "kiasuo-proxy.oddya.ru/purge-cache"
-zone_id = "b0800b8f194e7efaa540618f63885f01"
-
-[[routes]]
-pattern = "kiasuo-proxy.oddya.ru/purge-cache?id=*"
+pattern = "kiasuo-proxy.oddya.ru/internal/purge-cache*"
 zone_id = "b0800b8f194e7efaa540618f63885f01"

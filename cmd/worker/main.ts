@@ -79,7 +79,7 @@ export default {
 	async fetch(request, env): Promise<Response> {
 		const url = new URL(request.url)
 
-		if (url.pathname === "/purge-cache") {
+		if (url.pathname === "/internal/purge-cache") {
 			return purgeCache(url, request, env)
 		}
 
