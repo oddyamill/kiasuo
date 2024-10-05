@@ -7,6 +7,7 @@ import (
 	"github.com/kiasuo/bot/internal/helpers"
 	"github.com/kiasuo/bot/internal/users"
 	"net/http"
+	"os"
 	"strconv"
 	"time"
 )
@@ -20,8 +21,19 @@ type Client struct {
 	User *users.User
 }
 
+var workerAuth string
+
+func init() {
+	workerAuth = os.Getenv("WORKER_AUTH")
+}
+
 func httpRequest[T any](client Client, request *http.Request) (*http.Response, *T, error) {
 	request.Header.Set("Authorization", "Bearer "+client.User.AccessToken.Decrypt())
+
+	if workerAuth != "" {
+		request.Header.Set("Worker-Authorization", workerAuth)
+	}
+
 	response, err := http.DefaultClient.Do(request)
 
 	if err != nil {

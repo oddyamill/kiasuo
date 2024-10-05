@@ -58,6 +58,7 @@ jobs:
           TUNNEL_SERVICE_TOKEN_SECRET: ${{ secrets.CLOUDFLARE_ACCESS_SECRET }}
           TELEGRAM_IMAGE_REF: ${{ fromJSON(steps.meta.outputs.json).tags[0] }}
           DISCORD_IMAGE_REF: ${{ fromJSON(steps.meta.outputs.json).tags[1] }}
+          WORKER_AUTH: ${{ secrets.CLOUDFLARE_WORKER_AUTH }}
         run: |
           docker compose pull
           docker compose up -d
