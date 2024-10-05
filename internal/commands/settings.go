@@ -19,6 +19,10 @@ var SettingsCommand = Command(func(context Context, responder Responder, formatt
 				Text:     helpers.If(user.DiscordID == "", "Привязать", "Отвязать") + " Discord",
 				Callback: "settings:discord",
 			},
+			KeyboardButton{
+				Text:     helpers.If(user.Cache, "Отключить", "Включить") + " кэширование",
+				Callback: "settings:cache",
+			},
 		},
 	}
 
@@ -35,6 +39,8 @@ var SettingsCallback = Callback(func(context Context, responder Responder, forma
 		return updateUserStudent(context, responder, formatter, data)
 	case "discord":
 		return getDiscord(context, responder)
+	case "cache":
+		return updateCache(context, responder)
 	}
 
 	return nil
@@ -95,4 +101,15 @@ func getDiscord(context Context, responder Responder) error {
 
 	context.User.UpdateDiscord("")
 	return responder.Write("Аккаунт Discord успешно отвязан!").Respond()
+}
+
+func updateCache(context Context, response Responder) error {
+	context.User.UpdateCache(!context.User.Cache)
+
+	if context.User.Cache {
+		ok := context.GetClient().PurgeCache()
+		return response.Write("Кэширование успешно отключено." + helpers.If(ok, " Кэш очищен.", "")).Respond()
+	}
+
+	return response.Write("Кэширование успешно включено!").Respond()
 }

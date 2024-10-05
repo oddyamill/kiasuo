@@ -30,6 +30,7 @@ type User struct {
 	StudentNameAcronym crypto.Crypt
 	State              UserState
 	LastMarksUpdate    time.Time
+	Cache              bool
 }
 
 var db *sql.DB
@@ -55,6 +56,7 @@ func init() {
 	log.Println("Connected to database")
 	createTable()
 	createIndex()
+	migrate()
 }
 
 func createTable() {
@@ -69,6 +71,8 @@ func createTable() {
 			student_name_acronym TEXT,
 			state INTEGER NOT NULL,
 		  last_marks_update TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+		  last_marks_update TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+		  cache BOOLEAN DEFAULT TRUE,
 		)
 	`)
 }
@@ -78,6 +82,9 @@ func createIndex() {
 	query("CREATE INDEX IF NOT EXISTS discord_id_index ON users (discord_id)")
 }
 
+func migrate() {
+	query("ALTER TABLE users ADD COLUMN IF NOT EXISTS cache BOOLEAN DEFAULT TRUE")
+}
 func query(query string, args ...any) {
 	_, err := db.Query(query, args...)
 
@@ -101,6 +108,7 @@ func queryRow(query string, args ...any) *User {
 		&user.StudentNameAcronym,
 		&user.State,
 		&user.LastMarksUpdate,
+		&user.Cache,
 	)
 
 	if err != nil {
@@ -161,6 +169,10 @@ func (u *User) UpdateDiscord(discordID string) {
 
 func (u *User) UpdateLastMarksUpdate() {
 	query("UPDATE users SET last_marks_update = CURRENT_TIMESTAMP WHERE id = $1", u.ID)
+}
+
+func (u *User) UpdateCache(cache bool) {
+	query("UPDATE users SET cache = $1 WHERE id = $2", cache, u.ID)
 }
 
 func (u *User) Delete() {

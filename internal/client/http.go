@@ -8,6 +8,11 @@ import (
 	"os"
 )
 
+const (
+	cacheHeader = "Worker-Cache"
+	authHeader  = "Worker-Authorization"
+)
+
 var workerAuth string
 
 func init() {
@@ -16,7 +21,7 @@ func init() {
 
 func request[T any](req *http.Request) (*T, error) {
 	if workerAuth != "" {
-		req.Header.Set("Worker-Authorization", workerAuth)
+		req.Header.Set(authHeader, workerAuth)
 	}
 
 	res, err := http.DefaultClient.Do(req)
@@ -97,6 +102,10 @@ func requestWithClient[T any](client *Client, url string, method string) (*T, er
 		}
 	}
 
+	if client.User.Cache == false {
+		req.Header.Set(cacheHeader, "no")
+	}
+
 	result, err := requestWithAuth[T](client, req)
 
 	if err == nil {
@@ -120,4 +129,22 @@ func requestWithClient[T any](client *Client, url string, method string) (*T, er
 	}
 
 	return nil, err
+}
+
+func requestPurgeCache(id int) bool {
+	req, err := http.NewRequest("POST", appendID(purgeCacheURL, id), nil)
+
+	if err != nil {
+		return false
+	}
+
+	req.Header.Set(authHeader, workerAuth)
+	res, err := http.DefaultClient.Do(req)
+
+	if err != nil {
+		return false
+	}
+
+	defer res.Body.Close()
+	return res.StatusCode == http.StatusOK
 }

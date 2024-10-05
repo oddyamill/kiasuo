@@ -51,6 +51,10 @@ func (c *Client) GetSchedule(time time.Time) (*RawSchedule, error) {
 	return requestWithClient[RawSchedule](c, scheduleURL(year, week), "GET")
 }
 
+func (c *Client) PurgeCache() bool {
+	return requestPurgeCache(c.User.StudentID)
+}
+
 func (c *Client) isTokenExpired() bool {
 	segments := strings.Split(c.User.AccessToken.Decrypt(), ".")
 
