@@ -25,6 +25,8 @@ jobs:
           secrets: |
             EDGE
             AUTH
+            ZONE
+            CLOUDFLARE
         env:
           EDGE: ${{ vars.CLOUDFLARE_WORKER_EDGE }}
           ZONE: ${{ vars.CLOUDFLARE_ZONE_ID }}
