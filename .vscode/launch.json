@@ -6,7 +6,7 @@
 			"request": "launch",
 			"mode": "auto",
 			"program": "${workspaceFolder}/cmd/discord/",
-			"envFile": "${workspaceFolder}/.env",
+			"envFile": "${workspaceFolder}/.env"
 		},
 		{
 			"name": "Telegram",
@@ -14,7 +14,15 @@
 			"request": "launch",
 			"mode": "auto",
 			"program": "${workspaceFolder}/cmd/telegram/",
-			"envFile": "${workspaceFolder}/.env",
+			"envFile": "${workspaceFolder}/.env"
 		},
+		{
+			"name": "VK",
+			"type": "go",
+			"request": "launch",
+			"mode": "auto",
+			"program": "${workspaceFolder}/cmd/vk/",
+			"envFile": "${workspaceFolder}/.env"
+		}
 	]
 }

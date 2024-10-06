@@ -14,7 +14,7 @@ jobs:
   build:
     strategy:
       matrix:
-        target: [telegram, discord]
+        target: [telegram, discord, vk]
     runs-on: ubuntu-latest
     permissions:
       contents: read

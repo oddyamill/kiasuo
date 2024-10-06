@@ -35,6 +35,23 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+  vk:
+    image: ${VK_IMAGE_REF}
+    restart: no
+    environment:
+      - TELEGRAM_FILE=/run/secrets/telegram
+      - CRYPTO_FILE=/run/secrets/crypto
+      - POSTGRES_HOST=postgres
+      - POSTGRES_DB=kiasuo
+      - POSTGRES_USER=kiasuo
+      - POSTGRES_PASSWORD_FILE=/run/secrets/postgres
+    secrets:
+      - telegram
+      - crypto
+      - postgres
+    depends_on:
+      postgres:
+        condition: service_healthy
   postgres:
     image: postgres:16-alpine
     restart: always
