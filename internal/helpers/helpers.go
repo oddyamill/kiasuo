@@ -74,7 +74,26 @@ func HumanizeLesson(lesson string) string {
 		return "Русский язык (консультация)"
 	case "решение задач повышенной сложности":
 		return "Математика (консультация)"
+	case "основы духовно-нравственной культуры народов россии":
+		return "ОДНКНР"
+	case "изобразительное искусство":
+		return "ИЗО"
+	case "Мировая художественная культура":
+		return "МХК"
+	case "Основы религиозных культур и светской этики":
+		return "ОРКСЭ"
 	default:
 		return lesson
 	}
+}
+
+// IsHexUnsafe only checks if the string contains valid hex characters
+func IsHexUnsafe(hex string) bool {
+	for i := 0; i < len(hex); i++ {
+		if (hex[i] < '0' || hex[i] > '9') && (hex[i] < 'a' || hex[i] > 'f') && (hex[i] < 'A' || hex[i] > 'F') {
+			return false
+		}
+	}
+
+	return true
 }

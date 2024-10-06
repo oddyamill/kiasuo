@@ -8,8 +8,7 @@ import (
 var StartCommand = Command(func(context Context, responder Responder, _ helpers.Formatter) error {
 	token := context.Arguments
 
-	if len(token) == 32 {
-		// crutch
+	if len(token) == 32 && helpers.IsHexUnsafe(token) {
 		client := context.GetClient()
 		client.User.RefreshToken = crypto.Encrypt(token)
 

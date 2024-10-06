@@ -62,15 +62,11 @@ func TestGetEnvFile(t *testing.T) {
 		panic(err)
 	}
 
-	_, err = file.WriteString("test")
-
-	if err != nil {
+	if _, err = file.WriteString("test"); err != nil {
 		panic(err)
 	}
 
-	err = os.Setenv(UnknownVariable+"_FILE", file.Name())
-
-	if err != nil {
+	if err = os.Setenv(UnknownVariable+"_FILE", file.Name()); err != nil {
 		panic(err)
 	}
 
@@ -105,6 +101,24 @@ func TestHumanizeLesson(t *testing.T) {
 
 		if result != test.expected {
 			t.Errorf("HumanizeLesson(%s) = %s; want %s", test.input, result, test.expected)
+		}
+	}
+}
+
+func TestIsHexUnsafe(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected bool
+	}{
+		{"d813c247bb06c2c8ac84ef4231658b2b", true},
+		{"d813c247bb06c2c8ac84ef4231658b2я", false},
+	}
+
+	for _, test := range tests {
+		result := IsHexUnsafe(test.input)
+
+		if result != test.expected {
+			t.Errorf("IsHexUnsafe(%s) = %t; want %t", test.input, result, test.expected)
 		}
 	}
 }
