@@ -45,9 +45,8 @@ func request[T any](req *http.Request) (*T, error) {
 	}
 
 	var result *T
-	err = json.NewDecoder(res.Body).Decode(&result)
 
-	if err != nil {
+	if err = json.NewDecoder(res.Body).Decode(&result); err != nil {
 		if err.Error() == "EOF" {
 			return nil, nil
 		}
@@ -95,14 +94,12 @@ func requestWithClient[T any](client *Client, url string, method string) (*T, er
 	}
 
 	if client.isTokenExpired() {
-		err = refreshToken(client)
-
-		if err != nil {
+		if err = refreshToken(client); err != nil {
 			return nil, err
 		}
 	}
 
-	if client.User.Cache == false {
+	if !client.User.Cache {
 		req.Header.Set(cacheHeader, "no")
 	}
 
@@ -113,9 +110,7 @@ func requestWithClient[T any](client *Client, url string, method string) (*T, er
 	}
 
 	if errors.Is(err, ErrInvalidToken) {
-		err = refreshToken(client)
-
-		if err != nil {
+		if err = refreshToken(client); err != nil {
 			return nil, err
 		}
 

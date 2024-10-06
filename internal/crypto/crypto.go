@@ -6,9 +6,8 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"errors"
-	"io"
-
 	"github.com/kiasuo/bot/internal/helpers"
+	"io"
 )
 
 var key []byte
@@ -36,9 +35,7 @@ func Encrypt(text string) Crypt {
 	ciphertext := make([]byte, aes.BlockSize+len(text))
 	iv := ciphertext[:aes.BlockSize]
 
-	_, err = io.ReadFull(rand.Reader, iv)
-
-	if err != nil {
+	if _, err = io.ReadFull(rand.Reader, iv); err != nil {
 		panic(err)
 	}
 

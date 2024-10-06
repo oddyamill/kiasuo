@@ -52,9 +52,7 @@ func main() {
 			Session:     session,
 		}
 
-		err = responder.RespondWithDefer()
-
-		if err != nil {
+		if err = responder.RespondWithDefer(); err != nil {
 			log.Println(err)
 			return
 		}
@@ -84,13 +82,15 @@ func main() {
 		commands.HandleCommand(context, &responder, &formatter)
 	})
 
-	err = bot.Open()
-
-	if err != nil {
+	if err = bot.Open(); err != nil {
 		panic(err)
 	}
 
-	_, err = bot.ApplicationCommandBulkOverwrite(bot.State.User.ID, "", commands.ParseDiscordCommands())
+	_, err = bot.ApplicationCommandBulkOverwrite(
+		bot.State.User.ID,
+		"",
+		commands.ParseDiscordCommands(),
+	)
 
 	if err != nil {
 		panic(err)
@@ -102,9 +102,7 @@ func main() {
 	signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, os.Interrupt)
 	<-sc
 
-	err = bot.Close()
-
-	if err != nil {
+	if err = bot.Close(); err != nil {
 		panic(err)
 	}
 }

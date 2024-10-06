@@ -75,15 +75,11 @@ func (c *Client) isTokenExpired() bool {
 		return true
 	}
 
-	var tokenPayload struct {
-		Exp int `json:"exp"`
-	}
+	var tokenPayload TokenPayload
 
-	err = json.Unmarshal(plain, &tokenPayload)
-
-	if err != nil {
+	if err = json.Unmarshal(plain, &tokenPayload); err != nil {
 		return true
 	}
 
-	return time.Unix(int64(tokenPayload.Exp), 0).Before(time.Now())
+	return time.Unix(int64(tokenPayload.Expiration), 0).Before(time.Now())
 }

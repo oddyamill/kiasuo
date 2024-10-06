@@ -24,9 +24,7 @@ func init() {
 	bot = *botApi
 	log.Println("Authorized on account", bot.Self.UserName)
 
-	_, err = bot.Request(commands.ParseTelegramCommands())
-
-	if err != nil {
+	if _, err = bot.Request(commands.ParseTelegramCommands()); err != nil {
 		panic(err)
 	}
 }

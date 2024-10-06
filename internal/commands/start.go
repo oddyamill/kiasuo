@@ -12,9 +12,8 @@ var StartCommand = Command(func(context Context, responder Responder, _ helpers.
 		// crutch
 		client := context.GetClient()
 		client.User.RefreshToken = crypto.Encrypt(token)
-		err := client.RefreshToken()
 
-		if err != nil {
+		if err := client.RefreshToken(); err != nil {
 			return err
 		}
 
