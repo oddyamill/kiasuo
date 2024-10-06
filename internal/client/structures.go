@@ -12,7 +12,6 @@ type Token struct {
 	RefreshToken string `json:"refreshToken"`
 }
 
-// TODO decrypt token and check expiration date
 type TokenPayload struct {
 	Expiration int64 `json:"exp"`
 }
