@@ -51,6 +51,11 @@ func (c *Client) GetSchedule(time time.Time) (*RawSchedule, error) {
 	return requestWithClient[RawSchedule](c, scheduleURL(year, week), "GET")
 }
 
+func (c *Client) RevokeToken() error {
+	_, err := requestWithClient[any](c, revokeURL, "DELETE")
+	return err
+}
+
 func (c *Client) PurgeCache() bool {
 	return requestPurgeCache(c.User.StudentID)
 }

@@ -19,5 +19,11 @@ var StopCommand = Command(func(_ Context, responder Responder, _ helpers.Formatt
 
 var StopCallback = Callback(func(context Context, responder Responder, formatter helpers.Formatter, data []string) error {
 	context.User.Delete()
-	return responder.Write("Все данные удалены. Если захотите вернуться, напишите /start").Respond()
+	responder.Write("Все данные удалены.")
+
+	if err := context.GetClient().RevokeToken(); err == nil {
+		responder.Write(" Токен был отозван.")
+	}
+
+	return responder.Respond()
 })

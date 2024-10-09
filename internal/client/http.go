@@ -40,6 +40,10 @@ func request[T any](req *http.Request) (*T, error) {
 		return nil, ErrServerError
 	}
 
+	if res.StatusCode == http.StatusNoContent {
+		return nil, nil
+	}
+
 	if res.StatusCode != http.StatusOK {
 		return nil, errors.New(res.Status)
 	}

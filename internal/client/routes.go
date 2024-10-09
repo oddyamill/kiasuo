@@ -15,6 +15,7 @@ var (
 	userURL         = ApiUrl + "/api/user"
 	recipientsURL   = ApiUrl + "/api/recipients"
 	studyPeriodsURL = ApiUrl + "/api/study_periods"
+	revokeURL       = ApiUrl + "/pwa_logout"
 
 	purgeCacheURL = ApiUrl + "/../internal/purge-cache"
 )
