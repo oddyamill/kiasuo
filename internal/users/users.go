@@ -65,8 +65,8 @@ func createTable() {
 			id SERIAL PRIMARY KEY,
 			telegram_id BIGINT NOT NULL UNIQUE,
 			discord_id TEXT UNIQUE,
-			access_token TEXT,
-			refresh_token VARCHAR(96),
+			access_token TEXT UNIQUE,
+			refresh_token VARCHAR(96) UNIQUE,
 			student_id INTEGER,
 			student_name_acronym TEXT,
 			state INTEGER NOT NULL,
@@ -86,9 +86,7 @@ func migrate() {
 }
 
 func query(query string, args ...any) {
-	_, err := db.Query(query, args...)
-
-	if err != nil {
+	if _, err := db.Query(query, args...); err != nil {
 		panic(err)
 	}
 }
@@ -120,6 +118,14 @@ func queryRow(query string, args ...any) *User {
 	}
 
 	return &user
+}
+
+func CreateWithTelegramID(telegramID int64) {
+	query(
+		"INSERT INTO users (telegram_id, state) VALUES ($1, $2)",
+		telegramID,
+		Pending,
+	)
 }
 
 func GetByID(id string) *User {

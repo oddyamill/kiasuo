@@ -70,23 +70,28 @@ func handleMessage(update tgbotapi.Update) {
 
 		command = commands.AdminCommandName
 	} else if update.Message.IsCommand() {
-		user = users.GetByTelegramID(update.Message.From.ID)
+		command = update.Message.Command()
 
-		if user == nil {
-			_ = responder.Write("Да, привет.").Respond()
+		if command == "" {
 			return
 		}
 
-		if !user.IsReady() {
+		user = users.GetByTelegramID(update.Message.From.ID)
+
+		if user == nil {
+			if command == commands.StartCommandName {
+				users.CreateWithTelegramID(update.Message.From.ID)
+			}
+
+			return
+		}
+
+		if !user.IsReady() && !commands.IsSystemCommand(command) {
 			_ = responder.Write("Токен обнови.").Respond()
 			return
 		}
 
-		command, arguments = update.Message.Command(), update.Message.CommandArguments()
-	}
-
-	if command == "" {
-		return
+		arguments = update.Message.CommandArguments()
 	}
 
 	context := commands.Context{

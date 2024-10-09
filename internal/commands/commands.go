@@ -11,7 +11,7 @@ type Command func(Context, Responder, helpers.Formatter) error
 
 var commandMap = map[string]Command{
 	AdminCommandName: AdminCommand,
-	"start":          StartCommand,
+	StartCommandName: StartCommand,
 	"stop":           StopCommand,
 	"settings":       SettingsCommand,
 	"schedule":       ScheduleCommand,
@@ -20,17 +20,19 @@ var commandMap = map[string]Command{
 	"teachers":       TeachersCommand,
 }
 
+func IsSystemCommand(command string) bool {
+	return command == StartCommandName || command == "stop"
+}
+
 type commandConfig struct {
-	Name         string
-	Description  string
-	TelegramOnly bool
+	Name        string
+	Description string
 }
 
 var publicCommands = []commandConfig{
 	{
-		Name:         "start",
-		Description:  "Начать",
-		TelegramOnly: true,
+		Name:        StartCommandName,
+		Description: "Начать",
 	},
 	{
 		Name:        "settings",
@@ -53,9 +55,8 @@ var publicCommands = []commandConfig{
 		Description: "Список учителей",
 	},
 	{
-		Name:         "stop",
-		Description:  "Остановить",
-		TelegramOnly: true,
+		Name:        "stop",
+		Description: "Остановить",
 	},
 }
 
@@ -63,7 +64,7 @@ func ParseDiscordCommands() []*discordgo.ApplicationCommand {
 	commands := make([]*discordgo.ApplicationCommand, 0)
 
 	for _, config := range publicCommands {
-		if config.TelegramOnly {
+		if IsSystemCommand(config.Name) {
 			continue
 		}
 

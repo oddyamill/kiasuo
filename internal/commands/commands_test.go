@@ -2,6 +2,16 @@ package commands
 
 import "testing"
 
+func TestIsSystemCommand(t *testing.T) {
+	if !IsSystemCommand("start") {
+		t.Errorf("IsSystemCommand() = false; want true\n")
+	}
+
+	if IsSystemCommand("settings") {
+		t.Errorf("IsSystemCommand() = true; want false\n")
+	}
+}
+
 func TestParseTelegramCommands(t *testing.T) {
 	commands := ParseTelegramCommands()
 
@@ -33,7 +43,7 @@ func TestParseDiscordCommands(t *testing.T) {
 	publicDiscordCommands := make([]commandConfig, 0)
 
 	for _, c := range publicCommands {
-		if !c.TelegramOnly {
+		if !IsSystemCommand(c.Name) {
 			publicDiscordCommands = append(publicDiscordCommands, c)
 		}
 	}
