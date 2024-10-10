@@ -27,7 +27,7 @@ func (c *Client) GetRecipients() (*Recipients, error) {
 		return nil, err
 	}
 
-	recipients := (*rawRecipients)[c.User.StudentID]
+	recipients := (*rawRecipients)[*c.User.StudentID]
 	return &recipients, nil
 }
 

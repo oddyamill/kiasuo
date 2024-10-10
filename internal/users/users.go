@@ -20,13 +20,14 @@ const (
 	Blacklisted
 )
 
+// User TODO: sql.NullInt32?
 type User struct {
 	ID                 int
 	TelegramID         int64
-	DiscordID          string
+	DiscordID          sql.NullString
 	AccessToken        crypto.Crypt
 	RefreshToken       crypto.Crypt
-	StudentID          int
+	StudentID          *int
 	StudentNameAcronym crypto.Crypt
 	State              UserState
 	LastMarksUpdate    time.Time
@@ -69,7 +70,7 @@ func createTable() {
 			refresh_token VARCHAR(96) UNIQUE,
 			student_id INTEGER,
 			student_name_acronym TEXT,
-			state INTEGER NOT NULL,
+			state INTEGER NOT NULL DEFAULT 2,
 		  last_marks_update TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 		  cache BOOLEAN DEFAULT TRUE
 		)
@@ -82,6 +83,7 @@ func createIndex() {
 }
 
 func migrate() {
+	query("UPDATE users SET state = 2 WHERE state = 0")
 	query("ALTER TABLE users ADD COLUMN IF NOT EXISTS cache BOOLEAN DEFAULT TRUE")
 }
 
@@ -89,6 +91,27 @@ func query(query string, args ...any) {
 	if _, err := db.Query(query, args...); err != nil {
 		panic(err)
 	}
+}
+
+func queryPartialRow(query string, args ...any) (string, UserState) {
+	rows := db.QueryRow(query, args...)
+
+	var (
+		id    string
+		state UserState
+	)
+
+	err := rows.Scan(&id, &state)
+
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return "", Unknown
+		}
+
+		panic(err)
+	}
+
+	return id, state
 }
 
 func queryRow(query string, args ...any) *User {
@@ -128,16 +151,20 @@ func CreateWithTelegramID(telegramID int64) {
 	)
 }
 
-func GetByID(id string) *User {
-	return queryRow("SELECT * FROM users WHERE id = $1", id)
+func GetPartialByTelegramID(telegramID int64) (string, UserState) {
+	return queryPartialRow("SELECT id, state FROM users WHERE telegram_id = $1", telegramID)
+}
+
+func GetPartialByDiscordID(discordID string) (string, UserState) {
+	return queryPartialRow("SELECT id, state FROM users WHERE telegram_id = $1", discordID)
 }
 
 func GetByTelegramID(telegramID int64) *User {
 	return queryRow("SELECT * FROM users WHERE telegram_id = $1", telegramID)
 }
 
-func GetByDiscordID(discordID string) *User {
-	return queryRow("SELECT * FROM users WHERE discord_id = $1", discordID)
+func GetByID(id string) *User {
+	return queryRow("SELECT * FROM users WHERE id = $1", id)
 }
 
 func (u *User) IsReady() bool {

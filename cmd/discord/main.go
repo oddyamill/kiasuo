@@ -45,7 +45,7 @@ func main() {
 		}
 
 		userID := GetUserID(interaction)
-		user := users.GetByDiscordID(userID)
+		id, state := users.GetPartialByDiscordID(userID)
 
 		responder := commands.DiscordResponder{
 			Interaction: *interaction.Interaction,
@@ -57,19 +57,19 @@ func main() {
 			return
 		}
 
-		if user == nil {
+		if state == users.Unknown {
 			_ = responder.Write("Ты кто?").Respond()
 			return
 		}
 
-		if !user.IsReady() {
+		if state != users.Ready {
 			_ = responder.Write("Токен обнови.").Respond()
 			return
 		}
 
 		context := commands.Context{
 			Command: command,
-			User:    *user,
+			User:    *users.GetByID(id),
 		}
 
 		formatter := helpers.DiscordFormatter{}

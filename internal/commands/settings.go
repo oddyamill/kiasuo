@@ -16,7 +16,7 @@ var SettingsCommand = Command(func(context Context, responder Responder, formatt
 				Callback: "settings:userStudents",
 			},
 			KeyboardButton{
-				Text:     helpers.If(user.DiscordID == "", "Привязать", "Отвязать") + " Discord",
+				Text:     helpers.If(user.DiscordID.Valid, "Отвязать", "Привязать") + " Discord",
 				Callback: "settings:discord",
 			},
 			KeyboardButton{
@@ -95,7 +95,7 @@ func updateUserStudent(context Context, responder Responder, formatter helpers.F
 }
 
 func getDiscord(context Context, responder Responder) error {
-	if context.User.DiscordID == "" {
+	if !context.User.DiscordID.Valid {
 		return responder.Write("Привязка аккаунта Discord пока не доступна.").Respond()
 	}
 

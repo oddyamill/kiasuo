@@ -76,21 +76,28 @@ func handleMessage(update tgbotapi.Update) {
 			return
 		}
 
-		user = users.GetByTelegramID(update.Message.From.ID)
+		id, state := users.GetPartialByTelegramID(update.Message.From.ID)
 
-		if user == nil {
-			if command == commands.StartCommandName {
+		switch state {
+		case users.Unknown:
+			if command != commands.StartCommandName {
 				users.CreateWithTelegramID(update.Message.From.ID)
 			}
-
 			return
-		}
-
-		if !user.IsReady() && !commands.IsSystemCommand(command) {
+		case users.Ready:
+			break
+		case users.Pending:
+			if command == commands.StartCommandName {
+				break
+			}
 			_ = responder.Write("Токен обнови.").Respond()
 			return
+		case users.Blacklisted:
+		default:
+			return
 		}
 
+		user = users.GetByID(id)
 		arguments = update.Message.CommandArguments()
 	}
 
@@ -119,6 +126,8 @@ func handleCallbackQuery(update tgbotapi.Update) {
 	} else {
 		user = users.GetByTelegramID(update.CallbackQuery.From.ID)
 	}
+
+	// TODO: allow only stop command buttons for pending users
 
 	context := commands.Context{
 		Command: data[0],

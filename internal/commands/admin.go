@@ -20,7 +20,7 @@ var AdminCommand = Command(func(context Context, responder Responder, formatter 
 
 	text := formatter.Title("Панель управления") +
 		formatter.Item("Telegram: "+strconv.FormatInt(user.TelegramID, 10)) +
-		formatter.Item("Discord: "+helpers.If(user.DiscordID == "", "не указан", user.DiscordID)) +
+		formatter.Item("Discord: "+helpers.If(user.DiscordID.Valid, user.DiscordID.String, "не указан")) +
 		formatter.Item("Статус: "+state)
 
 	keyboard := Keyboard{

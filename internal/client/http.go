@@ -130,7 +130,7 @@ func requestWithClient[T any](client *Client, url string, method string) (*T, er
 	return nil, err
 }
 
-func requestPurgeCache(id int) bool {
+func requestPurgeCache(id *int) bool {
 	req, err := http.NewRequest("POST", appendID(purgeCacheURL, id), nil)
 
 	if err != nil {
