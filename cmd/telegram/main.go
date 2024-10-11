@@ -87,7 +87,7 @@ func handleMessage(update tgbotapi.Update) {
 		case users.Ready:
 			break
 		case users.Pending:
-			if command == commands.StartCommandName {
+			if commands.IsSystemCommand(command) {
 				break
 			}
 			_ = responder.Write("Токен обнови.").Respond()
@@ -125,9 +125,18 @@ func handleCallbackQuery(update tgbotapi.Update) {
 		user = users.GetByID(data[2])
 	} else {
 		user = users.GetByTelegramID(update.CallbackQuery.From.ID)
-	}
 
-	// TODO: allow only stop command buttons for pending users
+		switch user.State {
+		case users.Ready:
+			break
+		case users.Pending:
+			if commands.IsSystemCommand(data[0]) {
+				break
+			}
+		default:
+			return
+		}
+	}
 
 	context := commands.Context{
 		Command: data[0],
