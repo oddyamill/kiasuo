@@ -80,7 +80,7 @@ func handleMessage(update tgbotapi.Update) {
 
 		switch state {
 		case users.Unknown:
-			if command != commands.StartCommandName {
+			if command == commands.StartCommandName {
 				users.CreateWithTelegramID(update.Message.From.ID)
 			}
 			return
@@ -93,6 +93,8 @@ func handleMessage(update tgbotapi.Update) {
 			_ = responder.Write("Токен обнови.").Respond()
 			return
 		case users.Blacklisted:
+			_ = responder.Write("Ты заблокирован. Клоун.").Respond()
+			return
 		default:
 			return
 		}
@@ -121,10 +123,24 @@ func handleCallbackQuery(update tgbotapi.Update) {
 
 	var user *users.User
 
+	responder := commands.TelegramResponder{
+		Bot:    bot,
+		Update: update,
+	}
+
 	if data[0] == commands.AdminCommandName {
 		user = users.GetByID(data[2])
+
+		if user == nil {
+			_ = responder.Write("Пользователь не зарегистрирован").Respond()
+			return
+		}
 	} else {
 		user = users.GetByTelegramID(update.CallbackQuery.From.ID)
+
+		if user == nil {
+			return
+		}
 
 		switch user.State {
 		case users.Ready:
@@ -141,11 +157,6 @@ func handleCallbackQuery(update tgbotapi.Update) {
 	context := commands.Context{
 		Command: data[0],
 		User:    *user,
-	}
-
-	responder := commands.TelegramResponder{
-		Bot:    bot,
-		Update: update,
 	}
 
 	formatter := helpers.TelegramFormatter{}
