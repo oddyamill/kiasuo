@@ -93,7 +93,7 @@ func query(query string, args ...any) {
 	}
 }
 
-func queryPartialRow(query string, args ...any) (string, UserState) {
+func queryPartial(query string, args ...any) (string, UserState) {
 	rows := db.QueryRow(query, args...)
 
 	var (
@@ -152,11 +152,11 @@ func CreateWithTelegramID(telegramID int64) {
 }
 
 func GetPartialByTelegramID(telegramID int64) (string, UserState) {
-	return queryPartialRow("SELECT id, state FROM users WHERE telegram_id = $1", telegramID)
+	return queryPartial("SELECT id, state FROM users WHERE telegram_id = $1", telegramID)
 }
 
 func GetPartialByDiscordID(discordID string) (string, UserState) {
-	return queryPartialRow("SELECT id, state FROM users WHERE telegram_id = $1", discordID)
+	return queryPartial("SELECT id, state FROM users WHERE discord_id = $1", discordID)
 }
 
 func GetByTelegramID(telegramID int64) *User {
@@ -165,10 +165,6 @@ func GetByTelegramID(telegramID int64) *User {
 
 func GetByID(id string) *User {
 	return queryRow("SELECT * FROM users WHERE id = $1", id)
-}
-
-func (u *User) IsReady() bool {
-	return u.State == Ready
 }
 
 func (u *User) UpdateToken(accessToken, refreshToken string) {
