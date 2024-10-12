@@ -32,19 +32,16 @@ func request[T any](req *http.Request) (*T, error) {
 
 	defer res.Body.Close()
 
-	if res.StatusCode == http.StatusUnauthorized {
+	switch res.StatusCode {
+	case http.StatusUnauthorized:
 		return nil, ErrInvalidToken
-	}
-
-	if res.StatusCode == http.StatusInternalServerError {
+	case http.StatusInternalServerError:
 		return nil, ErrServerError
-	}
-
-	if res.StatusCode == http.StatusNoContent {
+	case http.StatusNoContent:
 		return nil, nil
-	}
-
-	if res.StatusCode != http.StatusOK {
+	case http.StatusOK:
+		break
+	default:
 		return nil, errors.New(res.Status)
 	}
 
