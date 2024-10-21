@@ -17,14 +17,7 @@ RUN --mount=type=cache,target=/go/pkg/mod/ \
 	--mount=type=bind,target=. \
 	CGO_ENABLED=0 GOARCH=$TARGETARCH go build -o /bin/app ./cmd/$TARGETAPP
 
-FROM alpine:latest AS final
-
-RUN --mount=type=cache,target=/var/cache/apk \
-	apk --update add \
-	ca-certificates \
-	tzdata \
-	&& \
-	update-ca-certificates
+FROM alpine:latest AS user
 
 ARG UID=10001
 RUN adduser \
@@ -37,6 +30,13 @@ RUN adduser \
 	appuser
 USER appuser
 
+FROM scratch AS final
+
+COPY --from=build /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 COPY --from=build /bin/app /bin/
+
+COPY --from=user /etc/passwd /etc/passwd
+COPY --from=user /etc/group /etc/group
+USER appuser
 
 ENTRYPOINT ["/bin/app"]
