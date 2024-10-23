@@ -32,6 +32,7 @@ type User struct {
 	State              UserState
 	LastMarksUpdate    time.Time
 	Cache              bool
+	VkCookie           crypto.Crypt
 }
 
 var db *sql.DB
@@ -72,7 +73,8 @@ func createTable() {
 			student_name_acronym TEXT,
 			state INTEGER NOT NULL DEFAULT 2,
 		  last_marks_update TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-		  cache BOOLEAN DEFAULT TRUE
+		  cache BOOLEAN DEFAULT TRUE,
+			vk_cookie TEXT
 		)
 	`)
 }
@@ -85,6 +87,7 @@ func createIndex() {
 func migrate() {
 	query("UPDATE users SET state = 2 WHERE state = 0")
 	query("ALTER TABLE users ADD COLUMN IF NOT EXISTS cache BOOLEAN DEFAULT TRUE")
+	query("ALTER TABLE users ADD COLUMN IF NOT EXISTS vk_cookie TEXT")
 }
 
 func query(query string, args ...any) {
@@ -130,6 +133,7 @@ func queryRow(query string, args ...any) *User {
 		&user.State,
 		&user.LastMarksUpdate,
 		&user.Cache,
+		&user.VkCookie,
 	)
 
 	if err != nil {
@@ -202,6 +206,10 @@ func (u *User) UpdateLastMarksUpdate() {
 
 func (u *User) UpdateCache(cache bool) {
 	query("UPDATE users SET cache = $1 WHERE id = $2", cache, u.ID)
+}
+
+func (u *User) UpdateVkCookie(cookie string) {
+	query("UPDATE users SET vk_cookie = $1 WHERE id = $2", cookie, u.ID)
 }
 
 func (u *User) Delete() {
