@@ -6,7 +6,13 @@
 			"request": "launch",
 			"mode": "auto",
 			"program": "${workspaceFolder}/cmd/discord/",
-			"envFile": "${workspaceFolder}/.env",
+			"env": {
+				"POSTGRES_HOST": "localhost",
+				"POSTGRES_DB": "kiasuo",
+				"POSTGRES_USER": "kiasuo",
+				"POSTGRES_PASSWORD": "kiasuo"
+			},
+			"envFile": "${workspaceFolder}/.env"
 		},
 		{
 			"name": "Telegram",
@@ -14,7 +20,13 @@
 			"request": "launch",
 			"mode": "auto",
 			"program": "${workspaceFolder}/cmd/telegram/",
-			"envFile": "${workspaceFolder}/.env",
-		},
+			"env": {
+				"POSTGRES_HOST": "localhost",
+				"POSTGRES_DB": "kiasuo",
+				"POSTGRES_USER": "kiasuo",
+				"POSTGRES_PASSWORD": "kiasuo"
+			},
+			"envFile": "${workspaceFolder}/.env"
+		}
 	]
 }

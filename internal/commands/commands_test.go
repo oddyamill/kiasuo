@@ -3,12 +3,12 @@ package commands
 import "testing"
 
 func TestIsSystemCommand(t *testing.T) {
-	if !IsSystemCommand("start") {
-		t.Errorf("IsSystemCommand() = false; want true\n")
+	if !IsSystemCommand(StartCommandName) {
+		t.Errorf("IsSystemCommand(%s) = false; want true\n", StartCommandName)
 	}
 
 	if IsSystemCommand("settings") {
-		t.Errorf("IsSystemCommand() = true; want false\n")
+		t.Errorf("IsSystemCommand(%s) = true; want false\n", "settings")
 	}
 }
 
