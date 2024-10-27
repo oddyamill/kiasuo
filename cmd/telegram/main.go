@@ -101,6 +101,8 @@ func handleMessage(update tgbotapi.Update) {
 
 		user = users.GetByID(id)
 		arguments = update.Message.CommandArguments()
+	} else {
+		return
 	}
 
 	context := commands.Context{
