@@ -11,7 +11,7 @@ import (
 	_ "github.com/lib/pq"
 )
 
-type UserState int
+type UserState int8
 
 const (
 	Unknown UserState = iota
@@ -65,12 +65,12 @@ func createTable() {
 		CREATE TABLE IF NOT EXISTS users (
 			id SERIAL PRIMARY KEY,
 			telegram_id BIGINT NOT NULL UNIQUE,
-			discord_id TEXT UNIQUE,
+			discord_id VARCHAR(19) UNIQUE,
 			access_token TEXT UNIQUE,
-			refresh_token VARCHAR(96) UNIQUE,
+			refresh_token CHAR(96) UNIQUE,
 			student_id INTEGER,
 			student_name_acronym TEXT,
-			state INTEGER NOT NULL DEFAULT 2,
+			state SMALLINT NOT NULL DEFAULT 2,
 		  last_marks_update TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 		  cache BOOLEAN DEFAULT TRUE
 		)
@@ -83,8 +83,9 @@ func createIndex() {
 }
 
 func migrate() {
-	query("UPDATE users SET state = 2 WHERE state = 0")
-	query("ALTER TABLE users ADD COLUMN IF NOT EXISTS cache BOOLEAN DEFAULT TRUE")
+	query("ALTER TABLE users ALTER COLUMN state SET DATA TYPE SMALLINT")
+	query("ALTER TABLE users ALTER COLUMN discord_id SET DATA TYPE VARCHAR(19)")
+	query("ALTER TABLE users ALTER COLUMN refresh_token SET DATA TYPE CHAR(96)")
 }
 
 func query(query string, args ...any) {
