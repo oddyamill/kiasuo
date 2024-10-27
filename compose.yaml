@@ -3,7 +3,7 @@ services:
     image: ${TELEGRAM_IMAGE_REF}
     restart: always
     volumes:
-      - postgres-socket
+      - postgres-socket:/var/run/postgresql
     environment:
       - TELEGRAM_FILE=/run/secrets/telegram
       - CRYPTO_FILE=/run/secrets/crypto
