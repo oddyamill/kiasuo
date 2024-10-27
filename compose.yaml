@@ -2,10 +2,12 @@ services:
   telegram:
     image: ${TELEGRAM_IMAGE_REF}
     restart: always
+    volumes:
+      - postgres-socket
     environment:
       - TELEGRAM_FILE=/run/secrets/telegram
       - CRYPTO_FILE=/run/secrets/crypto
-      - POSTGRES_HOST=postgres
+      - POSTGRES_HOST=/var/run/postgresql
       - POSTGRES_DB=kiasuo
       - POSTGRES_USER=kiasuo
       - POSTGRES_PASSWORD_FILE=/run/secrets/postgres
@@ -20,10 +22,12 @@ services:
   discord:
     image: ${DISCORD_IMAGE_REF}
     restart: always
+    volumes:
+      - postgres-socket:/var/run/postgresql
     environment:
       - DISCORD_FILE=/run/secrets/discord
       - CRYPTO_FILE=/run/secrets/crypto
-      - POSTGRES_HOST=postgres
+      - POSTGRES_HOST=/var/run/postgresql
       - POSTGRES_DB=kiasuo
       - POSTGRES_USER=kiasuo
       - POSTGRES_PASSWORD_FILE=/run/secrets/postgres
@@ -37,18 +41,18 @@ services:
         condition: service_healthy
   postgres:
     image: postgres:16-alpine
+    command: "postgres -c listen_addresses="
     restart: always
     user: postgres
     volumes:
       - postgres-data:/var/lib/postgresql/data
+      - postgres-socket:/var/run/postgresql
     environment:
       - POSTGRES_DB=kiasuo
       - POSTGRES_USER=kiasuo
       - POSTGRES_PASSWORD_FILE=/run/secrets/postgres
     secrets:
       - postgres
-    expose:
-      - 5432
     healthcheck:
       test: ["CMD", "pg_isready", "-d", "kiasuo", "-U", "kiasuo"]
       interval: 10s
@@ -65,3 +69,4 @@ secrets:
     file: /home/kiasuo/.secrets/postgres.txt
 volumes:
   postgres-data:
+  postgres-socket:
