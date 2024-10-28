@@ -76,12 +76,16 @@ func (c *Crypt) Decrypt() string {
 }
 
 func (c *Crypt) Scan(src any) error {
-	text, ok := src.(string)
-
-	if !ok {
-		return nil
+	switch value := src.(type) {
+	case string:
+		c.Encrypted = value
+	case []byte:
+		c.Encrypted = helpers.BytesToString(value)
+	case nil:
+		c.Encrypted = ""
+	default:
+		return errors.New("unsupported type")
 	}
 
-	c.Encrypted = text
 	return nil
 }
