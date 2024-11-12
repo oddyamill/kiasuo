@@ -1,4 +1,4 @@
-import { AUTH_HEADER, CACHE_HEADER, CACHE_ROUTES, CACHE_TTL, ORIGIN_DOMAIN } from "./config"
+import { AUTH_HEADER, CACHE_HEADER, CACHE_ROUTES, CACHE_TTL, EDGE_HEADER, EDGES, ORIGIN_DOMAIN } from "./config"
 
 function proxyRequest(url: URL, request: Request, cf: CfProperties, headers?: Headers): Promise<Response> {
 	const init: RequestInit = {
@@ -16,7 +16,17 @@ function proxyRequest(url: URL, request: Request, cf: CfProperties, headers?: He
 }
 
 function proxyEdge(url: URL, request: Request, env: Env): Promise<Response> {
-	return proxyRequest(url, request,{ resolveOverride: `cloudflare-edge-${env.EDGE}.oddya.ru` })
+	let edge = env.EDGE
+
+	if (request.headers.has(EDGE_HEADER)) {
+		edge = request.headers.get(EDGE_HEADER)!
+
+		if (!EDGES.includes(edge)) {
+			return Promise.resolve(new Response(null, { status: 404 }))
+		}
+	}
+
+	return proxyRequest(url, request,{ resolveOverride: `cloudflare-edge-${edge}.oddya.ru` })
 }
 
 async function proxyKiasuo(url: URL, request: Request, env: Env): Promise<Response> {
@@ -76,7 +86,7 @@ async function purgeCache(url: URL, request: Request, env: Env): Promise<Respons
 }
 
 export default {
-	async fetch(request, env): Promise<Response> {
+	fetch(request, env): Promise<Response> {
 		const url = new URL(request.url)
 
 		if (url.pathname === "/internal/purge-cache") {
