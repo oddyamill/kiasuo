@@ -11,11 +11,11 @@ export const CACHE_HEADER = "Worker-Cache"
 export const AUTH_HEADER = "Worker-Authorization"
 
 export const EDGES = [
-	"dme",
-	"kld",
-	"kja",
-	"led",
-	"svx"
+	"DME",
+	"KLD",
+	"KJA",
+	"LED",
+	"SVX"
 ]
 
 export const EDGE_HEADER = "Worker-Edge"

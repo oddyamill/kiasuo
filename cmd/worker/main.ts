@@ -26,7 +26,7 @@ function proxyEdge(url: URL, request: Request, env: Env): Promise<Response> {
 		}
 	}
 
-	return proxyRequest(url, request,{ resolveOverride: `cloudflare-edge-${edge}.oddya.ru` })
+	return proxyRequest(url, request,{ resolveOverride: `cloudflare-edge-${edge.toLowerCase()}.oddya.ru` })
 }
 
 async function proxyKiasuo(url: URL, request: Request, env: Env): Promise<Response> {
@@ -93,7 +93,7 @@ export default {
 			return purgeCache(url, request, env)
 		}
 
-		if (request.cf !== undefined && !["KJA", "KLD", "LED"].includes(request.cf.colo)) {
+		if (request.cf !== undefined && !EDGES.includes(request.cf.colo)) {
 			return proxyEdge(url, request, env)
 		}
 
