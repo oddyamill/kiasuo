@@ -16,17 +16,13 @@ function proxyRequest(url: URL, request: Request, cf: CfProperties, headers?: He
 }
 
 function proxyEdge(url: URL, request: Request, env: Env): Promise<Response> {
-	let edge = env.EDGE
+	const edge = request.headers.get(EDGE_HEADER) ?? env.EDGE
 
-	if (request.headers.has(EDGE_HEADER)) {
-		edge = request.headers.get(EDGE_HEADER)!
-
-		if (!EDGES.includes(edge)) {
-			return Promise.resolve(new Response(null, { status: 404 }))
-		}
-	}
-
-	return proxyRequest(url, request,{ resolveOverride: `cloudflare-edge-${edge.toLowerCase()}.oddya.ru` })
+	return proxyRequest(
+		url,
+		request,
+		{ resolveOverride: `cloudflare-edge-${edge.toLowerCase()}.oddya.ru` }
+	)
 }
 
 async function proxyKiasuo(url: URL, request: Request, env: Env): Promise<Response> {
@@ -73,7 +69,7 @@ async function purgeCache(url: URL, request: Request, env: Env): Promise<Respons
 
 	const response = await fetch(`https://api.cloudflare.com/client/v4/zones/${env.ZONE}/purge_cache`, {
 		headers: {
-			Authorization: "Bearer " + env.CLOUDFLARE,
+			Authorization: (env.CLOUDFLARE[6] !== " " ? "Bearer " : "") + env.CLOUDFLARE,
 			"Content-Type": "application/json",
 		},
 		method: "POST",

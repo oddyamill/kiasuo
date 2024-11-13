@@ -15,7 +15,7 @@ export const EDGES = [
 	"KLD",
 	"KJA",
 	"LED",
-	"SVX"
+	"SVX",
 ]
 
 export const EDGE_HEADER = "Worker-Edge"
