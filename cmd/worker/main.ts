@@ -61,10 +61,9 @@ async function proxyKiasuo(url: URL, request: Request, env: Env, yandex?: boolea
 	url.hostname = ORIGIN_DOMAIN
 
 	if (yandex) {
-		const { search } = url
-		headers.set("Origin", url.toString())
+		const origin = url.toString()
 		url = new URL(env.YANDEX)
-		url.search = search
+		url.searchParams.set("origin", origin)
 	}
 
 	return proxyRequest(url, request, cf, headers)

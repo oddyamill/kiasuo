@@ -4,11 +4,11 @@ const handler: Handler.Http = async (event) => {
 	let origin: URL
 
 	try {
-		origin = new URL(event.headers["Origin"])
+		origin = new URL(event.queryStringParameters.origin || event.headers["Origin"])
 	} catch {
 		return {
 			statusCode: 400,
-			body: "Invalid Origin header",
+			body: "Invalid origin",
 		}
 	}
 
