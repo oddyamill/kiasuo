@@ -3,4 +3,5 @@ interface Env {
 	AUTH: string
 	CLOUDFLARE: string
 	ZONE: string
+	YANDEX: string
 }

@@ -50,7 +50,7 @@ async function proxyKiasuo(url: URL, request: Request, env: Env, yandex?: boolea
 	}
 
 	if (request.headers.has("Authorization")) {
-		headers.set("Authorization", request.headers.get("Authorization")!)
+		headers.set((yandex ? "Kiasuo-" : "") + "Authorization", request.headers.get("Authorization")!)
 	}
 
 	if (request.headers.has("Content-Type")) {
