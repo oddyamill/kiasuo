@@ -16,16 +16,20 @@ function proxyRequest(url: URL, request: Request, cf: CfProperties, headers?: He
 }
 
 function proxyEdge(url: URL, request: Request, env: Env): Promise<Response> {
-	const edge = request.headers.get(EDGE_HEADER) ?? env.EDGE
+	if (env.YANDEX !== undefined) {
+		return proxyKiasuo(url, request, env, true)
+	}
+
+	const edge = (request.headers.get(EDGE_HEADER) || env.EDGE).toLowerCase()
 
 	return proxyRequest(
 		url,
 		request,
-		{ resolveOverride: `cloudflare-edge-${edge.toLowerCase()}.oddya.ru` }
+		{ resolveOverride: `cloudflare-edge-${edge}.oddya.ru` },
 	)
 }
 
-async function proxyKiasuo(url: URL, request: Request, env: Env): Promise<Response> {
+async function proxyKiasuo(url: URL, request: Request, env: Env, yandex?: boolean): Promise<Response> {
 	const cf: CfProperties = {}
 
 	if (request.headers.has(AUTH_HEADER)) {
@@ -55,6 +59,14 @@ async function proxyKiasuo(url: URL, request: Request, env: Env): Promise<Respon
 	}
 
 	url.hostname = ORIGIN_DOMAIN
+
+	if (yandex) {
+		const { search } = url
+		headers.set("Origin", url.toString())
+		url = new URL(env.YANDEX)
+		url.search = search
+	}
+
 	return proxyRequest(url, request, cf, headers)
 }
 
