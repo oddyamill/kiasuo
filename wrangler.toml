@@ -1,18 +1,48 @@
 #:schema node_modules/wrangler/config-schema.json
-name = "kiasuo"
+name = "kiasuo-proxy"
 main = "cmd/worker/main.ts"
+upload_source_maps = true
 compatibility_date = "2024-07-29"
 compatibility_flags = ["nodejs_compat"]
 workers_dev = false
 
-[[routes]]
-pattern = "kiasuo.oddya.ru/diary/api/*"
-zone_id = "b0800b8f194e7efaa540618f63885f01"
-
+# i know it can be done easier but i dont like it
 [[routes]]
 pattern = "kiasuo.oddya.ru/diary/refresh"
-zone_id = "b0800b8f194e7efaa540618f63885f01"
+zone_name = "oddya.ru"
+
+[[routes]]
+pattern = "kiasuo.oddya.ru/diary/api/user*"
+zone_name = "oddya.ru"
+
+[[routes]]
+pattern = "kiasuo.oddya.ru/diary/api/recipients*"
+zone_name = "oddya.ru"
+
+[[routes]]
+pattern = "kiasuo.oddya.ru/diary/api/study_periods*"
+zone_name = "oddya.ru"
+
+[[routes]]
+pattern = "kiasuo.oddya.ru/diary/api/lesson_marks/*"
+zone_name = "oddya.ru"
+
+[[routes]]
+pattern = "kiasuo.oddya.ru/diary/api/student_marks/*"
+zone_name = "oddya.ru"
+
+[[routes]]
+pattern = "kiasuo.oddya.ru/diary/api/notices*"
+zone_name = "oddya.ru"
+
+[[routes]]
+pattern = "kiasuo.oddya.ru/diary/api/conversations*"
+zone_name = "oddya.ru"
+
+[[routes]]
+pattern = "kiasuo.oddya.ru/diary/api/schedule*"
+zone_name = "oddya.ru"
 
 [[routes]]
 pattern = "kiasuo.oddya.ru/internal/purge-cache*"
-zone_id = "b0800b8f194e7efaa540618f63885f01"
+zone_name = "oddya.ru"
