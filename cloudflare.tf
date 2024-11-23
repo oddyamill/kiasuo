@@ -12,7 +12,7 @@ variable "cloudflare_zone_id" {
 }
 
 locals {
-  subdomain = "kiasuo-proxy"
+  subdomain = "kiasuo"
   records = [
     {
       name    = local.subdomain

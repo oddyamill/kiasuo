@@ -8,6 +8,7 @@ import (
 const (
 	PublicUrl = "https://dnevnik.kiasuo.ru"
 	ApiUrl    = "https://kiasuo-proxy.oddya.ru/diary"
+	ApiUrl    = "https://kiasuo.oddya.ru/diary"
 )
 
 var (

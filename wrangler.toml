@@ -1,18 +1,18 @@
 #:schema node_modules/wrangler/config-schema.json
-name = "kiasuo-proxy"
+name = "kiasuo"
 main = "cmd/worker/main.ts"
 compatibility_date = "2024-07-29"
 compatibility_flags = ["nodejs_compat"]
 workers_dev = false
 
 [[routes]]
-pattern = "kiasuo-proxy.oddya.ru/diary/api/*"
+pattern = "kiasuo.oddya.ru/diary/api/*"
 zone_id = "b0800b8f194e7efaa540618f63885f01"
 
 [[routes]]
-pattern = "kiasuo-proxy.oddya.ru/diary/refresh"
+pattern = "kiasuo.oddya.ru/diary/refresh"
 zone_id = "b0800b8f194e7efaa540618f63885f01"
 
 [[routes]]
-pattern = "kiasuo-proxy.oddya.ru/internal/purge-cache*"
+pattern = "kiasuo.oddya.ru/internal/purge-cache*"
 zone_id = "b0800b8f194e7efaa540618f63885f01"
