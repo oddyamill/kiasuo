@@ -1,5 +1,5 @@
 #:schema node_modules/wrangler/config-schema.json
-name = "kiasuo-proxy"
+name = "kiasuo"
 main = "cmd/worker/main.ts"
 upload_source_maps = true
 compatibility_date = "2024-07-29"
