@@ -85,6 +85,10 @@ type Mark struct {
 	UpdatedAt  time.Time `json:"updated_at"`
 }
 
+func (m Mark) IsPass() bool {
+	return m.Mark == "Б" || m.Mark == "Н" || m.Mark == "У"
+}
+
 type RawSchedule struct {
 	Schedule  []Event    `json:"schedule"`
 	Homeworks []Homework `json:"homeworks"`

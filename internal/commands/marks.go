@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-func marksCommand(context Context, responder Responder, formatter helpers.Formatter, periodID int) error {
+func marksCommand(context Context, responder Responder, formatter helpers.Formatter, periodID int, hidePasses bool) error {
 	periods, err := context.GetClient().GetStudyPeriods()
 
 	if err != nil {
@@ -29,6 +29,11 @@ func marksCommand(context Context, responder Responder, formatter helpers.Format
 		}
 	}
 
+	row = append(row, KeyboardButton{
+		Text:     helpers.If(hidePasses, "Показать", "Скрыть") + " пропуски",
+		Callback: "marks:" + strconv.Itoa(periodID) + ":" + helpers.If(hidePasses, "show", "hide"),
+	})
+
 	keyboard := Keyboard{row}
 
 	if period == nil {
@@ -44,29 +49,29 @@ func marksCommand(context Context, responder Responder, formatter helpers.Format
 	responder.Write(formatter.Title("Оценки за " + period.Text))
 
 	for _, lesson := range *marks {
-		line := lesson.String()
+		line := ""
 
-		if len(lesson.Marks) > 0 {
-			marksLine := ""
-
-			for i, mark := range lesson.Marks {
-				if i > 0 {
-					marksLine += ", "
-				}
-
-				marksLine += mark.Mark
-
-				if mark.UpdatedAt.After(context.User.LastMarksUpdate) {
-					marksLine += "⁺"
-				}
+		for i, mark := range lesson.Marks {
+			if hidePasses && mark.IsPass() {
+				continue
 			}
 
-			line += ": " + formatter.Code(marksLine)
-		} else {
-			line += ": " + formatter.Code("-")
+			if i > 0 && line != "" {
+				line += ", "
+			}
+
+			line += mark.Mark
+
+			if mark.UpdatedAt.After(context.User.LastMarksUpdate) {
+				line += "⁺"
+			}
 		}
 
-		responder.Write(formatter.Item(line))
+		if line == "" {
+			line = "-"
+		}
+
+		responder.Write(formatter.Item(lesson.String() + ": " + formatter.Code(line)))
 	}
 
 	context.User.UpdateLastMarksUpdate()
@@ -75,10 +80,16 @@ func marksCommand(context Context, responder Responder, formatter helpers.Format
 }
 
 var MarksCommand = Command(func(context Context, responder Responder, formatter helpers.Formatter) error {
-	return marksCommand(context, responder, formatter, 0)
+	return marksCommand(context, responder, formatter, 0, true)
 })
 
 var MarksCallback = Callback(func(context Context, responder Responder, formatter helpers.Formatter, data []string) error {
 	id, _ := strconv.Atoi(data[1])
-	return marksCommand(context, responder, formatter, id)
+
+	if len(data) < 3 {
+		// todo better compatibility with the old versions
+		return marksCommand(context, responder, formatter, id, true)
+	}
+
+	return marksCommand(context, responder, formatter, id, data[2] == "hide")
 })
