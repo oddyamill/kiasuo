@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-func marksCommand(context Context, responder Responder, formatter helpers.Formatter, periodID int, hidePasses bool) error {
+func marksCommand(context Context, responder Responder, formatter helpers.Formatter, periodID int) error {
 	periods, err := context.GetClient().GetStudyPeriods()
 
 	if err != nil {
@@ -30,8 +30,8 @@ func marksCommand(context Context, responder Responder, formatter helpers.Format
 	}
 
 	row = append(row, KeyboardButton{
-		Text:     helpers.If(hidePasses, "Показать", "Скрыть") + " пропуски",
-		Callback: "marks:" + strconv.Itoa(periodID) + ":" + helpers.If(hidePasses, "show", "hide"),
+		Text:     "Настройки",
+		Callback: "settings:marks",
 	})
 
 	keyboard := Keyboard{row}
@@ -47,6 +47,9 @@ func marksCommand(context Context, responder Responder, formatter helpers.Format
 	}
 
 	responder.Write(formatter.Title("Оценки за " + period.Text))
+
+	// TODO!
+	hidePasses, hideEmptyLessons := true, true
 
 	for _, lesson := range *marks {
 		line := ""
@@ -68,6 +71,10 @@ func marksCommand(context Context, responder Responder, formatter helpers.Format
 		}
 
 		if line == "" {
+			if hideEmptyLessons {
+				continue
+			}
+
 			line = "-"
 		}
 
@@ -80,16 +87,10 @@ func marksCommand(context Context, responder Responder, formatter helpers.Format
 }
 
 var MarksCommand = Command(func(context Context, responder Responder, formatter helpers.Formatter) error {
-	return marksCommand(context, responder, formatter, 0, true)
+	return marksCommand(context, responder, formatter, 0)
 })
 
 var MarksCallback = Callback(func(context Context, responder Responder, formatter helpers.Formatter, data []string) error {
 	id, _ := strconv.Atoi(data[1])
-
-	if len(data) < 3 {
-		// todo better compatibility with the old versions
-		return marksCommand(context, responder, formatter, id, true)
-	}
-
-	return marksCommand(context, responder, formatter, id, data[2] == "hide")
+	return marksCommand(context, responder, formatter, id)
 })
