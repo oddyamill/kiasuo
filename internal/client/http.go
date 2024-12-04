@@ -100,7 +100,7 @@ func requestWithClient[T any](client *Client, url string, method string) (*T, er
 		}
 	}
 
-	if !client.User.Cache {
+	if !client.User.Cache || client.User.StudentID == nil {
 		req.Header.Set(cacheHeader, "no")
 	}
 
