@@ -1,5 +1,7 @@
 import type { Handler } from "@yandex-cloud/function-types"
 
+const ORIGIN_DOMAIN = "dnevnik.kiasuo.ru"
+
 const handler: Handler.Http = async (event) => {
 	let origin: URL
 
@@ -12,7 +14,7 @@ const handler: Handler.Http = async (event) => {
 		}
 	}
 
-	if (origin.hostname !== "dnevnik.kiasuo.ru") {
+	if (origin.hostname !== ORIGIN_DOMAIN) {
 		return {
 			statusCode: 403,
 			body: "Host not allowed",

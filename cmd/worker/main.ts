@@ -1,4 +1,13 @@
-import { AUTH_HEADER, CACHE_HEADER, CACHE_ROUTES, CACHE_TTL, EDGE_HEADER, EDGES, ORIGIN_DOMAIN } from "./config"
+import {
+	AUTH_HEADER,
+	CACHE_HEADER,
+	CACHE_TTL,
+	CACHED_ROUTES,
+	EDGE_HEADER,
+	EDGES,
+	ORIGIN_DOMAIN,
+} from "./config"
+import { throwYandexError } from "./errors"
 
 function proxyRequest(url: URL, request: Request, cf: CfProperties, headers?: Headers): Promise<Response> {
 	const init: RequestInit = {
@@ -15,21 +24,16 @@ function proxyRequest(url: URL, request: Request, cf: CfProperties, headers?: He
 	return fetch(url, init)
 }
 
-function proxyEdge(url: URL, request: Request, env: Env): Response | Promise<Response> {
+function proxyEdge(url: URL, request: Request, env: Env): Promise<Response> {
 	if (env.YANDEX !== undefined) {
 		return proxyKiasuo(url, request, env, true)
 	}
 
 	const edge = (request.headers.get(EDGE_HEADER) || env.EDGE).toLowerCase()
-
-	return proxyRequest(
-		url,
-		request,
-		{ resolveOverride: `cloudflare-edge-${edge}.oddya.ru` },
-	)
+	return proxyRequest(url, request, { resolveOverride: `cloudflare-edge-${edge}.oddya.ru` })
 }
 
-function proxyKiasuo(url: URL, request: Request, env: Env, yandex?: boolean): Response | Promise<Response> {
+async function proxyKiasuo(url: URL, request: Request, env: Env, yandex?: boolean): Promise<Response> {
 	const cf: CfProperties = {}
 
 	if (request.headers.has(AUTH_HEADER)) {
@@ -37,7 +41,7 @@ function proxyKiasuo(url: URL, request: Request, env: Env, yandex?: boolean): Re
 			return new Response(null, { status: 407 })
 		}
 
-		if (CACHE_ROUTES.includes(url.pathname) && request.headers.get(CACHE_HEADER) !== "no") {
+		if (CACHED_ROUTES.includes(url.pathname) && request.headers.get(CACHE_HEADER) !== "no") {
 			cf.cacheEverything = true
 			cf.cacheTtlByStatus = { "200-299": CACHE_TTL }
 		}
@@ -66,7 +70,13 @@ function proxyKiasuo(url: URL, request: Request, env: Env, yandex?: boolean): Re
 		url.searchParams.set("origin", origin)
 	}
 
-	return proxyRequest(url, request, cf, headers)
+	const response = await proxyRequest(url, request, cf, headers)
+
+	if (response.status === 502 && response.headers.get("X-Function-Error") === "true") {
+		throwYandexError(await response.json())
+	}
+
+	return response
 }
 
 async function purgeCache(url: URL, request: Request, env: Env): Promise<Response> {
@@ -78,7 +88,7 @@ async function purgeCache(url: URL, request: Request, env: Env): Promise<Respons
 		return new Response(null, { status: 401 })
 	}
 
-	const urls = CACHE_ROUTES.map((route) => `https://${ORIGIN_DOMAIN}${route}${url.search}`)
+	const urls = CACHED_ROUTES.map((route) => `https://${ORIGIN_DOMAIN}${route}${url.search}`)
 
 	if (env.YANDEX !== undefined) {
 		urls.push(...urls.map((origin) => `${env.YANDEX}?origin=${encodeURIComponent(origin)}`))
@@ -97,7 +107,7 @@ async function purgeCache(url: URL, request: Request, env: Env): Promise<Respons
 }
 
 export default {
-	fetch(request, env): Response | Promise<Response> {
+	fetch(request, env): Promise<Response> {
 		const url = new URL(request.url)
 
 		if (url.pathname === "/internal/purge-cache") {
