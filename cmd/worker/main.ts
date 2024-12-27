@@ -49,8 +49,8 @@ async function proxyKiasuo(url: URL, request: Request, env: Env, yandex?: boolea
 
 	const headers = new Headers()
 
-	if (request.headers.has("Accept-Encoding")) {
-		headers.set("Accept-Encoding", request.headers.get("Accept-Encoding")!)
+	if (request.headers.has("Accept")) {
+		headers.set("Accept", request.headers.get("Accept")!)
 	}
 
 	if (request.headers.has("Authorization")) {

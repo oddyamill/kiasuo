@@ -23,6 +23,10 @@ const handler: Handler.Http = async (event) => {
 
 	const headers = new Headers()
 
+	if (event.headers["Accept"]) {
+		headers.set("Accept", event.headers["Accept"])
+	}
+
 	if (event.headers["Kiasuo-Authorization"]) {
 		headers.set("Authorization", event.headers["Kiasuo-Authorization"])
 	}

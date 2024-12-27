@@ -1,11 +1,11 @@
 package client
 
 import (
-	"bytes"
 	"encoding/json"
 	"errors"
 	"net/http"
 	"os"
+	"strings"
 )
 
 const (
@@ -20,6 +20,8 @@ func init() {
 }
 
 func request[T any](req *http.Request) (*T, error) {
+	req.Header.Set("Accept", "application/json")
+
 	if workerAuth != "" {
 		req.Header.Set(authHeader, workerAuth)
 	}
@@ -33,16 +35,20 @@ func request[T any](req *http.Request) (*T, error) {
 	defer res.Body.Close()
 
 	switch res.StatusCode {
+	case http.StatusOK:
+		break
 	case http.StatusUnauthorized:
 		return nil, ErrInvalidToken
 	case http.StatusInternalServerError:
 		return nil, ErrServerError
 	case http.StatusNoContent:
 		return nil, nil
-	case http.StatusOK:
-		break
 	default:
 		return nil, errors.New(res.Status)
+	}
+
+	if res.Header.Get("Content-Length") == "" {
+		return nil, nil
 	}
 
 	var result *T
@@ -59,7 +65,7 @@ func request[T any](req *http.Request) (*T, error) {
 }
 
 func refreshToken(client *Client) error {
-	req, err := http.NewRequest("POST", refreshURL, bytes.NewBufferString(
+	req, err := http.NewRequest("POST", refreshURL, strings.NewReader(
 		"refresh-token="+client.User.RefreshToken.Decrypt(),
 	))
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
