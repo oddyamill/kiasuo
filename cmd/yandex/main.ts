@@ -45,7 +45,7 @@ const handler: Handler.Http = async (event) => {
 
 	return {
 		statusCode: response.status,
-		body: response.ok ? await response.text() : undefined,
+		body: await response.text(),
 		headers: {
 			"Content-Encoding": response.headers.get("Content-Encoding") ?? "identity",
 			"Content-Type": response.headers.get("Content-Type") ?? "text/plain",
