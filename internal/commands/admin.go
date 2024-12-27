@@ -11,17 +11,10 @@ const AdminCommandName string = "-internal-admin"
 var AdminCommand = Command(func(context Context, responder Responder, formatter helpers.Formatter) error {
 	user := context.User
 
-	state := map[users.UserState]string{
-		users.Unknown:     "неизвестно",
-		users.Ready:       "готов",
-		users.Pending:     "ожидает",
-		users.Blacklisted: "заблокирован",
-	}[user.State]
-
 	text := formatter.Title("Панель управления") +
 		formatter.Item("Telegram: "+strconv.FormatInt(user.TelegramID, 10)) +
 		formatter.Item("Discord: "+helpers.If(user.DiscordID.Valid, user.DiscordID.String, "не указан")) +
-		formatter.Item("Статус: "+state)
+		formatter.Item("Статус: "+user.State.String())
 
 	keyboard := Keyboard{
 		KeyboardRow{

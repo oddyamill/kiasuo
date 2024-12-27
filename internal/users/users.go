@@ -11,16 +11,6 @@ import (
 	_ "github.com/lib/pq"
 )
 
-type UserState int8
-
-const (
-	Unknown UserState = iota
-	Ready
-	Pending
-	Blacklisted
-)
-
-// User TODO: sql.NullInt32?
 type User struct {
 	ID                 int
 	TelegramID         int64
@@ -72,7 +62,7 @@ func createTable() {
 			student_name_acronym TEXT,
 			state SMALLINT NOT NULL DEFAULT 2,
 		  last_marks_update TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-		  cache BOOLEAN DEFAULT TRUE
+		  cache BOOLEAN DEFAULT FALSE
 		)
 	`)
 }
@@ -83,9 +73,7 @@ func createIndex() {
 }
 
 func migrate() {
-	query("ALTER TABLE users ALTER COLUMN state SET DATA TYPE SMALLINT")
-	query("ALTER TABLE users ALTER COLUMN discord_id SET DATA TYPE VARCHAR(19)")
-	query("ALTER TABLE users ALTER COLUMN refresh_token SET DATA TYPE CHAR(96)")
+	query("ALTER TABLE users ALTER COLUMN cache SET DEFAULT FALSE")
 }
 
 func query(query string, args ...any) {
