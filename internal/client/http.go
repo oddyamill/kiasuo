@@ -47,10 +47,6 @@ func request[T any](req *http.Request) (*T, error) {
 		return nil, errors.New(res.Status)
 	}
 
-	if res.Header.Get("Content-Length") == "" {
-		return nil, nil
-	}
-
 	var result *T
 
 	if err = json.NewDecoder(res.Body).Decode(&result); err != nil {

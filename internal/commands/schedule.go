@@ -38,7 +38,7 @@ func scheduleCommand(context Context, responder Responder, formatter helpers.For
 		if event.LessonDate != date {
 			responder.Write(formatter.Title(formatDate(event.Date())))
 			date = event.LessonDate
-			checked = []string{}
+			checked = nil
 		}
 
 		responder.Write(formatter.Line(event.String()))

@@ -41,7 +41,7 @@ func GetEnv(key string) string {
 		return strings.TrimSpace(BytesToString(buffer))
 	}
 
-	panic("Environment variable " + key + " not set")
+	panic("environment variable " + key + " not set")
 }
 
 func IsTesting() bool {

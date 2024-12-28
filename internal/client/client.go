@@ -86,5 +86,5 @@ func (c *Client) isTokenExpired() bool {
 		return true
 	}
 
-	return time.Unix(int64(tokenPayload.Expiration), 0).Before(time.Now())
+	return time.Unix(tokenPayload.Expiration, 0).Before(time.Now())
 }
