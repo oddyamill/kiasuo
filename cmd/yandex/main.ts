@@ -1,4 +1,5 @@
 import type { Handler } from "@yandex-cloud/function-types"
+import { brotliCompressSync } from "node:zlib"
 
 const ORIGIN_DOMAIN = "dnevnik.kiasuo.ru"
 
@@ -43,13 +44,23 @@ const handler: Handler.Http = async (event) => {
 		body: event.body ? Buffer.from(event.body, event.isBase64Encoded ? "base64" : "utf8").toString() : undefined,
 	})
 
+	const acceptBrotli = event.headers["Accept-Encoding"]?.includes("br")
+	let body: string
+
+	if (acceptBrotli) {
+		body = brotliCompressSync(await response.arrayBuffer()).toString("base64")
+	} else {
+		body = await response.text()
+	}
+
 	return {
 		statusCode: response.status,
-		body: await response.text(),
+		body,
+		isBase64Encoded: acceptBrotli,
 		headers: {
-			"Content-Encoding": response.headers.get("Content-Encoding") ?? "identity",
-			"Content-Type": response.headers.get("Content-Type") ?? "text/plain",
-			"Content-Length": response.headers.get("Content-Length") ?? "0",
+			"Content-Encoding": acceptBrotli ? "br" : "",
+			"Content-Type": response.headers.get("Content-Type") ?? "",
+			"Content-Length": Buffer.byteLength(body).toString(),
 		},
 	}
 }
