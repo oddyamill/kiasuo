@@ -71,7 +71,7 @@ type RawLessons struct {
 
 type Lesson struct {
 	Subject string `json:"subject"`
-	Marks   []Mark `json:"marks"`
+	Marks   []Mark `json:"slots"`
 }
 
 func (l Lesson) String() string {
@@ -99,7 +99,7 @@ type Event struct {
 	LessonDate string `json:"lesson_date"`
 	Number     int    `json:"lesson_number"`
 	Homeworks  []int  `json:"homework_to_check_ids"`
-	Marks      []Mark `json:"marks"`
+	Marks      []Mark `json:"slots"`
 }
 
 func (e Event) Date() time.Time {
