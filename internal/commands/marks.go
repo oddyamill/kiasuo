@@ -54,7 +54,9 @@ func marksCommand(context Context, responder Responder, formatter helpers.Format
 	for _, lesson := range *marks {
 		line := ""
 
-		for i, mark := range lesson.Marks {
+		for i, slot := range lesson.Slots {
+			mark := slot.Mark
+
 			if hidePasses && mark.IsPass() {
 				continue
 			}
@@ -63,9 +65,9 @@ func marksCommand(context Context, responder Responder, formatter helpers.Format
 				line += ", "
 			}
 
-			line += mark.Mark
+			line += mark.Value
 
-			if mark.UpdatedAt.After(context.User.LastMarksUpdate) {
+			if slot.UpdatedAt.After(context.User.LastMarksUpdate) {
 				line += "⁺"
 			}
 		}

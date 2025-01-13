@@ -71,22 +71,25 @@ type RawLessons struct {
 
 type Lesson struct {
 	Subject string `json:"subject"`
-	Marks   []Mark `json:"slots"`
+	Slots   []Slot `json:"slots"`
 }
 
 func (l Lesson) String() string {
 	return helpers.HumanizeLesson(l.Subject)
 }
 
-type Mark struct {
-	// эта ебола будет мне порядок нарушать или нет?
+type Slot struct {
 	LessonDate string    `json:"lesson_date"`
-	Mark       string    `json:"mark"`
+	Mark       Mark      `json:"mark"`
 	UpdatedAt  time.Time `json:"updated_at"`
 }
 
+type Mark struct {
+	Value string `json:"value"`
+}
+
 func (m Mark) IsPass() bool {
-	return m.Mark == "Б" || m.Mark == "Н" || m.Mark == "У"
+	return m.Value == "Б" || m.Value == "Н" || m.Value == "У"
 }
 
 type RawSchedule struct {
@@ -99,7 +102,7 @@ type Event struct {
 	LessonDate string `json:"lesson_date"`
 	Number     int    `json:"lesson_number"`
 	Homeworks  []int  `json:"homework_to_check_ids"`
-	Marks      []Mark `json:"slots"`
+	Slots      []Slot `json:"slots"`
 }
 
 func (e Event) Date() time.Time {

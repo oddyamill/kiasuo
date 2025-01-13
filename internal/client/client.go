@@ -4,6 +4,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"github.com/kiasuo/bot/internal/users"
+	"net/http"
 	"strings"
 	"time"
 )
@@ -17,11 +18,11 @@ func (c *Client) RefreshToken() error {
 }
 
 func (c *Client) GetUser() (*User, error) {
-	return requestWithClient[User](c, userURL, "GET")
+	return requestWithClient[User](c, userURL, http.MethodGet)
 }
 
 func (c *Client) GetRecipients() (*Recipients, error) {
-	rawRecipients, err := requestWithClient[RawRecipient](c, recipientsURL, "GET")
+	rawRecipients, err := requestWithClient[RawRecipient](c, recipientsURL, http.MethodGet)
 
 	if err != nil {
 		return nil, err
@@ -32,11 +33,11 @@ func (c *Client) GetRecipients() (*Recipients, error) {
 }
 
 func (c *Client) GetStudyPeriods() (*[]StudyPeriod, error) {
-	return requestWithClient[[]StudyPeriod](c, studyPeriodsURL, "GET")
+	return requestWithClient[[]StudyPeriod](c, studyPeriodsURL, http.MethodGet)
 }
 
 func (c *Client) GetLessons(id int) (*[]Lesson, error) {
-	rawMarks, err := requestWithClient[RawLessons](c, lessonMarksURL(id), "GET")
+	rawMarks, err := requestWithClient[RawLessons](c, lessonMarksURL(id), http.MethodGet)
 
 	if err != nil {
 		return nil, err
@@ -48,11 +49,11 @@ func (c *Client) GetLessons(id int) (*[]Lesson, error) {
 func (c *Client) GetSchedule(time time.Time) (*RawSchedule, error) {
 	year, week := time.ISOWeek()
 
-	return requestWithClient[RawSchedule](c, scheduleURL(year, week), "GET")
+	return requestWithClient[RawSchedule](c, scheduleURL(year, week), http.MethodGet)
 }
 
 func (c *Client) RevokeToken() error {
-	_, err := requestWithClient[any](c, revokeURL, "DELETE")
+	_, err := requestWithClient[any](c, revokeURL, http.MethodDelete)
 	return err
 }
 

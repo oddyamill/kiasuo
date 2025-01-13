@@ -32,6 +32,7 @@ var SettingsCommand = Command(func(context Context, responder Responder, formatt
 })
 
 var SettingsCallback = Callback(func(context Context, responder Responder, formatter helpers.Formatter, data []string) error {
+	// shitcode
 	switch data[1] {
 	case "userStudents":
 		return getUserStudents(context, responder)
@@ -41,6 +42,8 @@ var SettingsCallback = Callback(func(context Context, responder Responder, forma
 		return getDiscord(context, responder)
 	case "cache":
 		return updateCache(context, responder)
+	case "marks":
+		return getMarks(context, responder, formatter)
 	}
 
 	return nil
@@ -112,4 +115,29 @@ func updateCache(context Context, response Responder) error {
 	}
 
 	return response.Write("Кэширование успешно включено!").Respond()
+}
+
+func getMarks(context Context, responder Responder, formatter helpers.Formatter) error {
+	keyboard := Keyboard{
+		KeyboardRow{
+			KeyboardButton{
+				Text:     "Скрывать пропуски",
+				Callback: "settings:hide_passes",
+			},
+			KeyboardButton{
+				Text:     "Скрывать пустые предметы",
+				Callback: "settings:hide_empty_lines",
+			},
+		},
+		KeyboardRow{
+			KeyboardButton{
+				Text:     "Назад",
+				Callback: "marks:0",
+			},
+		},
+	}
+
+	return responder.
+		Write("Настройки команды " + formatter.Code("/marks")).
+		RespondWithKeyboard(keyboard)
 }

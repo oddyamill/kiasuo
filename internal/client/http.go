@@ -61,7 +61,7 @@ func request[T any](req *http.Request) (*T, error) {
 }
 
 func refreshToken(client *Client) error {
-	req, err := http.NewRequest("POST", refreshURL, strings.NewReader(
+	req, err := http.NewRequest(http.MethodPost, refreshURL, strings.NewReader(
 		"refresh-token="+client.User.RefreshToken.Decrypt(),
 	))
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
@@ -130,7 +130,7 @@ func requestWithClient[T any](client *Client, url string, method string) (*T, er
 }
 
 func requestPurgeCache(id *int) bool {
-	req, err := http.NewRequest("POST", appendID(purgeCacheURL, id), nil)
+	req, err := http.NewRequest(http.MethodPost, appendID(purgeCacheURL, id), nil)
 
 	if err != nil {
 		return false

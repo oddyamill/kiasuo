@@ -43,15 +43,15 @@ func scheduleCommand(context Context, responder Responder, formatter helpers.For
 
 		responder.Write(formatter.Line(event.String()))
 
-		if len(event.Marks) > 0 {
+		if len(event.Slots) > 0 {
 			marks := ""
 
-			for i, mark := range event.Marks {
+			for i, slot := range event.Slots {
 				if i > 0 {
 					marks += ", "
 				}
 
-				marks += mark.Mark
+				marks += slot.Mark.Value
 			}
 
 			responder.Write(formatter.Item("Оценки: " + formatter.Code(marks)))
