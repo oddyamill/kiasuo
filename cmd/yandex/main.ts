@@ -1,7 +1,7 @@
 import type { Handler } from "@yandex-cloud/function-types"
 import { brotliCompressSync } from "node:zlib"
 
-const ORIGIN_DOMAIN = "dnevnik.kiasuo.ru"
+const ORIGIN_DOMAIN = "diaryapi.kiasuo.ru"
 
 const handler: Handler.Http = async (event) => {
 	let origin: URL

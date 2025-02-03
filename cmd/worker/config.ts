@@ -1,4 +1,4 @@
-export const ORIGIN_DOMAIN = "dnevnik.kiasuo.ru"
+export const ORIGIN_DOMAIN = "diaryapi.kiasuo.ru"
 
 export const CACHED_ROUTES = ["/diary/api/user", "/diary/api/recipients", "/diary/api/study_periods"]
 

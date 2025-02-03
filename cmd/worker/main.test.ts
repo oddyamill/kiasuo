@@ -19,7 +19,7 @@ afterEach(() => mocked && fetchMock.assertNoPendingInterceptors())
 
 test("worker must responds with 401", async () => {
 	fetchMock
-		.get("https://dnevnik.kiasuo.ru")
+		.get("https://diaryapi.kiasuo.ru")
 		.intercept({ path: "/diary/api/schedule" })
 		.reply(401)
 
@@ -29,7 +29,7 @@ test("worker must responds with 401", async () => {
 
 test("worker must response with 404", async () => {
 	fetchMock
-		.get("https://dnevnik.kiasuo.ru")
+		.get("https://diaryapi.kiasuo.ru")
 		.intercept({ path: "/diary/api/unknown" })
 		.reply(404, `
 			<body>
