@@ -6,7 +6,7 @@ import (
 )
 
 const (
-	PublicUrl = "https://dnevnik.kiasuo.ru"
+	PublicUrl = "https://diaryapi.kiasuo.ru"
 	ApiUrl    = "https://kiasuo.oddya.ru/diary"
 )
 
