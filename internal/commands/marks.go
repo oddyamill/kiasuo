@@ -1,10 +1,11 @@
 package commands
 
 import (
-	"github.com/kiasuo/bot/internal/client"
-	"github.com/kiasuo/bot/internal/helpers"
 	"strconv"
 	"time"
+
+	"github.com/kiasuo/bot/internal/client"
+	"github.com/kiasuo/bot/internal/helpers"
 )
 
 func marksCommand(context Context, responder Responder, formatter helpers.Formatter, periodID int) error {
@@ -19,20 +20,14 @@ func marksCommand(context Context, responder Responder, formatter helpers.Format
 	var period *client.StudyPeriod
 
 	for _, p := range *periods {
-		row = append(row, KeyboardButton{
-			Text:     p.Text,
-			Callback: "marks:" + strconv.Itoa(p.ID),
-		})
+		row = append(row, NewKeyboardButton(p.Text, "marks:"+strconv.Itoa(p.ID)))
 
 		if periodID == p.ID || (periodID == 0 && p.Match(now)) {
 			period = &p
 		}
 	}
 
-	row = append(row, KeyboardButton{
-		Text:     "Настройки",
-		Callback: "settings:marks",
-	})
+	row = append(row, NewKeyboardButton("Настройки", "settings:marks"))
 
 	keyboard := Keyboard{row}
 
@@ -93,6 +88,6 @@ var MarksCommand = Command(func(context Context, responder Responder, formatter 
 })
 
 var MarksCallback = Callback(func(context Context, responder Responder, formatter helpers.Formatter, data []string) error {
-	id, _ := strconv.Atoi(data[1])
+	id, _ := strconv.Atoi(data[0])
 	return marksCommand(context, responder, formatter, id)
 })

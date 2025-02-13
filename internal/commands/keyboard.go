@@ -3,6 +3,7 @@ package commands
 import (
 	"github.com/bwmarrin/discordgo"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"github.com/kiasuo/bot/internal/version"
 )
 
 type Keyboard []KeyboardRow
@@ -12,6 +13,10 @@ type KeyboardRow []KeyboardButton
 type KeyboardButton struct {
 	Text     string
 	Callback string
+}
+
+func NewKeyboardButton(text, callback string) KeyboardButton {
+	return KeyboardButton{Text: text, Callback: version.Version + ":" + callback}
 }
 
 func ParseTelegramKeyboard(keyboard Keyboard) *tgbotapi.InlineKeyboardMarkup {

@@ -5,6 +5,7 @@ import (
 	"github.com/kiasuo/bot/internal/commands"
 	"github.com/kiasuo/bot/internal/helpers"
 	"github.com/kiasuo/bot/internal/users"
+	"github.com/kiasuo/bot/internal/version"
 	"log"
 	"os"
 	"os/signal"
@@ -34,23 +35,33 @@ func main() {
 			data    []string
 		)
 
+		responder := commands.DiscordResponder{
+			Interaction: *interaction.Interaction,
+			Session:     session,
+		}
+
 		switch interaction.Type {
 		case discordgo.InteractionApplicationCommand:
 			command = interaction.ApplicationCommandData().Name
 		case discordgo.InteractionMessageComponent:
 			data = strings.Split(interaction.MessageComponentData().CustomID, ":")
-			command = data[0]
+
+			if len(data) < 2 {
+				return
+			}
+
+			if data[0] != version.Version {
+				_ = responder.Write("Версию меню устарела.").Respond()
+				return
+			}
+
+			command = data[1]
 		default:
 			return
 		}
 
 		userID := GetUserID(interaction)
 		id, state := users.GetPartialByDiscordID(userID)
-
-		responder := commands.DiscordResponder{
-			Interaction: *interaction.Interaction,
-			Session:     session,
-		}
 
 		if err = responder.RespondWithDefer(); err != nil {
 			log.Println(err)
@@ -75,7 +86,7 @@ func main() {
 		formatter := helpers.DiscordFormatter{}
 
 		if len(data) > 0 {
-			commands.HandleCallback(context, &responder, &formatter, data)
+			commands.HandleCallback(context, &responder, &formatter, data[2:])
 			return
 		}
 

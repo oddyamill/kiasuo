@@ -5,6 +5,7 @@ import (
 	"github.com/kiasuo/bot/internal/commands"
 	"github.com/kiasuo/bot/internal/helpers"
 	"github.com/kiasuo/bot/internal/users"
+	"github.com/kiasuo/bot/internal/version"
 	"log"
 	"strings"
 )
@@ -130,8 +131,12 @@ func handleCallbackQuery(update tgbotapi.Update) {
 		Update: update,
 	}
 
-	if data[0] == commands.AdminCommandName {
-		user = users.GetByID(data[2])
+	if data[0] != version.Version {
+		_ = responder.Write("Меню устарело. Используйте команду повторно.").Respond()
+	}
+
+	if data[1] == commands.AdminCommandName {
+		user = users.GetByID(data[3])
 
 		if user == nil {
 			_ = responder.Write("Пользователь не зарегистрирован").Respond()
@@ -148,7 +153,7 @@ func handleCallbackQuery(update tgbotapi.Update) {
 		case users.Ready:
 			break
 		case users.Pending:
-			if commands.IsSystemCommand(data[0]) {
+			if commands.IsSystemCommand(data[1]) {
 				break
 			}
 		default:
@@ -157,11 +162,11 @@ func handleCallbackQuery(update tgbotapi.Update) {
 	}
 
 	context := commands.Context{
-		Command: data[0],
+		Command: data[1],
 		User:    *user,
 	}
 
 	formatter := helpers.TelegramFormatter{}
 
-	commands.HandleCallback(context, &responder, &formatter, data)
+	commands.HandleCallback(context, &responder, &formatter, data[2:])
 }

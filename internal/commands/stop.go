@@ -38,10 +38,7 @@ func getStopMessage(context Context) string {
 var StopCommand = Command(func(context Context, responder Responder, _ helpers.Formatter) error {
 	keyboard := Keyboard{
 		KeyboardRow{
-			KeyboardButton{
-				Text:     getStopMessage(context),
-				Callback: "stop",
-			},
+			NewKeyboardButton(getStopMessage(context), "stop"),
 		},
 	}
 

@@ -16,14 +16,14 @@ func scheduleCommand(context Context, responder Responder, formatter helpers.For
 
 	keyboard := Keyboard{
 		KeyboardRow{
-			KeyboardButton{
-				Text:     "Предыдущая неделя",
-				Callback: "schedule:" + t.AddDate(0, 0, -7).Format(time.DateOnly),
-			},
-			{
-				Text:     "Следующая неделя",
-				Callback: "schedule:" + t.AddDate(0, 0, 7).Format(time.DateOnly),
-			},
+			NewKeyboardButton(
+				"Предыдущая неделя",
+				"schedule:"+t.AddDate(0, 0, -7).Format(time.DateOnly),
+			),
+			NewKeyboardButton(
+				"Следующая неделя",
+				"schedule:"+t.AddDate(0, 0, 7).Format(time.DateOnly),
+			),
 		},
 	}
 
@@ -96,18 +96,20 @@ var ScheduleCommand = Command(func(context Context, responder Responder, formatt
 })
 
 var ScheduleCallback = Callback(func(context Context, responder Responder, formatter helpers.Formatter, data []string) error {
-	time, _ := time.Parse(time.DateOnly, data[1])
+	time, _ := time.Parse(time.DateOnly, data[0])
 	return scheduleCommand(context, responder, formatter, time)
 })
 
+var weekdays = map[time.Weekday]string{
+	time.Monday:    "Понедельник",
+	time.Tuesday:   "Вторник",
+	time.Wednesday: "Среда",
+	time.Thursday:  "Четверг",
+	time.Friday:    "Пятница",
+	time.Saturday:  "Суббота",
+	time.Sunday:    "Воскресенье",
+}
+
 func formatDate(t time.Time) string {
-	return map[time.Weekday]string{
-		time.Monday:    "Понедельник",
-		time.Tuesday:   "Вторник",
-		time.Wednesday: "Среда",
-		time.Thursday:  "Четверг",
-		time.Friday:    "Пятница",
-		time.Saturday:  "Суббота",
-		time.Sunday:    "Воскресенье",
-	}[t.Weekday()] + ", " + t.Format("02.01")
+	return weekdays[t.Weekday()] + ", " + t.Format("02.01")
 }

@@ -10,12 +10,12 @@ RUN --mount=type=cache,target=/go/pkg/mod/ \
 	go mod download -x
 
 ARG TARGETARCH
-
 ARG TARGETAPP
+ARG TARGETVERSION=unknown
 
 RUN --mount=type=cache,target=/go/pkg/mod/ \
 	--mount=type=bind,target=. \
-	CGO_ENABLED=0 GOARCH=$TARGETARCH go build -o /bin/app ./cmd/$TARGETAPP
+	CGO_ENABLED=0 GOARCH=$TARGETARCH go build -ldflags "-X internal/version.Version=$TARGETVERSION" -o /bin/app ./cmd/$TARGETAPP
 
 FROM alpine:latest AS user
 

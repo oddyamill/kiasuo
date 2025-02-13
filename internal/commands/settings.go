@@ -11,18 +11,18 @@ var SettingsCommand = Command(func(context Context, responder Responder, formatt
 
 	keyboard := Keyboard{
 		KeyboardRow{
-			KeyboardButton{
-				Text:     "Выбрать ученика",
-				Callback: "settings:userStudents",
-			},
-			KeyboardButton{
-				Text:     helpers.If(user.DiscordID.Valid, "Отвязать", "Привязать") + " Discord",
-				Callback: "settings:discord",
-			},
-			KeyboardButton{
-				Text:     helpers.If(user.Cache, "Отключить", "Включить") + " кэширование",
-				Callback: "settings:cache",
-			},
+			NewKeyboardButton(
+				"Выбрать ученика",
+				"settings:userStudents",
+			),
+			NewKeyboardButton(
+				helpers.If(user.DiscordID.Valid, "Отвязать", "Привязать")+" Discord",
+				"settings:discord",
+			),
+			NewKeyboardButton(
+				helpers.If(user.Cache, "Отключить", "Включить")+" кэширование",
+				"settings:cache",
+			),
 		},
 	}
 
@@ -33,7 +33,7 @@ var SettingsCommand = Command(func(context Context, responder Responder, formatt
 
 var SettingsCallback = Callback(func(context Context, responder Responder, formatter helpers.Formatter, data []string) error {
 	// shitcode
-	switch data[1] {
+	switch data[0] {
 	case "userStudents":
 		return getUserStudents(context, responder)
 	case "userStudent":
@@ -72,10 +72,9 @@ func getUserStudents(context Context, responder Responder) error {
 
 	for _, child := range user.Children {
 		keyboard = append(keyboard, KeyboardRow{
-			KeyboardButton{
-				Text:     getName(child),
-				Callback: "settings:userStudent:" + strconv.Itoa(child.ID) + ":" + getNameAcronym(child),
-			},
+			NewKeyboardButton(
+				getName(child), "settings:userStudent:"+strconv.Itoa(child.ID)+":"+getNameAcronym(child),
+			),
 		})
 	}
 
@@ -83,8 +82,8 @@ func getUserStudents(context Context, responder Responder) error {
 }
 
 func updateUserStudent(context Context, responder Responder, formatter helpers.Formatter, data []string) error {
-	studentID, err := strconv.Atoi(data[2])
-	studentNameAcronym := data[3]
+	studentID, err := strconv.Atoi(data[1])
+	studentNameAcronym := data[2]
 
 	if err != nil {
 		return err
@@ -117,23 +116,18 @@ func updateCache(context Context, response Responder) error {
 	return response.Write("Кэширование успешно включено!").Respond()
 }
 
-func getMarks(context Context, responder Responder, formatter helpers.Formatter) error {
+func getMarks(_ Context, responder Responder, formatter helpers.Formatter) error {
 	keyboard := Keyboard{
 		KeyboardRow{
-			KeyboardButton{
-				Text:     "Скрывать пропуски",
-				Callback: "settings:hide_passes",
-			},
-			KeyboardButton{
-				Text:     "Скрывать пустые предметы",
-				Callback: "settings:hide_empty_lines",
-			},
+			NewKeyboardButton(
+				"Скрывать пропуски", "settings:hide_passes",
+			),
+			NewKeyboardButton(
+				"Скрывать пустые предметы", "settings:hide_empty_lines",
+			),
 		},
 		KeyboardRow{
-			KeyboardButton{
-				Text:     "Назад",
-				Callback: "marks:0",
-			},
+			NewKeyboardButton("Назад", "marks:0"),
 		},
 	}
 
