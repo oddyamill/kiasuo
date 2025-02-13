@@ -43,7 +43,7 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-${{ matrix.target }}
       - name: Extract short SHA
-        run: echo "SHORT_SHA=$(echo $GITHUB_SHA | cut -c 1-7)" >> $GITHUB_ENV
+        run: echo "COMMIT_SHA=$(echo GITHUB_SHA | cut -c 1-7)" >> $GITHUB_ENV
       - name: Build and push Docker image
         id: build-and-push
         uses: docker/build-push-action@v6
@@ -57,7 +57,7 @@ jobs:
           cache-to: type=gha,mode=max
           build-args: |
             TARGETAPP=${{ matrix.target }}
-            TARGETVERSION=${{ env.GITHUB_SHA }}
+            TARGETVERSION=${{ env.COMMIT_SHA }}
       - name: Attest
         uses: actions/attest-build-provenance@v2
         with:
