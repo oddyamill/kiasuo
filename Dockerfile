@@ -11,11 +11,14 @@ RUN --mount=type=cache,target=/go/pkg/mod/ \
 
 ARG TARGETARCH
 ARG TARGETAPP
-ARG TARGETVERSION=unknown
+ARG TARGETVERSION
 
 RUN --mount=type=cache,target=/go/pkg/mod/ \
 	--mount=type=bind,target=. \
-	CGO_ENABLED=0 GOARCH=$TARGETARCH go build -ldflags "-X 'internal/version.Version=$TARGETVERSION'" -o /bin/app ./cmd/$TARGETAPP
+	CGO_ENABLED=0 \
+  GOARCH=$TARGETARCH \
+  # wtf
+  go build -ldflags "-X github.com/kiasuo/bot/internal/version.Version=$TARGETVERSION" -o /bin/app ./cmd/$TARGETAPP
 
 FROM alpine:latest AS user
 
