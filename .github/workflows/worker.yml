@@ -6,6 +6,7 @@ on:
     paths:
       - "**/*.ts"
       - "**/*.json"
+      - cloudflare.tf
       - wrangler.toml
       - .github/workflows/worker.yml
   pull_request:
@@ -32,8 +33,9 @@ jobs:
       - name: Run tests
         run: npm test
   deploy:
-    runs-on: ubuntu-latest
     name: Deploy
+    needs: test
+    runs-on: ubuntu-latest
     if: ${{ github.event.workflow_run.event != 'pull_request' }}
     steps:
       - name: Checkout Repo
