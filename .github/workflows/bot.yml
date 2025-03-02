@@ -37,7 +37,7 @@ jobs:
         run: go test -v ./...
   build:
     name: Build ${{ matrix.target }} image
-    if: ${{ github.event.workflow_run.event != 'pull_request' }}
+    if: github.event_name != 'pull_request'
     needs: test
     strategy:
       matrix:
@@ -89,7 +89,7 @@ jobs:
   deploy:
     name: Deploy
     needs: [test, build]
-    if: ${{ github.event.workflow_run.event != 'pull_request' }}
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     permissions:
       packages: read
