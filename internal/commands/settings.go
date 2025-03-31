@@ -16,10 +16,6 @@ var SettingsCommand = Command(func(context Context, responder Responder, formatt
 				"settings:userStudents",
 			),
 			NewKeyboardButton(
-				helpers.If(user.DiscordID.Valid, "Отвязать", "Привязать")+" Discord",
-				"settings:discord",
-			),
-			NewKeyboardButton(
 				helpers.If(user.Cache, "Отключить", "Включить")+" кэширование",
 				"settings:cache",
 			),
@@ -38,8 +34,6 @@ var SettingsCallback = Callback(func(context Context, responder Responder, forma
 		return getUserStudents(context, responder)
 	case "userStudent":
 		return updateUserStudent(context, responder, formatter, data)
-	case "discord":
-		return getDiscord(context, responder)
 	case "cache":
 		return updateCache(context, responder)
 	case "marks":
@@ -94,15 +88,6 @@ func updateUserStudent(context Context, responder Responder, formatter helpers.F
 	return responder.
 		Write("Ученик %s успешно выбран!", formatter.Bold(studentNameAcronym)).
 		Respond()
-}
-
-func getDiscord(context Context, responder Responder) error {
-	if !context.User.DiscordID.Valid {
-		return responder.Write("Привязка аккаунта Discord пока не доступна.").Respond()
-	}
-
-	context.User.UpdateDiscord("")
-	return responder.Write("Аккаунт Discord успешно отвязан!").Respond()
 }
 
 func updateCache(context Context, response Responder) error {

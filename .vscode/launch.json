@@ -1,25 +1,11 @@
 {
 	"configurations": [
 		{
-			"name": "Discord",
+			"name": "Bot",
 			"type": "go",
 			"request": "launch",
 			"mode": "auto",
-			"program": "${workspaceFolder}/cmd/discord/",
-			"env": {
-				"POSTGRES_HOST": "localhost",
-				"POSTGRES_DB": "kiasuo",
-				"POSTGRES_USER": "kiasuo",
-				"POSTGRES_PASSWORD": "kiasuo"
-			},
-			"envFile": "${workspaceFolder}/.env"
-		},
-		{
-			"name": "Telegram",
-			"type": "go",
-			"request": "launch",
-			"mode": "auto",
-			"program": "${workspaceFolder}/cmd/telegram/",
+			"program": "${workspaceFolder}/cmd/bot/",
 			"env": {
 				"POSTGRES_HOST": "localhost",
 				"POSTGRES_DB": "kiasuo",

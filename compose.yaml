@@ -1,6 +1,6 @@
 services:
-  telegram:
-    image: ${TELEGRAM_IMAGE_REF}
+  bot:
+    image: ${BOT_IMAGE_REF}
     restart: always
     volumes:
       - postgres-socket:/var/run/postgresql
@@ -14,26 +14,6 @@ services:
       - WORKER_AUTH=${WORKER_AUTH}
     secrets:
       - telegram
-      - crypto
-      - postgres
-    depends_on:
-      postgres:
-        condition: service_healthy
-  discord:
-    image: ${DISCORD_IMAGE_REF}
-    restart: always
-    volumes:
-      - postgres-socket:/var/run/postgresql
-    environment:
-      - DISCORD_FILE=/run/secrets/discord
-      - CRYPTO_FILE=/run/secrets/crypto
-      - POSTGRES_HOST=/var/run/postgresql
-      - POSTGRES_DB=kiasuo
-      - POSTGRES_USER=kiasuo
-      - POSTGRES_PASSWORD_FILE=/run/secrets/postgres
-      - WORKER_AUTH=${WORKER_AUTH}
-    secrets:
-      - discord
       - crypto
       - postgres
     depends_on:
@@ -61,8 +41,6 @@ services:
 secrets:
   telegram:
     file: /home/kiasuo/.secrets/telegram.txt
-  discord:
-    file: /home/kiasuo/.secrets/discord.txt
   crypto:
     file: /home/kiasuo/.secrets/crypto.txt
   postgres:

@@ -1,7 +1,6 @@
 package commands
 
 import (
-	"github.com/bwmarrin/discordgo"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/kiasuo/bot/internal/helpers"
 	"log"
@@ -58,23 +57,6 @@ var publicCommands = []commandConfig{
 		Name:        "stop",
 		Description: "Остановить",
 	},
-}
-
-func ParseDiscordCommands() []*discordgo.ApplicationCommand {
-	commands := make([]*discordgo.ApplicationCommand, 0)
-
-	for _, config := range publicCommands {
-		if IsSystemCommand(config.Name) {
-			continue
-		}
-
-		commands = append(commands, &discordgo.ApplicationCommand{
-			Name:        config.Name,
-			Description: config.Description,
-		})
-	}
-
-	return commands
 }
 
 func ParseTelegramCommands() tgbotapi.SetMyCommandsConfig {
