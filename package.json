@@ -10,12 +10,12 @@
 		"build": "tsc cmd/yandex/main.ts"
 	},
 	"devDependencies": {
-		"@cloudflare/vitest-pool-workers": "^0.7.4",
+		"@cloudflare/vitest-pool-workers": "^0.8.8",
 		"@cloudflare/workers-types": "^4.20241004.0",
-		"@types/node": "^22.13.8",
+		"@types/node": "^22.13.17",
 		"@yandex-cloud/function-types": "^2.1.2",
 		"typescript": "^5.8.2",
-		"wrangler": "^3.78.8"
+		"wrangler": "^4.6.0"
 	},
 	"engines": {
 		"node": ">=18.x"
