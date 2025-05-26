@@ -1,27 +1,10 @@
 services:
-  telegram:
+  bot:
     build:
       context: .
       dockerfile: Dockerfile
       args:
-        - TARGETAPP=telegram
-    restart: no
-    environment:
-      - POSTGRES_HOST=postgres
-      - POSTGRES_DB=kiasuo
-      - POSTGRES_USER=kiasuo
-      - POSTGRES_PASSWORD=kiasuo
-    env_file:
-      - .env
-    depends_on:
-      postgres:
-        condition: service_healthy
-  discord:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      args:
-        - TARGETAPP=discord
+        - TARGETAPP=bot
     restart: no
     environment:
       - POSTGRES_HOST=postgres

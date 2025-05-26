@@ -14,7 +14,6 @@ import (
 type User struct {
 	ID                 int
 	TelegramID         int64
-	DiscordID          sql.NullString
 	AccessToken        crypto.Crypt
 	RefreshToken       crypto.Crypt
 	StudentID          *int
@@ -55,7 +54,6 @@ func createTable() {
 		CREATE TABLE IF NOT EXISTS users (
 			id SERIAL PRIMARY KEY,
 			telegram_id BIGINT NOT NULL UNIQUE,
-			discord_id VARCHAR(19) UNIQUE,
 			access_token TEXT UNIQUE,
 			refresh_token CHAR(96) UNIQUE,
 			student_id INTEGER,
@@ -69,11 +67,10 @@ func createTable() {
 
 func createIndex() {
 	query("CREATE INDEX IF NOT EXISTS telegram_id_index ON users (telegram_id)")
-	query("CREATE INDEX IF NOT EXISTS discord_id_index ON users (discord_id)")
 }
 
 func migrate() {
-	query("ALTER TABLE users ALTER COLUMN cache SET DEFAULT FALSE")
+	query("ALTER TABLE users DROP IF EXISTS discord_id")
 }
 
 func query(query string, args ...any) {
@@ -111,7 +108,6 @@ func queryRow(query string, args ...any) *User {
 	err := rows.Scan(
 		&user.ID,
 		&user.TelegramID,
-		&user.DiscordID,
 		&user.AccessToken,
 		&user.RefreshToken,
 		&user.StudentID,
@@ -142,10 +138,6 @@ func CreateWithTelegramID(telegramID int64) {
 
 func GetPartialByTelegramID(telegramID int64) (string, UserState) {
 	return queryPartial("SELECT id, state FROM users WHERE telegram_id = $1", telegramID)
-}
-
-func GetPartialByDiscordID(discordID string) (string, UserState) {
-	return queryPartial("SELECT id, state FROM users WHERE discord_id = $1", discordID)
 }
 
 func GetByTelegramID(telegramID int64) *User {
@@ -179,10 +171,6 @@ func (u *User) UpdateStudent(studentID int, studentNameAcronym string) {
 		crypto.Encrypt(studentNameAcronym).Encrypted,
 		u.ID,
 	)
-}
-
-func (u *User) UpdateDiscord(discordID string) {
-	query("UPDATE users SET discord_id = $1 WHERE id = $2", discordID, u.ID)
 }
 
 func (u *User) UpdateLastMarksUpdate() {

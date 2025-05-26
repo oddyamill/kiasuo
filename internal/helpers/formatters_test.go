@@ -3,7 +3,6 @@ package helpers
 import "testing"
 
 var (
-	discordFormatter  = DiscordFormatter{}
 	telegramFormatter = TelegramFormatter{}
 )
 
@@ -66,67 +65,5 @@ func TestTelegramFormatterLink(t *testing.T) {
 
 	if result != "[test](http://example.com)" {
 		t.Errorf("TelegramFormatter.Link() = %s; want [test](http://example.com)", result)
-	}
-}
-
-func TestDiscordFormatterTitle(t *testing.T) {
-	result := discordFormatter.Title("test")
-
-	if result != "## test\n" {
-		t.Errorf("DiscordFormatter.Title() = %s; want ## test\n", result)
-	}
-}
-
-func TestDiscordFormatterItem(t *testing.T) {
-	result := discordFormatter.Item("test")
-
-	if result != "  - test\n" {
-		t.Errorf("DiscordFormatter.Item() = %s; want   - test\n", result)
-	}
-}
-
-func TestDiscordFormatterBold(t *testing.T) {
-	result := discordFormatter.Bold("test")
-
-	if result != "**test**" {
-		t.Errorf("DiscordFormatter.Bold() = %s; want **test**", result)
-	}
-}
-
-func TestDiscordFormatterCode(t *testing.T) {
-	result := discordFormatter.Code("test")
-
-	if result != "`test`" {
-		t.Errorf("DiscordFormatter.Code() = %s; want `test`", result)
-	}
-}
-
-func TestDiscordFormatterBlock(t *testing.T) {
-	result := discordFormatter.Block("test")
-
-	if result != "```test```" {
-		t.Errorf("DiscordFormatter.Block() = %s; want ```test```", result)
-	}
-
-	result = discordFormatter.Block("test\ntest")
-
-	if result != "```test\n    test```" {
-		t.Errorf("DiscordFormatter.Block() = %s; want ```test\n    test```", result)
-	}
-}
-
-func TestDiscordFormatterLine(t *testing.T) {
-	result := discordFormatter.Line("test")
-
-	if result != "test\n" {
-		t.Errorf("DiscordFormatter.Line() = %s; want test\n", result)
-	}
-}
-
-func TestDiscordFormatterLink(t *testing.T) {
-	result := discordFormatter.Link("test", "http://example.com")
-
-	if result != "[test](http://example.com)" {
-		t.Errorf("DiscordFormatter.Link() = %s; want [test](http://example.com)", result)
 	}
 }

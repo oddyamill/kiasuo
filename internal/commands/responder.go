@@ -2,7 +2,6 @@ package commands
 
 import (
 	"fmt"
-	"github.com/bwmarrin/discordgo"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"strings"
 )
@@ -58,72 +57,4 @@ func (r *TelegramResponder) Respond() error {
 func (r *TelegramResponder) RespondWithKeyboard(keyboard Keyboard) error {
 	r.Keyboard = keyboard
 	return r.Respond()
-}
-
-type DiscordResponder struct {
-	Keyboard    Keyboard
-	Builder     strings.Builder
-	Interaction discordgo.Interaction
-	Session     *discordgo.Session
-}
-
-func (r *DiscordResponder) Write(template string, a ...any) Responder {
-	text := fmt.Sprintf(template, a...)
-	r.Builder.WriteString(text)
-	return r
-}
-
-func (r *DiscordResponder) Respond() error {
-	content := r.Builder.String()
-	components := ParseDiscordKeyboard(r.Keyboard)
-
-	payload := &discordgo.WebhookEdit{
-		Components: &components,
-	}
-
-	if len(content) > 2000 {
-		emptyContent := ""
-		payload.Content = &emptyContent
-		payload.Embeds = &[]*discordgo.MessageEmbed{{Description: content}}
-	} else {
-		payload.Content = &content
-		payload.Embeds = &[]*discordgo.MessageEmbed{}
-	}
-
-	_, err := r.Session.InteractionResponseEdit(&r.Interaction, payload)
-	return err
-}
-
-func (r *DiscordResponder) RespondWithKeyboard(keyboard Keyboard) error {
-	r.Keyboard = keyboard
-	return r.Respond()
-}
-
-func (r *DiscordResponder) RespondWithDefer() error {
-	if r.Interaction.Type == discordgo.InteractionApplicationCommand {
-		return r.Session.InteractionRespond(&r.Interaction, &discordgo.InteractionResponse{
-			Type: discordgo.InteractionResponseDeferredChannelMessageWithSource,
-			Data: &discordgo.InteractionResponseData{
-				Flags: discordgo.MessageFlagsEphemeral,
-			},
-		})
-	} else {
-		for _, component := range r.Interaction.Message.Components {
-			row := component.(*discordgo.ActionsRow)
-
-			for _, button := range row.Components {
-				btn := button.(*discordgo.Button)
-				btn.Disabled = true
-			}
-		}
-
-		return r.Session.InteractionRespond(&r.Interaction, &discordgo.InteractionResponse{
-			Type: discordgo.InteractionResponseUpdateMessage,
-			Data: &discordgo.InteractionResponseData{
-				Content:    r.Interaction.Message.Content,
-				Embeds:     r.Interaction.Message.Embeds,
-				Components: r.Interaction.Message.Components,
-			},
-		})
-	}
 }

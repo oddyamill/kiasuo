@@ -41,33 +41,3 @@ func (f TelegramFormatter) Line(text string) string {
 func (f TelegramFormatter) Link(text, url string) string {
 	return "[" + text + "](" + url + ")"
 }
-
-type DiscordFormatter struct{}
-
-func (f DiscordFormatter) Title(title string) string {
-	return "## " + title + "\n"
-}
-
-func (f DiscordFormatter) Item(item string) string {
-	return "  - " + item + "\n"
-}
-
-func (f DiscordFormatter) Bold(text string) string {
-	return "**" + text + "**"
-}
-
-func (f DiscordFormatter) Code(text string) string {
-	return "`" + text + "`"
-}
-
-func (f DiscordFormatter) Block(text string) string {
-	return "```" + strings.ReplaceAll(text, "\n", "\n    ") + "```"
-}
-
-func (f DiscordFormatter) Line(text string) string {
-	return text + "\n"
-}
-
-func (f DiscordFormatter) Link(text, url string) string {
-	return "[" + text + "](" + url + ")"
-}

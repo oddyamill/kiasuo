@@ -1,7 +1,6 @@
 package commands
 
 import (
-	"github.com/bwmarrin/discordgo"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/kiasuo/bot/internal/version"
 )
@@ -37,23 +36,4 @@ func ParseTelegramKeyboard(keyboard Keyboard) *tgbotapi.InlineKeyboardMarkup {
 	}
 
 	return result
-}
-
-func ParseDiscordKeyboard(keyboard Keyboard) (result []discordgo.MessageComponent) {
-	for _, row := range keyboard {
-		var components []discordgo.MessageComponent
-
-		for _, button := range row {
-			components = append(components, discordgo.Button{
-				Label:    button.Text,
-				CustomID: button.Callback,
-			})
-		}
-
-		result = append(result, discordgo.ActionsRow{
-			Components: components,
-		})
-	}
-
-	return
 }

@@ -34,32 +34,3 @@ func TestParseTelegramCommands(t *testing.T) {
 		}
 	}
 }
-
-func TestParseDiscordCommands(t *testing.T) {
-	commands := ParseDiscordCommands()
-
-	// because we have commands that is TelegramOnly
-	// we need to filter them out
-	publicDiscordCommands := make([]commandConfig, 0)
-
-	for _, c := range publicCommands {
-		if !IsSystemCommand(c.Name) {
-			publicDiscordCommands = append(publicDiscordCommands, c)
-		}
-	}
-
-	for i, command := range commands {
-		if command.Name != publicDiscordCommands[i].Name {
-			t.Errorf("ParseDiscordCommands()[%d].Name = %s; want %s\n", i, command.Name, publicDiscordCommands[i].Name)
-		}
-
-		if command.Description != publicDiscordCommands[i].Description {
-			t.Errorf(
-				"ParseDiscordCommands()[%d].Description = %s; want %s\n",
-				i,
-				command.Description,
-				publicDiscordCommands[i].Description,
-			)
-		}
-	}
-}
