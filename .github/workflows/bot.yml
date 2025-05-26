@@ -36,7 +36,7 @@ jobs:
       - name: Run tests
         run: go test -v ./...
   build:
-    name: Build ${{ matrix.target }} image
+    name: Build
     if: github.event_name != 'pull_request'
     needs: test
     strategy:
@@ -114,7 +114,7 @@ jobs:
         uses: docker/metadata-action@v5.7.0
         with:
           images: |
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+            ${{ env.REGISTRY }}/${{ env.BOT_IMAGE_NAME }}
       - name: Install cloudflared
         run: |
           curl -L -o cloudflared.deb https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64.deb
