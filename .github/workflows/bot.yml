@@ -114,7 +114,7 @@ jobs:
         uses: docker/metadata-action@v5.7.0
         with:
           images: |
-            ${{ env.REGISTRY }}/${{ env.TELEGRAM_IMAGE_NAME }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
       - name: Install cloudflared
         run: |
           curl -L -o cloudflared.deb https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64.deb
@@ -129,7 +129,7 @@ jobs:
         env:
           TUNNEL_SERVICE_TOKEN_ID: ${{ secrets.CLOUDFLARE_ACCESS_ID }}
           TUNNEL_SERVICE_TOKEN_SECRET: ${{ secrets.CLOUDFLARE_ACCESS_SECRET }}
-          TELEGRAM_IMAGE_REF: ${{ fromJSON(steps.meta.outputs.json).tags[0] }}
+          BOT_IMAGE_REF: ${{ fromJSON(steps.meta.outputs.json).tags[0] }}
           WORKER_AUTH: ${{ secrets.CLOUDFLARE_WORKER_AUTH }}
         run: |
           docker compose pull
