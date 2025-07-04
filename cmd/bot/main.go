@@ -2,6 +2,7 @@ package main
 
 import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"github.com/kiasuo/bot/internal/client"
 	"github.com/kiasuo/bot/internal/commands"
 	"github.com/kiasuo/bot/internal/helpers"
 	"github.com/kiasuo/bot/internal/users"
@@ -41,6 +42,8 @@ func main() {
 			handleMessage(update)
 		} else if update.CallbackQuery != nil {
 			handleCallbackQuery(update)
+		} else if update.MyChatMember != nil {
+			handleMyChatMember(update)
 		}
 	}
 }
@@ -169,4 +172,29 @@ func handleCallbackQuery(update tgbotapi.Update) {
 	formatter := helpers.TelegramFormatter{}
 
 	commands.HandleCallback(context, &responder, &formatter, data[2:])
+}
+
+func handleMyChatMember(update tgbotapi.Update) {
+	// Only handle private chat member updates (when user blocks/unblocks bot)
+	if update.MyChatMember.Chat.Type != "private" {
+		return
+	}
+
+	// Check if the user was kicked (blocked the bot) or left
+	if update.MyChatMember.NewChatMember.WasKicked() || update.MyChatMember.NewChatMember.HasLeft() {
+		// Find and delete the user
+		user := users.GetByTelegramID(update.MyChatMember.From.ID)
+		if user != nil {
+			log.Printf("User %d blocked/removed bot, deleting user data", update.MyChatMember.From.ID)
+			
+			// Try to revoke token if possible
+			client := &client.Client{User: user}
+			if err := client.RevokeToken(); err != nil {
+				log.Printf("Failed to revoke token for user %d: %v", update.MyChatMember.From.ID, err)
+			}
+			
+			// Delete user data
+			user.Delete()
+		}
+	}
 }

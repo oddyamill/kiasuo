@@ -11,7 +11,6 @@ type Command func(Context, Responder, helpers.Formatter) error
 var commandMap = map[string]Command{
 	AdminCommandName: AdminCommand,
 	StartCommandName: StartCommand,
-	"stop":           StopCommand,
 	"settings":       SettingsCommand,
 	"schedule":       ScheduleCommand,
 	"marks":          MarksCommand,
@@ -20,7 +19,7 @@ var commandMap = map[string]Command{
 }
 
 func IsSystemCommand(command string) bool {
-	return command == StartCommandName || command == "stop"
+	return command == StartCommandName
 }
 
 type commandConfig struct {
@@ -53,10 +52,6 @@ var publicCommands = []commandConfig{
 		Name:        "teachers",
 		Description: "Список учителей",
 	},
-	{
-		Name:        "stop",
-		Description: "Остановить",
-	},
 }
 
 func ParseTelegramCommands() tgbotapi.SetMyCommandsConfig {
@@ -76,7 +71,6 @@ type Callback func(Context, Responder, helpers.Formatter, []string) error
 
 var callbackMap = map[string]Callback{
 	AdminCommandName: AdminCallback,
-	"stop":           StopCallback,
 	"settings":       SettingsCallback,
 	"schedule":       ScheduleCallback,
 	"marks":          MarksCallback,
