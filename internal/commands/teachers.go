@@ -1,13 +1,14 @@
 package commands
 
 import (
-	"github.com/kiasuo/bot/internal/helpers"
 	"sort"
 	"strings"
+
+	"github.com/kiasuo/bot/internal/helpers"
 )
 
-var TeachersCommand = Command(func(context Context, responder Responder, formatter helpers.Formatter) error {
-	recipients, err := context.GetClient().GetRecipients()
+var TeachersCommand = Command(func(ctx Context, resp Responder, formatter helpers.Formatter) error {
+	recipients, err := ctx.GetClient().GetRecipients()
 
 	if err != nil {
 		return err
@@ -26,14 +27,14 @@ var TeachersCommand = Command(func(context Context, responder Responder, formatt
 			continue
 		}
 
-		responder.Write(formatter.Title(role))
+		resp.Write(formatter.Title(role))
 
 		for staff := range recipients.Staff[role] {
-			responder.Write(formatter.Item(formatTeacher(staff)))
+			resp.Write(formatter.Item(formatTeacher(staff)))
 		}
 	}
 
-	return responder.Respond()
+	return resp.Respond()
 })
 
 func formatTeacher(staff string) string {

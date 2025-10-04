@@ -1,13 +1,14 @@
 package commands
 
 import (
+	"strconv"
+
 	"github.com/kiasuo/bot/internal/client"
 	"github.com/kiasuo/bot/internal/helpers"
-	"strconv"
 )
 
-var SettingsCommand = Command(func(context Context, responder Responder, formatter helpers.Formatter) error {
-	user := context.User
+var SettingsCommand = Command(func(ctx Context, resp Responder, formatter helpers.Formatter) error {
+	user := ctx.User
 
 	keyboard := Keyboard{
 		KeyboardRow{
@@ -22,22 +23,22 @@ var SettingsCommand = Command(func(context Context, responder Responder, formatt
 		},
 	}
 
-	return responder.
+	return resp.
 		Write("Ученик: " + formatter.Bold(user.StudentNameAcronym.Decrypt())).
 		RespondWithKeyboard(keyboard)
 })
 
-var SettingsCallback = Callback(func(context Context, responder Responder, formatter helpers.Formatter, data []string) error {
+var SettingsCallback = Callback(func(ctx Context, resp Responder, formatter helpers.Formatter, data []string) error {
 	// shitcode
 	switch data[0] {
 	case "userStudents":
-		return getUserStudents(context, responder)
+		return getUserStudents(ctx, resp)
 	case "userStudent":
-		return updateUserStudent(context, responder, formatter, data)
+		return updateUserStudent(ctx, resp, formatter, data)
 	case "cache":
-		return updateCache(context, responder)
+		return updateCache(ctx, resp)
 	case "marks":
-		return getMarks(context, responder, formatter)
+		return getMarks(ctx, resp, formatter)
 	}
 
 	return nil
@@ -51,15 +52,15 @@ func getNameAcronym(child client.Child) string {
 	return child.LastName + " " + string([]rune(child.FirstName)[0]) + ". " + string([]rune(child.MiddleName)[0]) + "."
 }
 
-func getUserStudents(context Context, responder Responder) error {
-	user, err := context.GetClient().GetUser()
+func getUserStudents(ctx Context, resp Responder) error {
+	user, err := ctx.GetClient().GetUser()
 
 	if err != nil {
 		return err
 	}
 
 	if len(user.Children) == 0 {
-		return responder.Write("У вас нет детей.").Respond()
+		return resp.Write("У вас нет детей.").Respond()
 	}
 
 	keyboard := Keyboard{}
@@ -72,10 +73,10 @@ func getUserStudents(context Context, responder Responder) error {
 		})
 	}
 
-	return responder.Write("Выберите ученика из списка:").RespondWithKeyboard(keyboard)
+	return resp.Write("Выберите ученика из списка:").RespondWithKeyboard(keyboard)
 }
 
-func updateUserStudent(context Context, responder Responder, formatter helpers.Formatter, data []string) error {
+func updateUserStudent(ctx Context, resp Responder, formatter helpers.Formatter, data []string) error {
 	studentID, err := strconv.Atoi(data[1])
 	studentNameAcronym := data[2]
 
@@ -83,25 +84,25 @@ func updateUserStudent(context Context, responder Responder, formatter helpers.F
 		return err
 	}
 
-	context.User.UpdateStudent(studentID, studentNameAcronym)
+	ctx.User.UpdateStudent(studentID, studentNameAcronym)
 
-	return responder.
+	return resp.
 		Write("Ученик %s успешно выбран!", formatter.Bold(studentNameAcronym)).
 		Respond()
 }
 
-func updateCache(context Context, response Responder) error {
-	context.User.UpdateCache(!context.User.Cache)
+func updateCache(ctx Context, response Responder) error {
+	ctx.User.UpdateCache(!ctx.User.Cache)
 
-	if context.User.Cache {
-		ok := context.GetClient().PurgeCache()
+	if ctx.User.Cache {
+		ok := ctx.GetClient().PurgeCache()
 		return response.Write("Кэширование успешно отключено." + helpers.If(ok, " Кэш очищен.", "")).Respond()
 	}
 
 	return response.Write("Кэширование успешно включено!").Respond()
 }
 
-func getMarks(_ Context, responder Responder, formatter helpers.Formatter) error {
+func getMarks(_ Context, resp Responder, formatter helpers.Formatter) error {
 	keyboard := Keyboard{
 		KeyboardRow{
 			NewKeyboardButton(
@@ -116,7 +117,7 @@ func getMarks(_ Context, responder Responder, formatter helpers.Formatter) error
 		},
 	}
 
-	return responder.
+	return resp.
 		Write("Настройки команды " + formatter.Code("/marks")).
 		RespondWithKeyboard(keyboard)
 }

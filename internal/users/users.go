@@ -3,7 +3,7 @@ package users
 import (
 	"database/sql"
 	"errors"
-	"log"
+	"log/slog"
 	"time"
 
 	"github.com/kiasuo/bot/internal/crypto"
@@ -43,7 +43,7 @@ func init() {
 		panic(err)
 	}
 
-	log.Println("Connected to database")
+	slog.Info("connected to database")
 	createTable()
 	createIndex()
 	migrate()

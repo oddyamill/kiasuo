@@ -11,6 +11,10 @@ type Context struct {
 	User      users.User
 }
 
+func NewContext(command, arguments string, user users.User) Context {
+	return Context{command, arguments, user}
+}
+
 func (c *Context) GetClient() *client.Client {
-	return &client.Client{User: &c.User}
+	return client.New(&c.User)
 }

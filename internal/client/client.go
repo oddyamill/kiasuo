@@ -3,14 +3,19 @@ package client
 import (
 	"encoding/base64"
 	"encoding/json"
-	"github.com/kiasuo/bot/internal/users"
 	"net/http"
 	"strings"
 	"time"
+
+	"github.com/kiasuo/bot/internal/users"
 )
 
 type Client struct {
 	User *users.User
+}
+
+func New(user *users.User) *Client {
+	return &Client{user}
 }
 
 func (c *Client) RefreshToken() error {

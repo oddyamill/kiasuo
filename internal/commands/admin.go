@@ -10,8 +10,8 @@ import (
 
 const AdminCommandName string = "-internal-admin"
 
-var AdminCommand = Command(func(context Context, responder Responder, formatter helpers.Formatter) error {
-	user := context.User
+var AdminCommand = Command(func(ctx Context, resp Responder, formatter helpers.Formatter) error {
+	user := ctx.User
 
 	text := formatter.Title("Панель управления") +
 		formatter.Item("Telegram: "+strconv.FormatInt(user.TelegramID, 10)) +
@@ -27,17 +27,17 @@ var AdminCommand = Command(func(context Context, responder Responder, formatter 
 		},
 	}
 
-	return responder.Write(text).RespondWithKeyboard(keyboard)
+	return resp.Write(text).RespondWithKeyboard(keyboard)
 })
 
-var AdminCallback = Callback(func(context Context, responder Responder, formatter helpers.Formatter, data []string) error {
+var AdminCallback = Callback(func(ctx Context, resp Responder, formatter helpers.Formatter, data []string) error {
 	switch data[0] {
 	case "blacklist":
-		isBlacklisted := context.User.State == users.Blacklisted
-		context.User.UpdateState(helpers.If(isBlacklisted, users.Ready, users.Blacklisted))
+		isBlacklisted := ctx.User.State == users.Blacklisted
+		ctx.User.UpdateState(helpers.If(isBlacklisted, users.Ready, users.Blacklisted))
 	default:
-		return responder.Write("Неизвестная команда. Меню устарело?").Respond()
+		return resp.Write("Неизвестная команда. Меню устарело?").Respond()
 	}
 
-	return AdminCommand(context, responder, formatter)
+	return AdminCommand(ctx, resp, formatter)
 })

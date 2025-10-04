@@ -1,18 +1,17 @@
 package client
 
 import (
+	"testing"
+
 	"github.com/kiasuo/bot/internal/crypto"
 	"github.com/kiasuo/bot/internal/users"
-	"testing"
 )
 
 func TestIsTokenExpired(t *testing.T) {
-	client := Client{
-		&users.User{
-			// This is a fake token that is expired
-			AccessToken: crypto.Encrypt("{.eyJleHAiOjE3MjY3MzQwNzh9.}"),
-		},
-	}
+	client := New(&users.User{
+		// This is a fake token that is expired
+		AccessToken: crypto.Encrypt("{.eyJleHAiOjE3MjY3MzQwNzh9.}"),
+	})
 
 	if client.isTokenExpired() != true {
 		t.Errorf("Client.isTokenExpired() = %t; want true", client.isTokenExpired())

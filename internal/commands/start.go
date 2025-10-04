@@ -8,19 +8,19 @@ import (
 
 const StartCommandName = "start"
 
-var StartCommand = Command(func(context Context, responder Responder, _ helpers.Formatter) error {
-	token := context.Arguments
+var StartCommand = Command(func(ctx Context, resp Responder, _ helpers.Formatter) error {
+	token := ctx.Arguments
 
 	if len(token) == 32 && helpers.IsHexUnsafe(token) {
-		context.User.RefreshToken = crypto.Encrypt(token)
+		ctx.User.RefreshToken = crypto.Encrypt(token)
 
-		if err := context.GetClient().RefreshToken(); err != nil {
+		if err := ctx.GetClient().RefreshToken(); err != nil {
 			return err
 		}
 
-		context.User.UpdateState(users.Ready)
-		return responder.Write("Токен успешно обновлен!").Respond()
+		ctx.User.UpdateState(users.Ready)
+		return resp.Write("Токен успешно обновлен!").Respond()
 	}
 
-	return responder.Write("Привет!").Respond()
+	return resp.Write("Привет!").Respond()
 })

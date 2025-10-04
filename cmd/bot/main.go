@@ -1,59 +1,59 @@
 package main
 
 import (
+	"log/slog"
+	"strings"
+
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"github.com/kiasuo/bot/internal/client"
 	"github.com/kiasuo/bot/internal/commands"
 	"github.com/kiasuo/bot/internal/helpers"
 	"github.com/kiasuo/bot/internal/users"
 	"github.com/kiasuo/bot/internal/version"
-	"log"
-	"strings"
 )
 
 const AdminID int64 = 6135991898
 
-var bot tgbotapi.BotAPI
-
-func init() {
+func main() {
 	token := helpers.GetEnv("TELEGRAM")
-	botApi, err := tgbotapi.NewBotAPI(token)
+	bot, err := tgbotapi.NewBotAPI(token)
 
 	if err != nil {
 		panic(err)
 	}
 
-	bot = *botApi
-	log.Println("Authorized on account", bot.Self.UserName)
+	slog.Info("authorized on account", "username", "hi")
 
 	if _, err = bot.Request(commands.ParseTelegramCommands()); err != nil {
 		panic(err)
 	}
-}
 
-func main() {
 	u := tgbotapi.NewUpdate(0)
 	u.Timeout = 60
 
 	updates := bot.GetUpdatesChan(u)
 
 	for update := range updates {
-		if update.Message != nil {
-			handleMessage(update)
-		} else if update.CallbackQuery != nil {
-			handleCallbackQuery(update)
+		switch {
+		case update.Message != nil:
+			handleMessage(bot, update)
+		case update.CallbackQuery != nil:
+			handleCallbackQuery(bot, update)
+		case update.MyChatMember != nil:
+			handleMyChatMember(update)
 		}
 	}
 }
 
-func handleMessage(update tgbotapi.Update) {
+func handleMessage(bot *tgbotapi.BotAPI, update tgbotapi.Update) {
 	var (
 		user      *users.User
 		command   string
 		arguments string
 	)
 
-	responder := commands.TelegramResponder{
-		Bot:    bot,
+	resp := commands.TelegramResponder{
+		Bot:    *bot,
 		Update: update,
 	}
 
@@ -65,7 +65,7 @@ func handleMessage(update tgbotapi.Update) {
 		user = users.GetByTelegramID(update.Message.ForwardFrom.ID)
 
 		if user == nil {
-			_ = responder.Write("Пользователь не зарегистрирован").Respond()
+			_ = resp.Write("Пользователь не зарегистрирован").Respond()
 			return
 		}
 
@@ -84,6 +84,7 @@ func handleMessage(update tgbotapi.Update) {
 			if command == commands.StartCommandName {
 				users.CreateWithTelegramID(update.Message.From.ID)
 			}
+			// TODO:
 			return
 		case users.Ready:
 			break
@@ -91,10 +92,10 @@ func handleMessage(update tgbotapi.Update) {
 			if commands.IsSystemCommand(command) {
 				break
 			}
-			_ = responder.Write("Токен обнови.").Respond()
+			_ = resp.Write("Токен обнови.").Respond()
 			return
 		case users.Blacklisted:
-			_ = responder.Write("Ты заблокирован. Клоун.").Respond()
+			_ = resp.Write("Ты заблокирован. Клоун.").Respond()
 			return
 		default:
 			return
@@ -106,18 +107,14 @@ func handleMessage(update tgbotapi.Update) {
 		return
 	}
 
-	context := commands.Context{
-		Command:   command,
-		Arguments: arguments,
-		User:      *user,
-	}
+	ctx := commands.NewContext(command, arguments, *user)
 
 	formatter := helpers.TelegramFormatter{}
 
-	commands.HandleCommand(context, &responder, &formatter)
+	commands.HandleCommand(ctx, &resp, &formatter)
 }
 
-func handleCallbackQuery(update tgbotapi.Update) {
+func handleCallbackQuery(bot *tgbotapi.BotAPI, update tgbotapi.Update) {
 	data := strings.Split(update.CallbackQuery.Data, ":")
 
 	if len(data) < 2 {
@@ -126,20 +123,20 @@ func handleCallbackQuery(update tgbotapi.Update) {
 
 	var user *users.User
 
-	responder := commands.TelegramResponder{
-		Bot:    bot,
+	resp := commands.TelegramResponder{
+		Bot:    *bot,
 		Update: update,
 	}
 
 	if data[0] != version.Version {
-		_ = responder.Write("Меню устарело. Используйте команду повторно.").Respond()
+		_ = resp.Write("Меню устарело. Используйте команду повторно.").Respond()
 	}
 
 	if data[1] == commands.AdminCommandName {
 		user = users.GetByID(data[3])
 
 		if user == nil {
-			_ = responder.Write("Пользователь не зарегистрирован").Respond()
+			_ = resp.Write("Пользователь не зарегистрирован").Respond()
 			return
 		}
 	} else {
@@ -161,12 +158,33 @@ func handleCallbackQuery(update tgbotapi.Update) {
 		}
 	}
 
-	context := commands.Context{
-		Command: data[1],
-		User:    *user,
-	}
+	ctx := commands.NewContext(data[1], "", *user)
 
 	formatter := helpers.TelegramFormatter{}
 
-	commands.HandleCallback(context, &responder, &formatter, data[2:])
+	commands.HandleCallback(ctx, &resp, &formatter, data[2:])
+}
+
+func handleMyChatMember(update tgbotapi.Update) {
+	if !update.MyChatMember.Chat.IsPrivate() || !update.MyChatMember.NewChatMember.WasKicked() {
+		return
+	}
+
+	user := users.GetByTelegramID(update.MyChatMember.NewChatMember.User.ID)
+
+	if user == nil {
+		return
+	}
+
+	c := client.New(user)
+
+	if user.State == users.Ready {
+		_ = c.RevokeToken()
+	}
+
+	if user.Cache {
+		_ = c.PurgeCache()
+	}
+
+	user.Delete()
 }

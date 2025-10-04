@@ -1,9 +1,10 @@
 package commands
 
 import (
+	"log/slog"
+
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/kiasuo/bot/internal/helpers"
-	"log"
 )
 
 type Command func(Context, Responder, helpers.Formatter) error
@@ -11,7 +12,6 @@ type Command func(Context, Responder, helpers.Formatter) error
 var commandMap = map[string]Command{
 	AdminCommandName: AdminCommand,
 	StartCommandName: StartCommand,
-	"stop":           StopCommand,
 	"settings":       SettingsCommand,
 	"schedule":       ScheduleCommand,
 	"marks":          MarksCommand,
@@ -20,7 +20,7 @@ var commandMap = map[string]Command{
 }
 
 func IsSystemCommand(command string) bool {
-	return command == StartCommandName || command == "stop"
+	return command == StartCommandName
 }
 
 type commandConfig struct {
@@ -76,38 +76,37 @@ type Callback func(Context, Responder, helpers.Formatter, []string) error
 
 var callbackMap = map[string]Callback{
 	AdminCommandName: AdminCallback,
-	"stop":           StopCallback,
 	"settings":       SettingsCallback,
 	"schedule":       ScheduleCallback,
 	"marks":          MarksCallback,
 }
 
-func HandleCommand(context Context, responder Responder, formatter helpers.Formatter) {
-	command := commandMap[context.Command]
+func HandleCommand(ctx Context, resp Responder, fmt helpers.Formatter) {
+	command := commandMap[ctx.Command]
 
 	if command == nil {
-		log.Println("Someone tried to execute unknown command", context.Command)
+		slog.Warn("someone tried to execute unknown command", "command", ctx.Command)
 		return
 	}
 
-	log.Println("Handling command", context.Command)
-	handleError(command(context, responder, formatter))
+	slog.Info("handling command", "command", ctx.Command)
+	handleError(ctx, command(ctx, resp, fmt))
 }
 
-func HandleCallback(context Context, responder Responder, formatter helpers.Formatter, data []string) {
-	callback := callbackMap[context.Command]
+func HandleCallback(ctx Context, resp Responder, fmt helpers.Formatter, data []string) {
+	callback := callbackMap[ctx.Command]
 
 	if callback == nil {
-		log.Println("Someone tried to execute unknown callback", context.Command)
+		slog.Warn("someone tried to execute unknown callback", "callback", ctx.Command)
 		return
 	}
 
-	log.Println("Handling callback", context.Command)
-	handleError(callback(context, responder, formatter, data))
+	slog.Info("handling callback", "callback", ctx.Command)
+	handleError(ctx, callback(ctx, resp, fmt, data))
 }
 
-func handleError(err error) {
+func handleError(ctx Context, err error) {
 	if err != nil {
-		log.Printf("Error: %v", err)
+		slog.Error("unknown error", "error", err, "command", ctx.Command)
 	}
 }

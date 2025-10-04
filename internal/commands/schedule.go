@@ -1,14 +1,15 @@
 package commands
 
 import (
-	"github.com/kiasuo/bot/internal/helpers"
 	"slices"
 	"strings"
 	"time"
+
+	"github.com/kiasuo/bot/internal/helpers"
 )
 
-func scheduleCommand(context Context, responder Responder, formatter helpers.Formatter, t time.Time) error {
-	data, err := context.GetClient().GetSchedule(t)
+func scheduleCommand(ctx Context, resp Responder, formatter helpers.Formatter, t time.Time) error {
+	data, err := ctx.GetClient().GetSchedule(t)
 
 	if err != nil {
 		return err
@@ -28,7 +29,7 @@ func scheduleCommand(context Context, responder Responder, formatter helpers.For
 	}
 
 	if len(data.Schedule) == 0 {
-		return responder.Write("Расписания нет. Отдыхаем?").RespondWithKeyboard(keyboard)
+		return resp.Write("Расписания нет. Отдыхаем?").RespondWithKeyboard(keyboard)
 	}
 
 	date := ""
@@ -36,12 +37,12 @@ func scheduleCommand(context Context, responder Responder, formatter helpers.For
 
 	for _, event := range data.Schedule {
 		if event.LessonDate != date {
-			responder.Write(formatter.Title(formatDate(event.Date())))
+			resp.Write(formatter.Title(formatDate(event.Date())))
 			date = event.LessonDate
 			checked = nil
 		}
 
-		responder.Write(formatter.Line(event.String()))
+		resp.Write(formatter.Line(event.String()))
 
 		if len(event.Slots) > 0 {
 			marks := ""
@@ -54,7 +55,7 @@ func scheduleCommand(context Context, responder Responder, formatter helpers.For
 				marks += slot.Mark.Value
 			}
 
-			responder.Write(formatter.Item("Оценки: " + formatter.Code(marks)))
+			resp.Write(formatter.Item("Оценки: " + formatter.Code(marks)))
 		}
 
 		for _, homeworkID := range event.Homeworks {
@@ -68,9 +69,9 @@ func scheduleCommand(context Context, responder Responder, formatter helpers.For
 				if !slices.Contains(checked, text) {
 					if text != "" {
 						if strings.Contains(text, "\n") {
-							responder.Write(formatter.Item(formatter.Block(text)))
+							resp.Write(formatter.Item(formatter.Block(text)))
 						} else {
-							responder.Write(formatter.Item(text))
+							resp.Write(formatter.Item(text))
 						}
 					}
 
@@ -78,26 +79,26 @@ func scheduleCommand(context Context, responder Responder, formatter helpers.For
 				}
 
 				for _, file := range homework.Files {
-					responder.Write(formatter.Item(file.String(formatter)))
+					resp.Write(formatter.Item(file.String(formatter)))
 				}
 
 				for _, link := range homework.Links {
-					responder.Write(formatter.Item(link.String(formatter)))
+					resp.Write(formatter.Item(link.String(formatter)))
 				}
 			}
 		}
 	}
 
-	return responder.RespondWithKeyboard(keyboard)
+	return resp.RespondWithKeyboard(keyboard)
 }
 
-var ScheduleCommand = Command(func(context Context, responder Responder, formatter helpers.Formatter) error {
-	return scheduleCommand(context, responder, formatter, time.Now())
+var ScheduleCommand = Command(func(ctx Context, resp Responder, formatter helpers.Formatter) error {
+	return scheduleCommand(ctx, resp, formatter, time.Now())
 })
 
-var ScheduleCallback = Callback(func(context Context, responder Responder, formatter helpers.Formatter, data []string) error {
+var ScheduleCallback = Callback(func(ctx Context, resp Responder, formatter helpers.Formatter, data []string) error {
 	time, _ := time.Parse(time.DateOnly, data[0])
-	return scheduleCommand(context, responder, formatter, time)
+	return scheduleCommand(ctx, resp, formatter, time)
 })
 
 var weekdays = map[time.Weekday]string{

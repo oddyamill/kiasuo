@@ -20,6 +20,6 @@ func (u UserState) String() string {
 	case Blacklisted:
 		return "заблокирован"
 	default:
-		panic("unknown user state")
+		panic("bad user state")
 	}
 }

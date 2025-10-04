@@ -1,12 +1,13 @@
 package commands
 
 import (
-	"github.com/kiasuo/bot/internal/helpers"
 	"slices"
+
+	"github.com/kiasuo/bot/internal/helpers"
 )
 
-var ClassmatesCommand = Command(func(context Context, responder Responder, formatter helpers.Formatter) error {
-	recipients, err := context.GetClient().GetRecipients()
+var ClassmatesCommand = Command(func(ctx Context, resp Responder, formatter helpers.Formatter) error {
+	recipients, err := ctx.GetClient().GetRecipients()
 
 	if err != nil {
 		return err
@@ -19,11 +20,11 @@ var ClassmatesCommand = Command(func(context Context, responder Responder, forma
 	}
 
 	slices.Sort(students)
-	responder.Write(formatter.Title("Список учеников (%d)"), len(students))
+	resp.Write(formatter.Title("Список учеников (%d)"), len(students))
 
 	for _, student := range students {
-		responder.Write(formatter.Item(student))
+		resp.Write(formatter.Item(student))
 	}
 
-	return responder.Respond()
+	return resp.Respond()
 })

@@ -8,8 +8,8 @@ import (
 	"github.com/kiasuo/bot/internal/helpers"
 )
 
-func marksCommand(context Context, responder Responder, formatter helpers.Formatter, periodID int) error {
-	periods, err := context.GetClient().GetStudyPeriods()
+func marksCommand(ctx Context, resp Responder, formatter helpers.Formatter, periodID int) error {
+	periods, err := ctx.GetClient().GetStudyPeriods()
 
 	if err != nil {
 		return err
@@ -32,16 +32,16 @@ func marksCommand(context Context, responder Responder, formatter helpers.Format
 	keyboard := Keyboard{row}
 
 	if period == nil {
-		return responder.Write("Каникулы?").RespondWithKeyboard(keyboard)
+		return resp.Write("Каникулы?").RespondWithKeyboard(keyboard)
 	}
 
-	marks, err := context.GetClient().GetLessons(period.ID)
+	marks, err := ctx.GetClient().GetLessons(period.ID)
 
 	if err != nil {
 		return err
 	}
 
-	responder.Write(formatter.Title("Оценки за " + period.Text))
+	resp.Write(formatter.Title("Оценки за " + period.Text))
 
 	// TODO!
 	hidePasses, hideEmptyLessons := true, true
@@ -62,7 +62,7 @@ func marksCommand(context Context, responder Responder, formatter helpers.Format
 
 			line += mark.Value
 
-			if slot.UpdatedAt.After(context.User.LastMarksUpdate) {
+			if slot.UpdatedAt.After(ctx.User.LastMarksUpdate) {
 				line += "⁺"
 			}
 		}
@@ -75,19 +75,19 @@ func marksCommand(context Context, responder Responder, formatter helpers.Format
 			line = "-"
 		}
 
-		responder.Write(formatter.Item(lesson.String() + ": " + formatter.Code(line)))
+		resp.Write(formatter.Item(lesson.String() + ": " + formatter.Code(line)))
 	}
 
-	context.User.UpdateLastMarksUpdate()
+	ctx.User.UpdateLastMarksUpdate()
 
-	return responder.RespondWithKeyboard(keyboard)
+	return resp.RespondWithKeyboard(keyboard)
 }
 
-var MarksCommand = Command(func(context Context, responder Responder, formatter helpers.Formatter) error {
-	return marksCommand(context, responder, formatter, 0)
+var MarksCommand = Command(func(ctx Context, resp Responder, formatter helpers.Formatter) error {
+	return marksCommand(ctx, resp, formatter, 0)
 })
 
-var MarksCallback = Callback(func(context Context, responder Responder, formatter helpers.Formatter, data []string) error {
+var MarksCallback = Callback(func(ctx Context, resp Responder, formatter helpers.Formatter, data []string) error {
 	id, _ := strconv.Atoi(data[0])
-	return marksCommand(context, responder, formatter, id)
+	return marksCommand(ctx, resp, formatter, id)
 })
