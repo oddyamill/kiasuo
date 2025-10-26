@@ -53,7 +53,7 @@ func (db *Database) NewUser(ctx context.Context, telegramID int64) (*User, error
 		State:      UserStatePending,
 	}
 
-	if err := db.client.HMSet(ctx, getUserKey(telegramID), user).Err(); err != nil {
+	if err := db.client.HSet(ctx, getUserKey(telegramID), user).Err(); err != nil {
 		return nil, err
 	}
 
@@ -110,18 +110,21 @@ func (u *User) Save(ctx context.Context, keys ...string) error {
 
 func (u *User) SetState(ctx context.Context, state UserState) error {
 	u.State = state
+
 	return u.Save(ctx, "State")
 }
 
 func (u *User) SetStudent(ctx context.Context, studentID int, studentNameAcronym string) error {
 	u.StudentID = &studentID
 	u.StudentNameAcronym = crypto.Encrypt(studentNameAcronym).Encrypted
+
 	return u.Save(ctx, "StudentID", "StudentNameAcronym")
 }
 
 func (u *User) SetToken(ctx context.Context, accessToken, refreshToken string) error {
 	u.AccessToken = crypto.Encrypt(accessToken).Encrypted
 	u.RefreshToken = crypto.Encrypt(refreshToken).Encrypted
+
 	return u.Save(ctx, "AccessToken", "RefreshToken")
 }
 
@@ -129,7 +132,7 @@ func (u *User) SetFlag(ctx context.Context, flag UserFlag, value bool) error {
 	if value {
 		u.Flags |= flag
 	} else {
-		u.Flags ^= flag
+		u.Flags &^= flag
 	}
 
 	return u.Save(ctx, "Flags")
