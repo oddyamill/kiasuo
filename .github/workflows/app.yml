@@ -1,4 +1,4 @@
-name: Bot CI
+name: App CI
 
 on:
   push:
@@ -8,7 +8,7 @@ on:
       - go.mod
       - go.sum
       - Dockerfile
-      - .github/workflows/bot.yml
+      - .github/workflows/app.yml
   pull_request:
     branches: [master]
     paths:
@@ -16,7 +16,7 @@ on:
       - go.mod
       - go.sum
       - Dockerfile
-      - .github/workflows/bot.yml
+      - .github/workflows/app.yml
 
 env:
   REGISTRY: ghcr.io
@@ -41,7 +41,7 @@ jobs:
     needs: test
     strategy:
       matrix:
-        target: [bot]
+        target: [app]
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -96,7 +96,7 @@ jobs:
       contents: read
     env:
       DOCKER_HOST: ssh://target
-      BOT_IMAGE_NAME: ${{ github.repository }}-bot
+      APP_IMAGE_NAME: ${{ github.repository }}-app
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5
@@ -114,7 +114,7 @@ jobs:
         uses: docker/metadata-action@v5.8.0
         with:
           images: |
-            ${{ env.REGISTRY }}/${{ env.BOT_IMAGE_NAME }}
+            ${{ env.REGISTRY }}/${{ env.APP_IMAGE_NAME }}
       - name: Install cloudflared
         run: |
           curl -L -o cloudflared.deb https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64.deb
@@ -129,8 +129,9 @@ jobs:
         env:
           TUNNEL_SERVICE_TOKEN_ID: ${{ secrets.CLOUDFLARE_ACCESS_ID }}
           TUNNEL_SERVICE_TOKEN_SECRET: ${{ secrets.CLOUDFLARE_ACCESS_SECRET }}
-          BOT_IMAGE_REF: ${{ fromJSON(steps.meta.outputs.json).tags[0] }}
+          APP_IMAGE_REF: ${{ fromJSON(steps.meta.outputs.json).tags[0] }}
           WORKER_AUTH: ${{ secrets.CLOUDFLARE_WORKER_AUTH }}
+          ADMIN_ID: ${{ secrets.ADMIN_ID }}
         run: |
           docker compose pull
           docker compose up -d

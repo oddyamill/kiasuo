@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/kiasuo/bot/internal/client"
+	"github.com/kiasuo/bot/internal/database"
 	"github.com/kiasuo/bot/internal/helpers"
 )
 
@@ -43,8 +44,15 @@ func marksCommand(ctx Context, resp Responder, formatter helpers.Formatter, peri
 
 	resp.Write(formatter.Title("Оценки за " + period.Text))
 
-	// TODO!
-	hidePasses, hideEmptyLessons := true, true
+	lastMarksUpdate, err := ctx.User.GetLastMarksCommand(ctx.Context(), periodID)
+
+	if err != nil {
+		return err
+	}
+
+	showPasses, showEmptyLessons :=
+		ctx.User.HasFlag(database.UserFlagShowPasses),
+		ctx.User.HasFlag(database.UserFlagShowEmptyLessons)
 
 	for _, lesson := range *marks {
 		line := ""
@@ -52,7 +60,7 @@ func marksCommand(ctx Context, resp Responder, formatter helpers.Formatter, peri
 		for i, slot := range lesson.Slots {
 			mark := slot.Mark
 
-			if hidePasses && mark.IsPass() {
+			if mark.IsPass() && !showPasses {
 				continue
 			}
 
@@ -62,13 +70,13 @@ func marksCommand(ctx Context, resp Responder, formatter helpers.Formatter, peri
 
 			line += mark.Value
 
-			if slot.UpdatedAt.After(ctx.User.LastMarksUpdate) {
+			if slot.UpdatedAt.After(lastMarksUpdate) {
 				line += "⁺"
 			}
 		}
 
 		if line == "" {
-			if hideEmptyLessons {
+			if !showEmptyLessons {
 				continue
 			}
 
@@ -78,7 +86,9 @@ func marksCommand(ctx Context, resp Responder, formatter helpers.Formatter, peri
 		resp.Write(formatter.Item(lesson.String() + ": " + formatter.Code(line)))
 	}
 
-	ctx.User.UpdateLastMarksUpdate()
+	if err = ctx.User.SetLastMarksCommand(ctx.Context(), periodID, time.Now()); err != nil {
+		return err
+	}
 
 	return resp.RespondWithKeyboard(keyboard)
 }

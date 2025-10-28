@@ -2,20 +2,22 @@ package database
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"reflect"
 	"strconv"
 	"time"
 
 	"github.com/kiasuo/bot/internal/crypto"
+	"github.com/redis/go-redis/v9"
 )
 
 type User struct {
-	db                 *Database
+	db                 *DB
 	TelegramID         int64     `redis:"telegram_id"`
 	AccessToken        string    `redis:"access_token"`
 	RefreshToken       string    `redis:"refresh_token"`
-	StudentID          *int      `redis:"student_id"`
+	StudentID          int       `redis:"student_id"`
 	StudentNameAcronym string    `redis:"student_name_acronym"`
 	State              UserState `redis:"state"`
 	Flags              UserFlag  `redis:"flags"`
@@ -25,21 +27,15 @@ func getUserKey(telegramID int64) string {
 	return "users:" + strconv.FormatInt(telegramID, 10)
 }
 
-func (db *Database) GetUserState(ctx context.Context, telegramID int64) (UserState, error) {
-	var state UserState
-
-	if err := db.client.HGet(ctx, getUserKey(telegramID), "state").Scan(&state); err != nil {
-		return UserStateUnknown, err
-	}
-
-	return state, nil
-}
-
-func (db *Database) GetUser(ctx context.Context, telegramID int64) (*User, error) {
+func (db *DB) GetUser(ctx context.Context, telegramID int64) (*User, error) {
 	var user User
 
 	if err := db.client.HGetAll(ctx, getUserKey(telegramID)).Scan(&user); err != nil {
 		return nil, err
+	}
+
+	if user.IsAnonymous() {
+		return nil, nil
 	}
 
 	user.db = db
@@ -47,7 +43,7 @@ func (db *Database) GetUser(ctx context.Context, telegramID int64) (*User, error
 	return &user, nil
 }
 
-func (db *Database) NewUser(ctx context.Context, telegramID int64) (*User, error) {
+func (db *DB) NewUser(ctx context.Context, telegramID int64) (*User, error) {
 	user := User{
 		TelegramID: telegramID,
 		State:      UserStatePending,
@@ -58,24 +54,6 @@ func (db *Database) NewUser(ctx context.Context, telegramID int64) (*User, error
 	}
 
 	return &user, nil
-}
-
-func (db *Database) DeleteUser(ctx context.Context, telegramID int64) error {
-	if err := db.client.Del(ctx, getUserKey(telegramID)).Err(); err != nil {
-		return err
-	}
-
-	keys, err := db.client.Keys(ctx, getUserKey(telegramID)+":").Result()
-
-	if err != nil {
-		return err
-	}
-
-	for _, key := range keys {
-		_ = db.client.Del(ctx, key)
-	}
-
-	return nil
 }
 
 func (u *User) IsAnonymous() bool {
@@ -115,7 +93,7 @@ func (u *User) SetState(ctx context.Context, state UserState) error {
 }
 
 func (u *User) SetStudent(ctx context.Context, studentID int, studentNameAcronym string) error {
-	u.StudentID = &studentID
+	u.StudentID = studentID
 	u.StudentNameAcronym = crypto.Encrypt(studentNameAcronym).Encrypted
 
 	return u.Save(ctx, "StudentID", "StudentNameAcronym")
@@ -142,7 +120,7 @@ func (u *User) HasFlag(flag UserFlag) bool {
 	return u.Flags&flag != 0
 }
 
-// TODO: somehow remove ts
+// GetAccessToken TODO: somehow remove ts
 func (u *User) GetAccessToken() string {
 	return (&crypto.Crypt{Encrypted: u.AccessToken}).Decrypt()
 }
@@ -159,16 +137,38 @@ func getLastMarksCommandKey(telegramID int64, studyPeriodID int) string {
 	return getUserKey(telegramID) + ":marks_command:" + strconv.FormatInt(int64(studyPeriodID), 10)
 }
 
-func (u *User) GetLastMarksCommand(ctx context.Context, studyPeriodID int) (*time.Time, error) {
+func (u *User) GetLastMarksCommand(ctx context.Context, studyPeriodID int) (time.Time, error) {
 	var t time.Time
 
 	if err := u.db.client.Get(ctx, getLastMarksCommandKey(u.TelegramID, studyPeriodID)).Scan(&t); err != nil {
-		return nil, err
+		if errors.Is(err, redis.Nil) {
+			return t, nil
+		}
+
+		return t, err
 	}
 
-	return &t, nil
+	return t, nil
 }
 
 func (u *User) SetLastMarksCommand(ctx context.Context, studyPeriodID int, t time.Time) error {
 	return u.db.client.Set(ctx, getLastMarksCommandKey(u.TelegramID, studyPeriodID), t.Format(time.RFC3339), 0).Err()
+}
+
+func (u *User) Delete(ctx context.Context) error {
+	if err := u.db.client.Del(ctx, getUserKey(u.TelegramID)).Err(); err != nil {
+		return err
+	}
+
+	keys, err := u.db.client.Keys(ctx, getUserKey(u.TelegramID)+":").Result()
+
+	if err != nil {
+		return err
+	}
+
+	for _, key := range keys {
+		_ = u.db.client.Del(ctx, key)
+	}
+
+	return nil
 }

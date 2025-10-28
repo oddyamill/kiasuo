@@ -46,3 +46,7 @@ func ErrNotFound(w http.ResponseWriter) {
 func ErrUnauthorized(w http.ResponseWriter) {
 	errResponse(w, http.StatusUnauthorized, "unauthorized")
 }
+
+func ErrUnsupportedMediaType(w http.ResponseWriter) {
+	errResponse(w, http.StatusUnsupportedMediaType, "unsupported media type")
+}

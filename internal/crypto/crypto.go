@@ -6,8 +6,9 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"errors"
-	"github.com/kiasuo/bot/internal/helpers"
 	"io"
+
+	"github.com/kiasuo/bot/internal/helpers"
 )
 
 var key []byte
@@ -17,7 +18,7 @@ func init() {
 		// fake key for tests
 		key = helpers.StringToBytes("d813c247bb06c2c8ac84ef4231658b2b")
 	} else {
-		key = helpers.StringToBytes(helpers.GetEnv("CRYPTO"))
+		key = helpers.StringToBytes(helpers.GetEnv("CRYPTO_SECRET"))
 	}
 }
 

@@ -1,40 +1,35 @@
 services:
-  bot:
-    image: ${BOT_IMAGE_REF}
+  app:
+    image: ${APP_IMAGE_REF}
     restart: always
     volumes:
-      - postgres-socket:/var/run/postgresql
+      - redis-socket:/run/redis-socket
     environment:
-      - TELEGRAM_FILE=/run/secrets/telegram
-      - CRYPTO_FILE=/run/secrets/crypto
-      - POSTGRES_HOST=/var/run/postgresql
-      - POSTGRES_DB=kiasuo
-      - POSTGRES_USER=kiasuo
-      - POSTGRES_PASSWORD_FILE=/run/secrets/postgres
+      - REDIS_URL=unix://redis/run/redis-socket/redis.sock
+      - TELEGRAM_TOKEN_FILE=/run/secrets/telegram
+      - CRYPTO_SECRET_FILE=/run/secrets/crypto
       - WORKER_AUTH=${WORKER_AUTH}
+      - ADMIN_ID=${ADMIN_ID}
+    expose:
+      - 39814
+    ports:
+      - "127.0.0.1:39814:39814"
     secrets:
       - telegram
       - crypto
-      - postgres
     depends_on:
-      postgres:
+      redis:
         condition: service_healthy
-  postgres:
-    image: postgres:16-alpine
-    command: "postgres -c listen_addresses="
-    restart: always
-    user: postgres
+  redis:
+    image: redis:alpine
+    restart: unless-stopped
+    command: redis-server /usr/local/etc/redis/redis.conf
     volumes:
-      - postgres-data:/var/lib/postgresql/data
-      - postgres-socket:/var/run/postgresql
-    environment:
-      - POSTGRES_DB=kiasuo
-      - POSTGRES_USER=kiasuo
-      - POSTGRES_PASSWORD_FILE=/run/secrets/postgres
-    secrets:
-      - postgres
+      - redis-data:/data
+      - redis-socket:/run/redis-socket
+      - ./redis.conf:/usr/local/etc/redis/redis.conf:ro
     healthcheck:
-      test: ["CMD", "pg_isready", "-d", "kiasuo", "-U", "kiasuo"]
+      test: ["CMD", "redis-cli", "-s", "/run/redis-socket/redis.sock", "ping"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -43,8 +38,6 @@ secrets:
     file: /home/kiasuo/.secrets/telegram.txt
   crypto:
     file: /home/kiasuo/.secrets/crypto.txt
-  postgres:
-    file: /home/kiasuo/.secrets/postgres.txt
 volumes:
-  postgres-data:
-  postgres-socket:
+  redis-data:
+  redis-socket:

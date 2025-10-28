@@ -28,14 +28,10 @@ func scheduleURL(year, week int) string {
 	return ApiUrl + "/api/schedule?year=" + strconv.Itoa(year) + "&week=" + strconv.Itoa(week)
 }
 
-func appendID(rawUrl string, id *int) string {
-	if id == nil {
-		return rawUrl
-	}
-
+func appendID(rawUrl string, id int) string {
 	if strings.Contains(rawUrl, "?") {
-		return rawUrl + "&id=" + strconv.Itoa(*id)
+		return rawUrl + "&id=" + strconv.Itoa(id)
 	}
 
-	return rawUrl + "?id=" + strconv.Itoa(*id)
+	return rawUrl + "?id=" + strconv.Itoa(id)
 }

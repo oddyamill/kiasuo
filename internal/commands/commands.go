@@ -20,7 +20,7 @@ var commandMap = map[string]Command{
 }
 
 func IsSystemCommand(command string) bool {
-	return command == StartCommandName
+	return command == StartCommandName || command == "settings"
 }
 
 type commandConfig struct {

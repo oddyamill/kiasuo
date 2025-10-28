@@ -1,9 +1,11 @@
 package commands
 
 import (
+	"fmt"
 	"strconv"
 
 	"github.com/kiasuo/bot/internal/client"
+	"github.com/kiasuo/bot/internal/database"
 	"github.com/kiasuo/bot/internal/helpers"
 )
 
@@ -17,14 +19,14 @@ var SettingsCommand = Command(func(ctx Context, resp Responder, formatter helper
 				"settings:userStudents",
 			),
 			NewKeyboardButton(
-				helpers.If(user.Cache, "Отключить", "Включить")+" кэширование",
+				helpers.If(user.HasFlag(database.UserFlagCache), "Отключить", "Включить")+" кэширование",
 				"settings:cache",
 			),
 		},
 	}
 
 	return resp.
-		Write("Ученик: " + formatter.Bold(user.StudentNameAcronym.Decrypt())).
+		Write("Ученик: " + formatter.Bold(user.GetStudentNameAcronym())).
 		RespondWithKeyboard(keyboard)
 })
 
@@ -39,6 +41,8 @@ var SettingsCallback = Callback(func(ctx Context, resp Responder, formatter help
 		return updateCache(ctx, resp)
 	case "marks":
 		return getMarks(ctx, resp, formatter)
+	case "showPasses", "showEmptyLessons":
+		return updateMarks(ctx, resp, formatter, data)
 	}
 
 	return nil
@@ -84,7 +88,9 @@ func updateUserStudent(ctx Context, resp Responder, formatter helpers.Formatter,
 		return err
 	}
 
-	ctx.User.UpdateStudent(studentID, studentNameAcronym)
+	if err = ctx.User.SetStudent(ctx.Context(), studentID, studentNameAcronym); err != nil {
+		return err
+	}
 
 	return resp.
 		Write("Ученик %s успешно выбран!", formatter.Bold(studentNameAcronym)).
@@ -92,24 +98,33 @@ func updateUserStudent(ctx Context, resp Responder, formatter helpers.Formatter,
 }
 
 func updateCache(ctx Context, response Responder) error {
-	ctx.User.UpdateCache(!ctx.User.Cache)
+	val := !ctx.User.HasFlag(database.UserFlagCache)
+	err := ctx.User.SetFlag(ctx.Context(), database.UserFlagCache, val)
 
-	if ctx.User.Cache {
-		ok := ctx.GetClient().PurgeCache()
-		return response.Write("Кэширование успешно отключено." + helpers.If(ok, " Кэш очищен.", "")).Respond()
+	if err != nil {
+		return err
 	}
 
-	return response.Write("Кэширование успешно включено!").Respond()
+	if val {
+		return response.Write("Кэширование успешно включено!").Respond()
+	}
+
+	ok := ctx.GetClient().PurgeCache()
+	return response.Write("Кэширование успешно отключено." + helpers.If(ok, " Кэш очищен.", "")).Respond()
 }
 
-func getMarks(_ Context, resp Responder, formatter helpers.Formatter) error {
+func getMarks(ctx Context, resp Responder, formatter helpers.Formatter) error {
+	user := ctx.User
+
 	keyboard := Keyboard{
 		KeyboardRow{
 			NewKeyboardButton(
-				"Скрывать пропуски", "settings:hide_passes",
+				helpers.If(user.HasFlag(database.UserFlagShowPasses), "Скрывать", "Отображать")+" пропуски",
+				"settings:showPasses",
 			),
 			NewKeyboardButton(
-				"Скрывать пустые предметы", "settings:hide_empty_lines",
+				helpers.If(user.HasFlag(database.UserFlagShowEmptyLessons), "Скрывать", "Отображать")+" пустые предметы",
+				"settings:showEmptyLessons",
 			),
 		},
 		KeyboardRow{
@@ -120,4 +135,23 @@ func getMarks(_ Context, resp Responder, formatter helpers.Formatter) error {
 	return resp.
 		Write("Настройки команды " + formatter.Code("/marks")).
 		RespondWithKeyboard(keyboard)
+}
+
+func updateMarks(ctx Context, resp Responder, formatter helpers.Formatter, data []string) error {
+	var flag database.UserFlag
+
+	switch data[0] {
+	case "showEmptyLessons":
+		flag = database.UserFlagShowEmptyLessons
+	case "showPasses":
+		flag = database.UserFlagShowPasses
+	default:
+		return fmt.Errorf("unknown flag: %s", data[1])
+	}
+
+	if err := ctx.User.SetFlag(ctx.Context(), flag, !ctx.User.HasFlag(flag)); err != nil {
+		return err
+	}
+
+	return getMarks(ctx, resp, formatter)
 }

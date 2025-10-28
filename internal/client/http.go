@@ -6,6 +6,8 @@ import (
 	"net/http"
 	"os"
 	"strings"
+
+	"github.com/kiasuo/bot/internal/database"
 )
 
 const (
@@ -62,7 +64,7 @@ func request[T any](req *http.Request) (*T, error) {
 
 func refreshToken(client *Client) error {
 	req, err := http.NewRequest(http.MethodPost, refreshURL, strings.NewReader(
-		"refresh-token="+client.User.RefreshToken.Decrypt(),
+		"refresh-token="+client.User.GetRefreshToken(),
 	))
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
@@ -80,12 +82,12 @@ func refreshToken(client *Client) error {
 		return err
 	}
 
-	client.User.UpdateToken(result.AccessToken, result.RefreshToken)
+	client.User.SetToken(req.Context(), result.AccessToken, result.RefreshToken)
 	return nil
 }
 
 func requestWithAuth[T any](client *Client, req *http.Request) (*T, error) {
-	req.Header.Set("Authorization", "Bearer "+client.User.AccessToken.Decrypt())
+	req.Header.Set("Authorization", "Bearer "+client.User.GetAccessToken())
 	return request[T](req)
 }
 
@@ -102,7 +104,7 @@ func requestWithClient[T any](client *Client, url string, method string) (*T, er
 		}
 	}
 
-	if !client.User.Cache || client.User.StudentID == nil {
+	if !client.User.HasFlag(database.UserFlagCache) {
 		req.Header.Set(cacheHeader, "no")
 	}
 
@@ -129,7 +131,7 @@ func requestWithClient[T any](client *Client, url string, method string) (*T, er
 	return nil, err
 }
 
-func requestPurgeCache(id *int) bool {
+func requestPurgeCache(id int) bool {
 	req, err := http.NewRequest(http.MethodPost, appendID(purgeCacheURL, id), nil)
 
 	if err != nil {

@@ -7,14 +7,14 @@ import (
 	"strings"
 	"time"
 
-	"github.com/kiasuo/bot/internal/users"
+	"github.com/kiasuo/bot/internal/database"
 )
 
 type Client struct {
-	User *users.User
+	User *database.User
 }
 
-func New(user *users.User) *Client {
+func New(user *database.User) *Client {
 	return &Client{user}
 }
 
@@ -33,7 +33,7 @@ func (c *Client) GetRecipients() (*Recipients, error) {
 		return nil, err
 	}
 
-	recipients := (*rawRecipients)[*c.User.StudentID]
+	recipients := (*rawRecipients)[c.User.StudentID]
 	return &recipients, nil
 }
 
@@ -67,7 +67,7 @@ func (c *Client) PurgeCache() bool {
 }
 
 func (c *Client) isTokenExpired() bool {
-	segments := strings.Split(c.User.AccessToken.Decrypt(), ".")
+	segments := strings.Split(c.User.GetAccessToken(), ".")
 
 	if len(segments) != 3 {
 		return true

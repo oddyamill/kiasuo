@@ -4,13 +4,13 @@ import (
 	"testing"
 
 	"github.com/kiasuo/bot/internal/crypto"
-	"github.com/kiasuo/bot/internal/users"
+	"github.com/kiasuo/bot/internal/database"
 )
 
 func TestIsTokenExpired(t *testing.T) {
-	client := New(&users.User{
+	client := New(&database.User{
 		// This is a fake token that is expired
-		AccessToken: crypto.Encrypt("{.eyJleHAiOjE3MjY3MzQwNzh9.}"),
+		AccessToken: crypto.Encrypt("{.eyJleHAiOjE3MjY3MzQwNzh9.}").Encrypted,
 	})
 
 	if client.isTokenExpired() != true {
@@ -18,7 +18,7 @@ func TestIsTokenExpired(t *testing.T) {
 	}
 
 	// This is a fake token that is not expired
-	client.User.AccessToken = crypto.Encrypt("{.eyJleHAiOjc5NjE3NjAwMDB9.}")
+	client.User.AccessToken = crypto.Encrypt("{.eyJleHAiOjc5NjE3NjAwMDB9.}").Encrypted
 
 	if client.isTokenExpired() != false {
 		t.Errorf("Client.isTokenExpired() = %t; want false", client.isTokenExpired())
