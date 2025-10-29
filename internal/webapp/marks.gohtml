@@ -1,0 +1,147 @@
+{{- /*gotype: github.com/kiasuo/bot/internal/webapp.MarksPage*/ -}}
+
+{{define "MarksPage"}}
+{{template "Header" .Header}}
+<section class="marks">
+	<div class="marks-header">Оценки за {{.StudyPeriod.Text}}</div>
+	<div class="marks-lessons">
+		{{range .Lessons}}
+				<div class="lesson">
+					<div class="lesson-header">
+						<div class="lesson-name">{{.String}}</div>
+						<div class="lesson-average">
+							{{if .Averages.ForClassRaw}}
+								<div class="mark average-mark" data-mark="{{.Averages.ForClassValue}}" onclick="webApp.showAlert('Средний балл по классу')">{{.Averages.ForClass}}</div>
+							{{end}}
+							{{if .Averages.ForStudentRaw}}
+								<div class="mark average-mark" data-mark="{{.Averages.ForStudentValue}}" onclick="webApp.showAlert('Средний балл')">{{.Averages.ForStudent}}</div>
+							{{end}}
+						</div>
+					</div>
+					<div class="lesson-marks">
+						{{range .Slots}}
+							<div class="slot" data-is-pass="{{.Mark.IsPass}}">
+								<div class="mark slot-mark"
+									 data-mark="{{.Mark.Value}}"
+									 data-text="{{.Text}}"
+									 data-update="{{.UpdatedAt.UnixMilli}}"
+									 onclick="webApp.showPopup({ title: new Date(+this.dataset.update).toLocaleString('ru'), message: this.dataset.text || 'Нет комментария' })">
+									{{.Mark.Value}}
+								</div>
+								<div class="slot-date">{{.Date}}</div>
+							</div>
+						{{end}}
+					</div>
+				</div>
+		{{end}}
+	</div>
+</section>
+<style>
+	.marks-header {
+		font-weight: bold;
+		padding: 10px;
+	}
+
+	.marks-lessons {
+		width: 95%;
+		max-width: 700px;
+		border-radius: 10px;
+		margin-bottom: 0;
+		overflow: hidden;
+	}
+
+	.lesson {
+		display: flex;
+		flex-direction: column;
+		padding: 9px 14px;
+		background-color: var(--tg-theme-secondary-bg-color);
+		margin-bottom: 1px;
+	}
+
+	.lesson-header {
+		padding-bottom: 10px;
+		padding-left: 3px;
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+	}
+
+	.lesson-average {
+		display: flex;
+	}
+
+	.lesson-name {
+		font-weight: bold;
+	}
+
+	.lesson-marks {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
+		gap: 2px;
+	}
+
+	.slot {
+		display: flex;
+		flex-direction: column;
+		flex-wrap: wrap;
+		align-items: center;
+	}
+
+	.mark {
+		background-color: var(--tg-theme-section-bg-color);
+		border-radius: 10px;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		cursor: pointer;
+		-webkit-tap-highlight-color: transparent;
+	}
+
+	.average-mark {
+		padding: 1px 10px;
+		margin-left: 2px
+	}
+
+	.slot-mark {
+		width: 40px;
+		height: 40px;
+		font-size: large;
+	}
+
+	.slot-date {
+		font-size: 0.8em
+	}
+
+	.mark[data-mark*="1"], .mark[data-mark*="2"] {
+		color: red;
+		background-color: #f003
+	}
+
+	.mark[data-mark*="3"] {
+		color: #ff8c00;
+		background-color: #ff8c0033
+	}
+
+	.mark[data-mark*="4"] {
+		color: #4169e1;
+		background-color: #4169e133;
+	}
+
+	.mark[data-mark*="5"] {
+		color: #32cd32;
+		background-color: #32cd3233;
+	}
+
+	{{if .HidePasses}}
+	.slot[data-is-pass="true"] {
+		display: none;
+	}
+	{{end}}
+
+	{{if .HideEmptyLessons}}
+	.lesson:not(:has(.slot{{if .HidePasses}}:not([data-is-pass="true"]){{end}})) {
+		display: none;
+	}
+	{{end}}
+</style>
+{{end}}

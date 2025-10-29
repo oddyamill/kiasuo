@@ -1,9 +1,12 @@
 package commands
 
 import (
+	"errors"
 	"log/slog"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"github.com/kiasuo/bot/internal/client"
+	"github.com/kiasuo/bot/internal/database"
 	"github.com/kiasuo/bot/internal/helpers"
 )
 
@@ -75,10 +78,9 @@ func ParseTelegramCommands() tgbotapi.SetMyCommandsConfig {
 type Callback func(Context, Responder, helpers.Formatter, []string) error
 
 var callbackMap = map[string]Callback{
-	AdminCommandName: AdminCallback,
-	"settings":       SettingsCallback,
-	"schedule":       ScheduleCallback,
-	"marks":          MarksCallback,
+	"settings": SettingsCallback,
+	"schedule": ScheduleCallback,
+	"marks":    MarksCallback,
 }
 
 func HandleCommand(ctx Context, resp Responder, fmt helpers.Formatter) {
@@ -90,7 +92,10 @@ func HandleCommand(ctx Context, resp Responder, fmt helpers.Formatter) {
 	}
 
 	slog.Info("handling command", "command", ctx.Command)
-	handleError(ctx, command(ctx, resp, fmt))
+
+	if err := command(ctx, resp, fmt); err != nil {
+		handleError(ctx, resp, err)
+	}
 }
 
 func HandleCallback(ctx Context, resp Responder, fmt helpers.Formatter, data []string) {
@@ -102,11 +107,24 @@ func HandleCallback(ctx Context, resp Responder, fmt helpers.Formatter, data []s
 	}
 
 	slog.Info("handling callback", "callback", ctx.Command)
-	handleError(ctx, callback(ctx, resp, fmt, data))
+
+	if err := callback(ctx, resp, fmt, data); err != nil {
+		handleError(ctx, resp, err)
+	}
 }
 
-func handleError(ctx Context, err error) {
-	if err != nil {
-		slog.Error("unknown error", "error", err, "command", ctx.Command)
+func handleError(ctx Context, resp Responder, err error) {
+	if !errors.Is(err, client.ErrExpiredToken) {
+		slog.Error("error while handling command", "command", ctx.Command, "error", err)
+		return
 	}
+
+	err = ctx.User.SetState(ctx.Context(), database.UserStatePending)
+
+	if err != nil {
+		slog.Warn("failed to set user state", "error", err)
+		return
+	}
+
+	_ = resp.Write("Ваш токен истек. Используйте /start для получении информации").Respond()
 }

@@ -66,12 +66,12 @@ func refreshToken(client *Client) error {
 	req, err := http.NewRequest(http.MethodPost, refreshURL, strings.NewReader(
 		"refresh-token="+client.User.GetRefreshToken(),
 	))
-	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
 	if err != nil {
 		return err
 	}
 
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	result, err := request[Token](req)
 
 	if err != nil {
@@ -82,8 +82,7 @@ func refreshToken(client *Client) error {
 		return err
 	}
 
-	client.User.SetToken(req.Context(), result.AccessToken, result.RefreshToken)
-	return nil
+	return client.User.SetToken(req.Context(), result.AccessToken, result.RefreshToken)
 }
 
 func requestWithAuth[T any](client *Client, req *http.Request) (*T, error) {

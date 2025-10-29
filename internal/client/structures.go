@@ -1,10 +1,11 @@
 package client
 
 import (
-	"github.com/kiasuo/bot/internal/helpers"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/kiasuo/bot/internal/helpers"
 )
 
 type Token struct {
@@ -70,18 +71,46 @@ type RawLessons struct {
 }
 
 type Lesson struct {
-	Subject string `json:"subject"`
-	Slots   []Slot `json:"slots"`
+	Subject  string         `json:"subject"`
+	Slots    []Slot         `json:"slots"`
+	Averages LessonAverages `json:"averages"`
 }
 
 func (l Lesson) String() string {
 	return helpers.HumanizeLesson(l.Subject)
 }
 
+type LessonAverages struct {
+	ForStudentRaw *[2]interface{} `json:"for_student"`
+	ForClassRaw   *[2]interface{} `json:"for_class"`
+}
+
+func (l LessonAverages) ForStudent() string {
+	return l.ForStudentRaw[0].(string)
+}
+
+func (l LessonAverages) ForStudentValue() int {
+	return int(l.ForStudentRaw[1].(float64))
+}
+
+func (l LessonAverages) ForClass() string {
+	return l.ForClassRaw[0].(string)
+}
+
+func (l LessonAverages) ForClassValue() int {
+	return int(l.ForClassRaw[1].(float64))
+}
+
 type Slot struct {
 	LessonDate string    `json:"lesson_date"`
 	Mark       Mark      `json:"mark"`
+	Text       string    `json:"text"`
 	UpdatedAt  time.Time `json:"updated_at"`
+}
+
+func (s Slot) Date() string {
+	// 2025-09-05
+	return s.LessonDate[8:10] + "." + s.LessonDate[5:7]
 }
 
 type Mark struct {
