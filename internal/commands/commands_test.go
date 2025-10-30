@@ -7,8 +7,8 @@ func TestIsSystemCommand(t *testing.T) {
 		t.Errorf("IsSystemCommand(%s) = false; want true\n", StartCommandName)
 	}
 
-	if IsSystemCommand("settings") {
-		t.Errorf("IsSystemCommand(%s) = true; want false\n", "settings")
+	if IsSystemCommand("marks") {
+		t.Errorf("IsSystemCommand(%s) = true; want false\n", "marks")
 	}
 }
 
