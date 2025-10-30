@@ -35,10 +35,13 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-# secrets:
-#   kiasuo-telegram:
-#   kiasuo-http-telegram:
-#   kiasuo-crypto:
+secrets:
+ kiasuo-telegram:
+   external: true
+ kiasuo-http-telegram:
+   external: true
+ kiasuo-crypto:
+   external: true
 volumes:
   redis-data:
   redis-socket:
