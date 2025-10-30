@@ -24,28 +24,28 @@ on:
       - .github/workflows/worker.yml
 
 jobs:
-  deploy:
-    name: Deploy
-    runs-on: ubuntu-latest
-    if: github.event_name != 'pull_request'
-    steps:
-      - name: Checkout Repo
-        uses: actions/checkout@v5
-      - name: Deploy
-        uses: cloudflare/wrangler-action@v3
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          secrets: |
-            EDGE
-            AUTH
-            ZONE
-            CLOUDFLARE
-        env:
-          EDGE: ${{ vars.CLOUDFLARE_WORKER_EDGE }}
-          ZONE: ${{ vars.CLOUDFLARE_ZONE_ID }}
-          CLOUDFLARE: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          AUTH: ${{ secrets.CLOUDFLARE_WORKER_AUTH }}
+  # deploy:
+  #   name: Deploy
+  #   runs-on: ubuntu-latest
+  #   if: github.event_name != 'pull_request'
+  #   steps:
+  #     - name: Checkout Repo
+  #       uses: actions/checkout@v5
+  #     - name: Deploy
+  #       uses: cloudflare/wrangler-action@v3
+  #       with:
+  #         apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+  #         accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+  #         secrets: |
+  #           EDGE
+  #           AUTH
+  #           ZONE
+  #           CLOUDFLARE
+  #       env:
+  #         EDGE: ${{ vars.CLOUDFLARE_WORKER_EDGE }}
+  #         ZONE: ${{ vars.CLOUDFLARE_ZONE_ID }}
+  #         CLOUDFLARE: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+  #         AUTH: ${{ secrets.CLOUDFLARE_WORKER_AUTH }}
   deploy-dns:
     name: Deploy Cloudflare DNS
     runs-on: ubuntu-latest
