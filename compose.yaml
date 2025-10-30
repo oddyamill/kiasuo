@@ -10,7 +10,7 @@ services:
       - CRYPTO_SECRET_FILE=/run/secrets/crypto
       - WORKER_AUTH=${WORKER_AUTH}
       - ADMIN_ID=${ADMIN_ID}
-      - HTTP_TELEGRAM_TOKEN=/run/secrets/http-telegram
+      - HTTP_TELEGRAM_TOKEN_FILE=/run/secrets/http-telegram
     secrets:
       - telegram
       - crypto
