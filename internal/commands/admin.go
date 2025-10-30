@@ -1,7 +1,6 @@
 package commands
 
 import (
-	"log"
 	"strconv"
 
 	"github.com/kiasuo/bot/internal/helpers"
@@ -10,11 +9,7 @@ import (
 var adminID int64
 
 func init() {
-	var err error
-
-	if adminID, err = strconv.ParseInt(helpers.GetEnv("ADMIN_ID"), 10, 64); err != nil {
-		log.Panic(err)
-	}
+	adminID, _ = strconv.ParseInt(helpers.GetEnv("ADMIN_ID"), 10, 64)
 }
 
 const AdminCommandName string = "admin"
