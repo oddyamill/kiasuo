@@ -7,6 +7,7 @@ services:
     environment:
       - REDIS_URL=unix://redis/run/redis-socket/redis.sock
       - TELEGRAM_TOKEN_FILE=/run/secrets/telegram
+      - HTTP_TELEGRAM_TOKEN_FILE=/run/secrets/http-telegram
       - CRYPTO_SECRET_FILE=/run/secrets/crypto
       - WORKER_AUTH=${WORKER_AUTH}
       - ADMIN_ID=${ADMIN_ID}
@@ -16,6 +17,7 @@ services:
       - "127.0.0.1:39814:39814"
     secrets:
       - telegram
+      - http-telegram
       - crypto
     depends_on:
       redis:
@@ -36,6 +38,8 @@ services:
 secrets:
   telegram:
     file: /home/kiasuo/.secrets/telegram.txt
+  http-telegram:
+    file: /home/kiasuo/.secrets/http-telegram.txt
   crypto:
     file: /home/kiasuo/.secrets/crypto.txt
 volumes:
