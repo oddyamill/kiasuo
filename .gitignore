@@ -32,6 +32,7 @@ node_modules/
 
 # wrangler files
 .wrangler/
+dist/
 
 # output of tsc
 cmd/yandex/*.js

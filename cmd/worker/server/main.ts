@@ -107,11 +107,15 @@ async function purgeCache(url: URL, request: Request, env: Env): Promise<Respons
 }
 
 export default {
-	fetch(request, env): Promise<Response> {
+	fetch(request, env): Response | Promise<Response> {
 		const url = new URL(request.url)
 
 		if (url.pathname === "/internal/purge-cache") {
 			return purgeCache(url, request, env)
+		}
+
+		if (!url.pathname.startsWith("/diary")) {
+			return new Response(null, { status: 404 })
 		}
 
 		if (request.cf !== undefined && !EDGES.includes(request.cf.colo)) {

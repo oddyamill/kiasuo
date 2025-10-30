@@ -1,0 +1,35 @@
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "kiasuo",
+	"main": "cmd/worker/server/main.ts",
+	"compatibility_date": "2025-10-11",
+	"compatibility_flags": [
+		"nodejs_compat"
+	],
+	"assets": {
+		"not_found_handling": "single-page-application",
+		"run_worker_first": [
+			"/diary/*",
+			"/internal/*"
+		],
+	},
+	"observability": {
+		"enabled": true
+	},
+	"routes": [
+		"kiasuo.oddya.ru/diary/refresh",
+		"kiasuo.oddya.ru/diary/api/user*",
+		"kiasuo.oddya.ru/diary/api/recipients*",
+		"kiasuo.oddya.ru/diary/api/study_periods*",
+		"kiasuo.oddya.ru/diary/api/lesson_marks/*",
+		"kiasuo.oddya.ru/diary/api/student_marks/*",
+		"kiasuo.oddya.ru/diary/api/notices*",
+		"kiasuo.oddya.ru/diary/api/conversations*",
+		"kiasuo.oddya.ru/diary/api/schedule*",
+		"kiasuo.oddya.ru/internal/purge-cache*",
+		"kiasuo.oddya.ru/webapp/marks",
+		"kiasuo.oddya.ru/assets/*",
+	],
+	"upload_source_maps": true,
+	"workers_dev": false,
+}

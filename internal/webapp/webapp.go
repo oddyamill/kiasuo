@@ -3,36 +3,25 @@ package webapp
 import (
 	"crypto/hmac"
 	"crypto/sha256"
-	"embed"
-	_ "embed"
 	"encoding/hex"
-	"html/template"
 	"net/url"
 	"strings"
 
 	"github.com/kiasuo/bot/internal/client"
 )
 
-type Header struct {
-	StudentNameAcronym string
-}
-
-type IndexPage struct {
-	Version string
+type StudentPage struct {
+	StudentNameAcronym string `json:"studentNameAcronym"`
 }
 
 type MarksPage struct {
-	Header
-	StudyPeriod      client.StudyPeriod
-	Lessons          []client.Lesson
-	HidePasses       bool
-	HideEmptyLessons bool
+	StudyPeriod      client.StudyPeriod   `json:"studyPeriod"`
+	StudyPeriods     []client.StudyPeriod `json:"studyPeriods"`
+	Lessons          []client.Lesson      `json:"lessons"`
+	ShowPasses       bool                 `json:"showPasses"`
+	ShowEmptyLessons bool                 `json:"showEmptyLessons"`
+	LastMarksSeenAt  int64                `json:"lastMarksSeenAt"`
 }
-
-//go:embed *.gohtml
-var templateFS embed.FS
-
-var Templates = template.Must(template.ParseFS(templateFS, "*.gohtml"))
 
 func ValidateTelegramInit(botToken string, data string) (url.Values, bool) {
 	appData, err := url.ParseQuery(data)

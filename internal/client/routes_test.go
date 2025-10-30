@@ -8,24 +8,19 @@ func TestAppendID(t *testing.T) {
 	id := 1
 
 	tests := []struct {
-		id       *int
+		id       int
 		input    string
 		expected string
 	}{
 		{
-			&id,
+			id,
 			"https://example.com/marks",
 			"https://example.com/marks?id=1",
 		},
 		{
-			&id,
+			id,
 			"https://example.com/marks?week=1",
 			"https://example.com/marks?week=1&id=1",
-		},
-		{
-			nil,
-			"https://example.com/marks",
-			"https://example.com/marks",
 		},
 	}
 

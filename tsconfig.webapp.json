@@ -1,0 +1,15 @@
+{
+	"extends": "@vue/tsconfig/tsconfig.dom.json",
+	"include": [
+		"./env.d.ts",
+		"./cmd/worker/src/**/*",
+		"./cmd/worker/src/**/*.vue"
+	],
+	"exclude": ["./cmd/worker/src/**/__tests__/*"],
+	"compilerOptions": {
+		"tsBuildInfoFile": "./node_modules/.tmp/tsconfig.webapp.tsbuildinfo",
+		"types": [
+			"@types/telegram-web-app"
+		],
+	}
+}

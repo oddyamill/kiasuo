@@ -2,13 +2,16 @@
 	"files": [],
 	"references": [
 		{
-			"path": "./tsconfig.test.json"
-		},
-		{
 			"path": "./tsconfig.worker.json"
 		},
 		{
 			"path": "./tsconfig.yandex.json"
+		},
+		{
+			"path": "./tsconfig.webapp.json"
+		},
+		{
+			"path": "./tsconfig.node.json"
 		}
 	]
 }

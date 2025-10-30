@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"log"
 	"log/slog"
@@ -11,7 +12,6 @@ import (
 	"github.com/kiasuo/bot/internal/client"
 	"github.com/kiasuo/bot/internal/database"
 	"github.com/kiasuo/bot/internal/helpers"
-	"github.com/kiasuo/bot/internal/version"
 	"github.com/kiasuo/bot/internal/webapp"
 )
 
@@ -44,71 +44,84 @@ func (app *App) internalWebhookHandler(w http.ResponseWriter, r *http.Request) {
 	app.updates <- update
 }
 
-func (app *App) webappHandler(w http.ResponseWriter, r *http.Request) {
-	data := webapp.IndexPage{
-		Version: version.Version,
-	}
+func (app *App) internalWebappCors(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "https://brand-new-kiasuo-webapp-indev.oddya.ru")
+	w.Header().Set("Access-Control-Allow-Methods", "GET")
+	w.Header().Set("Access-Control-Allow-Headers", "Telegram-Init")
+}
 
-	if err := webapp.Templates.ExecuteTemplate(w, "IndexPage", data); err != nil {
-		slog.Error(err.Error())
+func (app *App) authorizeWebappUserAndPutCors(next http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		app.internalWebappCors(w, r)
+
+		initToken := r.Header.Get("Telegram-Init")
+
+		if initToken == "" {
+			w.WriteHeader(http.StatusUnauthorized)
+			return
+		}
+
+		appData, ok := webapp.ValidateTelegramInit(app.bot.Token, initToken)
+
+		if !ok {
+			w.WriteHeader(http.StatusUnauthorized)
+			return
+		}
+
+		var tgUser tgbotapi.User
+
+		if err := json.Unmarshal(helpers.StringToBytes(appData.Get("user")), &tgUser); err != nil {
+			slog.Error(err.Error())
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		user, err := app.db.GetUser(r.Context(), tgUser.ID)
+
+		if err != nil {
+			slog.Error(err.Error())
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		if user == nil {
+			w.WriteHeader(http.StatusNotFound)
+			return
+		}
+
+		if user.State != database.UserStateReady || user.StudentID == 0 {
+			w.WriteHeader(http.StatusForbidden)
+			return
+		}
+
+		next(w, r.WithContext(context.WithValue(r.Context(), "user", user)))
 	}
 }
 
-func (app *App) webappMarksHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Header.Get("App-Version") != version.Version {
-		w.WriteHeader(http.StatusBadRequest)
-		return
+func (app *App) internalWebappStudent(w http.ResponseWriter, r *http.Request) {
+	user := r.Context().Value("user").(*database.User)
+
+	result := webapp.StudentPage{
+		StudentNameAcronym: user.GetStudentNameAcronym(),
 	}
 
-	initToken := r.Header.Get("Telegram-Init")
-
-	if initToken == "" {
-		w.WriteHeader(http.StatusUnauthorized)
-		return
+	if err := json.NewEncoder(w).Encode(result); err != nil {
+		slog.Error("JSON encoding error", "error", err)
 	}
+}
 
-	appData, ok := webapp.ValidateTelegramInit(app.bot.Token, initToken)
-
-	if !ok {
-		w.WriteHeader(http.StatusUnauthorized)
-		return
-	}
-
-	var tgUser tgbotapi.User
-
-	if err := json.Unmarshal(helpers.StringToBytes(appData.Get("user")), &tgUser); err != nil {
-		slog.Error(err.Error())
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	user, err := app.db.GetUser(r.Context(), tgUser.ID)
-
-	if err != nil {
-		slog.Error(err.Error())
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	if user == nil {
-		w.WriteHeader(http.StatusNotFound)
-		return
-	}
-
-	if user.State != database.UserStateReady || user.StudentID == 0 {
-		w.WriteHeader(http.StatusForbidden)
-		return
-	}
-
+func (app *App) internalWebppMarks(w http.ResponseWriter, r *http.Request) {
+	user := r.Context().Value("user").(*database.User)
 	c := client.New(user)
 
 	studyPeriods, err := c.GetStudyPeriods()
-
 	if err != nil {
 		slog.Error(err.Error())
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
+
+	//studyPeriodID := r.PathValue("studyPeriodID")
 
 	var studyPeriod *client.StudyPeriod
 
@@ -132,21 +145,25 @@ func (app *App) webappMarksHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	data := webapp.MarksPage{
-		Header: webapp.Header{
-			StudentNameAcronym: user.GetStudentNameAcronym(),
-		},
-		StudyPeriod:      *studyPeriod,
-		Lessons:          *lessons,
-		HidePasses:       !user.HasFlag(database.UserFlagShowPasses),
-		HideEmptyLessons: !user.HasFlag(database.UserFlagShowEmptyLessons),
+	lastMarksSeenAt, err := user.GetLastMarksCommand(r.Context(), studyPeriod.ID)
+
+	if err != nil {
+		slog.Error(err.Error())
+		w.WriteHeader(http.StatusInternalServerError)
+		return
 	}
 
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	result := webapp.MarksPage{
+		StudyPeriod:      *studyPeriod,
+		StudyPeriods:     *studyPeriods,
+		Lessons:          *lessons,
+		ShowPasses:       user.HasFlag(database.UserFlagShowPasses),
+		ShowEmptyLessons: user.HasFlag(database.UserFlagShowEmptyLessons),
+		LastMarksSeenAt:  lastMarksSeenAt.UnixMilli(),
+	}
 
-	if err := webapp.Templates.ExecuteTemplate(w, "MarksPage", data); err != nil {
-		slog.Error(err.Error())
-		return
+	if err := json.NewEncoder(w).Encode(result); err != nil {
+		slog.Error("JSON encoding error", "error", err)
 	}
 }
 
@@ -165,8 +182,10 @@ func main() {
 	}
 
 	go handleBot(app)
-	http.HandleFunc("GET /webapp", app.webappHandler)
-	http.HandleFunc("GET /webapp/marks", app.webappMarksHandler)
 	http.HandleFunc("POST /internal/webhook", app.internalWebhookHandler)
+	http.HandleFunc("OPTIONS /internal/webapp/student", app.internalWebappCors)
+	http.HandleFunc("GET /internal/webapp/student", app.authorizeWebappUserAndPutCors(app.internalWebappStudent))
+	http.HandleFunc("OPTIONS /internal/webapp/marks", app.internalWebappCors)
+	http.HandleFunc("GET /internal/webapp/marks", app.authorizeWebappUserAndPutCors(app.internalWebppMarks))
 	log.Panic(http.ListenAndServe(":39814", nil))
 }

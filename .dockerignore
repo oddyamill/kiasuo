@@ -15,6 +15,7 @@
 **/*.jfm
 **/.idea
 **/.wrangler
+**/dist
 **/.github
 **/bin
 **/charts

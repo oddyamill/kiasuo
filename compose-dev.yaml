@@ -20,7 +20,7 @@ services:
   redis:
     image: redis:alpine
     restart: unless-stopped
-    command: --save 60 10
+    command: --save 60 1
     volumes:
       - redis-data:/data
     expose:

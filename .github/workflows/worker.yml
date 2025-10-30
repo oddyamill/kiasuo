@@ -6,15 +6,21 @@ on:
     paths:
       - "**/*.ts"
       - "**/*.json"
+      - "**/*.vue"
+      - "**/*.css"
+      - index.html
       - cloudflare.tf
-      - wrangler.toml
+      - wrangler.jsonc
       - .github/workflows/worker.yml
   pull_request:
     branches: [master]
     paths:
       - "**/*.ts"
       - "**/*.json"
-      - wrangler.toml
+      - "**/*.vue"
+      - "**/*.css"
+      - index.html
+      - wrangler.jsonc
       - .github/workflows/worker.yml
 
 jobs:
