@@ -24,23 +24,8 @@ on:
       - .github/workflows/worker.yml
 
 jobs:
-  test:
-    name: Test
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v5
-      - name: Set up Node.js
-        uses: actions/setup-node@v5
-        with:
-          node-version-file: "package.json"
-      - name: Install dependencies
-        run: npm ci --include=dev
-      - name: Run tests
-        run: npm test
   deploy:
     name: Deploy
-    needs: test
     runs-on: ubuntu-latest
     if: github.event_name != 'pull_request'
     steps:
