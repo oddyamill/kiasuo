@@ -8,6 +8,7 @@ on:
       - go.mod
       - go.sum
       - Dockerfile
+      - compose.yaml
       - .github/workflows/app.yml
   pull_request:
     branches: [master]
@@ -16,6 +17,7 @@ on:
       - go.mod
       - go.sum
       - Dockerfile
+      - compose.yaml
       - .github/workflows/app.yml
 
 env:
