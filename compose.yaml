@@ -6,19 +6,19 @@ services:
       - redis-socket:/run/redis-socket
     environment:
       - REDIS_URL=unix://redis/run/redis-socket/redis.sock
-      - TELEGRAM_TOKEN_FILE=/run/secrets/kiasuo-telegram
-      - HTTP_TELEGRAM_TOKEN_FILE=/run/secrets/kiasuo-http-telegram
-      - CRYPTO_SECRET_FILE=/run/secrets/kiasuo-crypto
+      - TELEGRAM_TOKEN_FILE=/run/secrets/telegram
+      - CRYPTO_SECRET_FILE=/run/secrets/crypto
       - WORKER_AUTH=${WORKER_AUTH}
       - ADMIN_ID=${ADMIN_ID}
+      - HTTP_TELEGRAM_TOKEN=/run/secrets/http-telegram
+    secrets:
+      - telegram
+      - crypto
+      - http-telegram
     expose:
       - 39814
     ports:
       - "127.0.0.1:39814:39814"
-    secrets:
-      - kiasuo-telegram
-      - kiasuo-http-telegram
-      - kiasuo-crypto
     depends_on:
       redis:
         condition: service_healthy
@@ -36,12 +36,12 @@ services:
       timeout: 5s
       retries: 5
 secrets:
- kiasuo-telegram:
-   external: true
- kiasuo-http-telegram:
-   external: true
- kiasuo-crypto:
-   external: true
+  telegram:
+    file: /home/kiasuo/.secrets/telegram.txt
+  crypto:
+    file: /home/kiasuo/.secrets/crypto.txt
+  http-telegram:
+    file: /home/kiasuo/.secrets/http-telegram.txt
 volumes:
   redis-data:
   redis-socket:
