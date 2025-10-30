@@ -14,10 +14,10 @@ services:
 #      - TELEGRAM_TOKEN_FILE=/run/secrets/telegram
 #      - CRYPTO_SECRET_FILE=/run/secrets/crypto
 #      - HTTP_TELEGRAM_TOKEN_FILE=/run/secrets/http-telegram
-    secrets:
-      - telegram
-      - crypto
-      - http-telegram
+#    secrets:
+#      - telegram
+#      - crypto
+#      - http-telegram
     expose:
       - 39814
     ports:
