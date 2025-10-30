@@ -12,13 +12,7 @@ variable "cloudflare_zone_id" {
 }
 
 locals {
-  subdomain = "kiasuo"
   records = [
-    {
-      name    = local.subdomain
-      content = "188.114.96.3"
-      comment = "kiasuo proxy"
-    },
     {
       name    = "cloudflare-edge-kja"
       content = "172.70.152.140"
