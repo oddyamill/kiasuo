@@ -17,8 +17,11 @@ type Responder struct {
 	Update   models.Update
 }
 
-func (r *Responder) Write(template string, a ...any) *Responder {
-	text := fmt.Sprintf(template, a...)
+func (r *Responder) Write(text string, a ...any) *Responder {
+	if strings.Index(text, "%") != -1 {
+		text = fmt.Sprintf(text, a...)
+	}
+
 	r.builder.WriteString(text)
 	return r
 }

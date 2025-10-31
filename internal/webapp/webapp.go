@@ -21,7 +21,7 @@ type MarksPage struct {
 var publicUrl string
 
 func init() {
-	if !helpers.IsTesting() {
+	if helpers.IsTesting() {
 		return
 	}
 
