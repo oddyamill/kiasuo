@@ -8,16 +8,13 @@ services:
       - REDIS_URL=unix://redis/run/redis-socket/redis.sock
       - WORKER_AUTH=${WORKER_AUTH}
       - ADMIN_ID=${ADMIN_ID}
-      - TELEGRAM_TOKEN=${TELEGRAM_TOKEN}
-      - HTTP_TELEGRAM_TOKEN=${HTTP_TELEGRAM_TOKEN}
-      - CRYPTO_SECRET=${CRYPTO_SECRET}
-#      - TELEGRAM_TOKEN_FILE=/run/secrets/telegram
-#      - CRYPTO_SECRET_FILE=/run/secrets/crypto
-#      - HTTP_TELEGRAM_TOKEN_FILE=/run/secrets/http-telegram
-#    secrets:
-#      - telegram
-#      - crypto
-#      - http-telegram
+      - TELEGRAM_TOKEN_FILE=/run/secrets/telegram
+      - CRYPTO_SECRET_FILE=/run/secrets/crypto
+      - HTTP_TELEGRAM_TOKEN_FILE=/run/secrets/http-telegram
+    secrets:
+      - telegram
+      - crypto
+      - http-telegram
     expose:
       - 39814
     ports:
@@ -45,6 +42,13 @@ services:
 #    file: /home/kiasuo/.secrets/crypto.txt
 #  http-telegram:
 #    file: /home/kiasuo/.secrets/http-telegram.txt
+secrets:
+  telegram:
+    file: /var/lib/docker-secrets/telegram.txt
+  http-telegram:
+    file: /var/lib/docker-secrets/http-telegram.txt
+  crypto:
+    file: /var/lib/docker-secrets/crypto.txt
 volumes:
   redis-data:
   redis-socket:
