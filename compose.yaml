@@ -20,7 +20,10 @@ services:
     depends_on:
       - redis
     deploy:
-      replicas: 1
+      mode: global
+      resources:
+        limits:
+          memory: 256MB
   redis:
     image: redis:alpine
     restart: unless-stopped
@@ -36,7 +39,7 @@ services:
       timeout: 5s
       retries: 5
     deploy:
-      replicas: 1
+      mode: global
 secrets:
   kiasuo-telegram:
     external: true
