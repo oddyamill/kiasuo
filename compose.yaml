@@ -8,13 +8,13 @@ services:
       - REDIS_URL=unix://redis/run/redis-socket/redis.sock
       - WORKER_AUTH=${WORKER_AUTH}
       - ADMIN_ID=${ADMIN_ID}
-      - TELEGRAM_TOKEN_FILE=/run/secrets/telegram
-      - CRYPTO_SECRET_FILE=/run/secrets/crypto
-      - HTTP_TELEGRAM_TOKEN_FILE=/run/secrets/http-telegram
+      - TELEGRAM_TOKEN_FILE=/run/secrets/kiasuo-telegram
+      - CRYPTO_SECRET_FILE=/run/secrets/kiasuo-crypto
+      - HTTP_TELEGRAM_TOKEN_FILE=/run/secrets/kiasuo-http-telegram
     secrets:
-      - telegram
-      - crypto
-      - http-telegram
+      - kiasuo-telegram
+      - kiasuo-crypto
+      - kiasuo-http-telegram
     expose:
       - 39814
     ports:
@@ -22,6 +22,8 @@ services:
     depends_on:
       redis:
         condition: service_healthy
+    deploy:
+      replicas: 1
   redis:
     image: redis:alpine
     restart: unless-stopped
@@ -35,20 +37,15 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-#secrets:
-#  telegram:
-#    file: /home/kiasuo/.secrets/telegram.txt
-#  crypto:
-#    file: /home/kiasuo/.secrets/crypto.txt
-#  http-telegram:
-#    file: /home/kiasuo/.secrets/http-telegram.txt
+    deploy:
+      replicas: 1
 secrets:
-  telegram:
-    file: /var/lib/docker-secrets/telegram.txt
-  http-telegram:
-    file: /var/lib/docker-secrets/http-telegram.txt
-  crypto:
-    file: /var/lib/docker-secrets/crypto.txt
+  kiasuo-telegram:
+    external: true
+  kiasuo-http-telegram:
+    external: true
+  kiasuo-crypto:
+    external: true
 volumes:
   redis-data:
   redis-socket:

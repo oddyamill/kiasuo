@@ -136,10 +136,6 @@ jobs:
           APP_IMAGE_REF: ${{ fromJSON(steps.meta.outputs.json).tags[0] }}
           WORKER_AUTH: ${{ secrets.CLOUDFLARE_WORKER_AUTH }}
           ADMIN_ID: ${{ secrets.ADMIN_ID }}
-          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
-          HTTP_TELEGRAM_TOKEN: ${{ secrets.HTTP_TELEGRAM_TOKEN }}
-          CRYPTO_SECRET: ${{ secrets.CRYPTO_SECRET }}
         run: |
-          docker compose pull
-          docker compose up redis --build -d
-          docker compose up -d
+          docker pull $APP_IMAGE_REF
+          docker stack deploy -c compose.yaml kiasuo
