@@ -20,8 +20,7 @@ services:
     ports:
       - "127.0.0.1:39814:39814"
     depends_on:
-      redis:
-        condition: service_healthy
+      - redis
     deploy:
       replicas: 1
   redis:
