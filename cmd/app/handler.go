@@ -18,7 +18,7 @@ func handleBot(app *App) {
 	slog.Info("authorized on account", "username", app.bot.Self.UserName)
 
 	if _, err := app.bot.Request(commands.ParseTelegramCommands()); err != nil {
-		log.Panic(err)
+		log.Fatal(err)
 	}
 
 	for update := range app.updates {
@@ -73,8 +73,9 @@ func handleMessage(app *App, update tgbotapi.Update) {
 
 	switch user.State {
 	case database.UserStateReady:
-		if user.StudentID == 0 && !commands.IsSystemCommand(command) {
-			_ = resp.Write("Необходимо выбрать ученика. Используйте /settings").Respond()
+		if user.StudentID == 0 && command != commands.SettingsCommandName {
+			//todo: auto!!!
+			_ = resp.Write("Необходимо выбрать ученика. Используйте /settings.").Respond()
 			return
 		}
 	case database.UserStatePending:
@@ -130,8 +131,9 @@ func handleCallbackQuery(app *App, update tgbotapi.Update) {
 	case database.UserStateReady:
 		break
 	case database.UserStatePending:
-		if commands.IsSystemCommand(data[1]) {
-			break
+		//TODO:?
+		if data[1] != commands.StartCommandName {
+			return
 		}
 	default:
 		return

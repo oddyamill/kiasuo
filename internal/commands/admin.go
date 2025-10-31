@@ -17,7 +17,7 @@ func init() {
 	var err error
 
 	if adminID, err = strconv.ParseInt(helpers.GetEnv("ADMIN_ID"), 10, 64); err != nil {
-		log.Panic(err)
+		log.Fatal(err)
 	}
 }
 

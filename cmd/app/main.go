@@ -187,5 +187,5 @@ func main() {
 	http.HandleFunc("GET /internal/webapp/student", app.authorizeWebappUserAndPutCors(app.internalWebappStudent))
 	http.HandleFunc("OPTIONS /internal/webapp/marks", app.internalWebappCors)
 	http.HandleFunc("GET /internal/webapp/marks", app.authorizeWebappUserAndPutCors(app.internalWebppMarks))
-	log.Panic(http.ListenAndServe(":39814", nil))
+	log.Fatal(http.ListenAndServe(":39814", nil))
 }

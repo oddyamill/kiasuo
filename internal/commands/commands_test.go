@@ -2,16 +2,6 @@ package commands
 
 import "testing"
 
-func TestIsSystemCommand(t *testing.T) {
-	if !IsSystemCommand(StartCommandName) {
-		t.Errorf("IsSystemCommand(%s) = false; want true\n", StartCommandName)
-	}
-
-	if IsSystemCommand("marks") {
-		t.Errorf("IsSystemCommand(%s) = true; want false\n", "marks")
-	}
-}
-
 func TestParseTelegramCommands(t *testing.T) {
 	commands := ParseTelegramCommands()
 

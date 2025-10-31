@@ -9,6 +9,8 @@ import (
 	"github.com/kiasuo/bot/internal/helpers"
 )
 
+const SettingsCommandName = "settings"
+
 var SettingsCommand = Command(func(ctx Context, resp Responder, formatter helpers.Formatter) error {
 	user := ctx.User
 

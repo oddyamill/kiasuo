@@ -13,17 +13,13 @@ import (
 type Command func(Context, Responder, helpers.Formatter) error
 
 var commandMap = map[string]Command{
-	AdminCommandName: AdminCommand,
-	StartCommandName: StartCommand,
-	"settings":       SettingsCommand,
-	"schedule":       ScheduleCommand,
-	"marks":          MarksCommand,
-	"classmates":     ClassmatesCommand,
-	"teachers":       TeachersCommand,
-}
-
-func IsSystemCommand(command string) bool {
-	return command == StartCommandName || command == "settings"
+	AdminCommandName:    AdminCommand,
+	StartCommandName:    StartCommand,
+	SettingsCommandName: SettingsCommand,
+	"schedule":          ScheduleCommand,
+	"marks":             MarksCommand,
+	"classmates":        ClassmatesCommand,
+	"teachers":          TeachersCommand,
 }
 
 type commandConfig struct {

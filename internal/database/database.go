@@ -18,7 +18,7 @@ func New(url string) *DB {
 	options, err := redis.ParseURL(url)
 
 	if err != nil {
-		log.Panic(err)
+		log.Fatal(err)
 	}
 
 	return &DB{redis.NewClient(options)}
