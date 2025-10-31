@@ -2,9 +2,11 @@ package commands
 
 import (
 	"testing"
+
+	"github.com/go-telegram/bot/models"
 )
 
-func TestParseTelegramKeyboard(t *testing.T) {
+func TestKeyboardParse(t *testing.T) {
 	keyboard := Keyboard{
 		{
 			{
@@ -14,7 +16,7 @@ func TestParseTelegramKeyboard(t *testing.T) {
 		},
 	}
 
-	result := ParseTelegramKeyboard(keyboard)
+	result := keyboard.Parse().(models.InlineKeyboardMarkup)
 
 	if len(result.InlineKeyboard) != 1 {
 		t.Errorf("len(ParseTelegramKeyboard()) = %d; want 1", len(result.InlineKeyboard))
@@ -32,7 +34,7 @@ func TestParseTelegramKeyboard(t *testing.T) {
 		t.Errorf("ParseTelegramKeyboard() = %s; want text", button.Text)
 	}
 
-	if *button.CallbackData != "callback" {
-		t.Errorf("ParseTelegramKeyboard() = %s; want callback", *button.CallbackData)
+	if button.CallbackData != "callback" {
+		t.Errorf("ParseTelegramKeyboard() = %s; want callback", button.CallbackData)
 	}
 }
