@@ -16,7 +16,7 @@ func TestKeyboardParse(t *testing.T) {
 		},
 	}
 
-	result := keyboard.Parse().(models.InlineKeyboardMarkup)
+	result := keyboard.Parse().(*models.InlineKeyboardMarkup)
 
 	if len(result.InlineKeyboard) != 1 {
 		t.Errorf("len(keyboard.Parse()) = %d; want 1", len(result.InlineKeyboard))
