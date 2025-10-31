@@ -1,39 +1,62 @@
 package commands
 
 import (
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"log"
+
+	"github.com/go-telegram/bot/models"
 	"github.com/kiasuo/bot/internal/version"
 )
 
 type Keyboard []KeyboardRow
 
-type KeyboardRow []KeyboardButton
-
-type KeyboardButton struct {
-	Text     string
-	Callback string
-}
-
-func NewKeyboardButton(text, callback string) KeyboardButton {
-	return KeyboardButton{Text: text, Callback: version.Version + ":" + callback}
-}
-
-func ParseTelegramKeyboard(keyboard Keyboard) *tgbotapi.InlineKeyboardMarkup {
-	if len(keyboard) == 0 {
+func (k Keyboard) Parse() models.ReplyMarkup {
+	if len(k) == 0 {
 		return nil
 	}
 
-	result := &tgbotapi.InlineKeyboardMarkup{}
+	result := &models.InlineKeyboardMarkup{}
 
-	for _, row := range keyboard {
-		var buttons []tgbotapi.InlineKeyboardButton
+	for _, row := range k {
+		var buttons []models.InlineKeyboardButton
 
 		for _, button := range row {
-			buttons = append(buttons, tgbotapi.NewInlineKeyboardButtonData(button.Text, button.Callback))
+			inlineKeyboardButton := models.InlineKeyboardButton{
+				Text: button.Text,
+			}
+
+			if button.Callback != "" {
+				inlineKeyboardButton.CallbackData = button.Callback
+			}
+
+			if button.WebAppURL != "" {
+				inlineKeyboardButton.WebApp = &models.WebAppInfo{
+					URL: button.WebAppURL,
+				}
+			}
+
+			log.Printf("keyboard: %v\n", inlineKeyboardButton)
+
+			buttons = append(buttons, inlineKeyboardButton)
 		}
 
 		result.InlineKeyboard = append(result.InlineKeyboard, buttons)
 	}
 
 	return result
+}
+
+type KeyboardRow []KeyboardButton
+
+type KeyboardButton struct {
+	Text      string
+	Callback  string
+	WebAppURL string
+}
+
+func NewCallbackButton(text, callback string) KeyboardButton {
+	return KeyboardButton{Text: text, Callback: version.Version + ":" + callback}
+}
+
+func NewWebappButton(text, url string) KeyboardButton {
+	return KeyboardButton{Text: text, WebAppURL: url}
 }

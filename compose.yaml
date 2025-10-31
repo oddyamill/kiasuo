@@ -11,6 +11,7 @@ services:
       - TELEGRAM_TOKEN_FILE=/run/secrets/kiasuo-telegram
       - CRYPTO_SECRET_FILE=/run/secrets/kiasuo-crypto
       - HTTP_TELEGRAM_TOKEN_FILE=/run/secrets/kiasuo-http-telegram
+      - WEBAPP_URL=${WEBAPP_URL}
     secrets:
       - kiasuo-telegram
       - kiasuo-crypto

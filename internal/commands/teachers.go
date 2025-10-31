@@ -7,7 +7,7 @@ import (
 	"github.com/kiasuo/bot/internal/helpers"
 )
 
-var TeachersCommand = Command(func(ctx Context, resp Responder, formatter helpers.Formatter) error {
+var TeachersCommand = Command(func(ctx Context, resp *Responder, formatter helpers.Formatter) error {
 	recipients, err := ctx.GetClient().GetRecipients()
 
 	if err != nil {

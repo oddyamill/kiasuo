@@ -23,7 +23,7 @@ func init() {
 
 const AdminCommandName string = "admin"
 
-var AdminCommand = Command(func(ctx Context, resp Responder, formatter helpers.Formatter) error {
+var AdminCommand = Command(func(ctx Context, resp *Responder, formatter helpers.Formatter) error {
 	if ctx.User.TelegramID != adminID {
 		return nil
 	}

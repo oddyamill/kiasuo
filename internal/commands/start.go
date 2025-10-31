@@ -8,7 +8,7 @@ import (
 
 const StartCommandName = "start"
 
-var StartCommand = Command(func(ctx Context, resp Responder, formatter helpers.Formatter) error {
+var StartCommand = Command(func(ctx Context, resp *Responder, formatter helpers.Formatter) error {
 	if ctx.User.State == database.UserStateReady {
 		return resp.Write("Привет!").Respond()
 	}

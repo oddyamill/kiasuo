@@ -6,7 +6,7 @@ import (
 	"log/slog"
 	"strings"
 
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"github.com/go-telegram/bot/models"
 	"github.com/kiasuo/bot/internal/client"
 	"github.com/kiasuo/bot/internal/commands"
 	"github.com/kiasuo/bot/internal/database"
@@ -15,9 +15,15 @@ import (
 )
 
 func handleBot(app *App) {
-	slog.Info("authorized on account", "username", app.bot.Self.UserName)
+	me, err := app.bot.GetMe(context.Background())
 
-	if _, err := app.bot.Request(commands.ParseTelegramCommands()); err != nil {
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	slog.Info("authorized on account", "username", me.Username)
+
+	if _, err := app.bot.SetMyCommands(context.Background(), commands.ParseTelegramCommands()); err != nil {
 		log.Fatal(err)
 	}
 
@@ -33,22 +39,38 @@ func handleBot(app *App) {
 	}
 }
 
-func handleMessage(app *App, update tgbotapi.Update) {
+func resolveCommand(message *models.Message) (string, string) {
+	for _, e := range message.Entities {
+		if e.Type == models.MessageEntityTypeBotCommand {
+			command := message.Text[e.Offset+1 : e.Offset+e.Length]
+
+			if i := strings.Index(command, "@"); i != -1 {
+				command = command[:i]
+			}
+
+			if len(message.Text) < e.Offset+e.Length+1 {
+				return command, ""
+			}
+
+			return command, message.Text[e.Offset+e.Length+1:]
+		}
+	}
+
+	return "", ""
+}
+
+func handleMessage(app *App, update models.Update) {
 	message := update.Message
 
-	if !message.IsCommand() {
-		return
-	}
-
-	resp := commands.TelegramResponder{
-		Bot:    *app.bot,
-		Update: update,
-	}
-
-	command := update.Message.Command()
+	command, arguments := resolveCommand(message)
 
 	if command == "" {
 		return
+	}
+
+	resp := &commands.Responder{
+		Bot:    app.bot,
+		Update: update,
 	}
 
 	user, err := app.db.GetUser(context.Background(), message.Chat.ID)
@@ -90,16 +112,14 @@ func handleMessage(app *App, update tgbotapi.Update) {
 		break
 	}
 
-	arguments := update.Message.CommandArguments()
-
 	ctx := commands.NewContext(command, arguments, *user)
 
-	formatter := helpers.TelegramFormatter{}
+	formatter := helpers.Formatter{}
 
-	commands.HandleCommand(ctx, &resp, &formatter)
+	commands.HandleCommand(ctx, resp, formatter)
 }
 
-func handleCallbackQuery(app *App, update tgbotapi.Update) {
+func handleCallbackQuery(app *App, update models.Update) {
 	callbackQuery := update.CallbackQuery
 	data := strings.Split(callbackQuery.Data, ":")
 
@@ -107,8 +127,8 @@ func handleCallbackQuery(app *App, update tgbotapi.Update) {
 		return
 	}
 
-	resp := commands.TelegramResponder{
-		Bot:    *app.bot,
+	resp := &commands.Responder{
+		Bot:    app.bot,
 		Update: update,
 	}
 
@@ -141,17 +161,21 @@ func handleCallbackQuery(app *App, update tgbotapi.Update) {
 
 	ctx := commands.NewContext(data[1], "", *user)
 
-	formatter := helpers.TelegramFormatter{}
+	formatter := helpers.Formatter{}
 
-	commands.HandleCallback(ctx, &resp, &formatter, data[2:])
+	commands.HandleCallback(ctx, resp, formatter, data[2:])
 }
 
-func handleMyChatMember(app *App, chatMember *tgbotapi.ChatMemberUpdated) {
-	if !chatMember.Chat.IsPrivate() || !chatMember.NewChatMember.WasKicked() {
+func handleMyChatMember(app *App, chatMember *models.ChatMemberUpdated) {
+	if chatMember.Chat.Type != models.ChatTypePrivate {
 		return
 	}
 
-	user, err := app.db.GetUser(context.Background(), chatMember.NewChatMember.User.ID)
+	if chatMember.NewChatMember.Member.Status != models.ChatMemberTypeBanned {
+		return
+	}
+
+	user, err := app.db.GetUser(context.Background(), chatMember.NewChatMember.Member.User.ID)
 
 	if err != nil {
 		slog.Error(err.Error(), "event", "myChatMember")

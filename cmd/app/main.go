@@ -6,9 +6,11 @@ import (
 	"log"
 	"log/slog"
 	"net/http"
+	"net/url"
 	"time"
 
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"github.com/go-telegram/bot"
+	"github.com/go-telegram/bot/models"
 	"github.com/kiasuo/bot/internal/client"
 	"github.com/kiasuo/bot/internal/database"
 	"github.com/kiasuo/bot/internal/helpers"
@@ -17,8 +19,8 @@ import (
 
 type App struct {
 	db                *database.DB
-	bot               *tgbotapi.BotAPI
-	updates           chan tgbotapi.Update
+	bot               *bot.Bot
+	updates           chan models.Update
 	httpTelegramToken string
 }
 
@@ -33,7 +35,7 @@ func (app *App) internalWebhookHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var update tgbotapi.Update
+	var update models.Update
 
 	if err := json.NewDecoder(r.Body).Decode(&update); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
@@ -61,18 +63,17 @@ func (app *App) authorizeWebappUserAndPutCors(next http.HandlerFunc) http.Handle
 			return
 		}
 
-		appData, ok := webapp.ValidateTelegramInit(app.bot.Token, initToken)
+		appData, err := url.ParseQuery(initToken)
 
-		if !ok {
-			w.WriteHeader(http.StatusUnauthorized)
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
 
-		var tgUser tgbotapi.User
+		tgUser, ok := bot.ValidateWebappRequest(appData, app.bot.Token())
 
-		if err := json.Unmarshal(helpers.StringToBytes(appData.Get("user")), &tgUser); err != nil {
-			slog.Error(err.Error())
-			w.WriteHeader(http.StatusInternalServerError)
+		if !ok {
+			w.WriteHeader(http.StatusUnauthorized)
 			return
 		}
 
@@ -121,8 +122,6 @@ func (app *App) internalWebppMarks(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	//studyPeriodID := r.PathValue("studyPeriodID")
-
 	var studyPeriod *client.StudyPeriod
 
 	for _, p := range *studyPeriods {
@@ -168,7 +167,7 @@ func (app *App) internalWebppMarks(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	bot, err := tgbotapi.NewBotAPI(helpers.GetEnv("TELEGRAM_TOKEN"))
+	b, err := bot.New(helpers.GetEnv("TELEGRAM_TOKEN"), bot.WithSkipGetMe())
 
 	if err != nil {
 		log.Fatal(err)
@@ -176,8 +175,8 @@ func main() {
 
 	app := &App{
 		database.New(helpers.GetEnv("REDIS_URL")),
-		bot,
-		make(chan tgbotapi.Update, bot.Buffer),
+		b,
+		make(chan models.Update, 1024),
 		helpers.GetEnv("HTTP_TELEGRAM_TOKEN"),
 	}
 

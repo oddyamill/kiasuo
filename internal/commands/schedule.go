@@ -8,7 +8,7 @@ import (
 	"github.com/kiasuo/bot/internal/helpers"
 )
 
-func scheduleCommand(ctx Context, resp Responder, formatter helpers.Formatter, t time.Time) error {
+func scheduleCommand(ctx Context, resp *Responder, formatter helpers.Formatter, t time.Time) error {
 	data, err := ctx.GetClient().GetSchedule(t)
 
 	if err != nil {
@@ -17,11 +17,11 @@ func scheduleCommand(ctx Context, resp Responder, formatter helpers.Formatter, t
 
 	keyboard := Keyboard{
 		KeyboardRow{
-			NewKeyboardButton(
+			NewCallbackButton(
 				"Предыдущая неделя",
 				"schedule:"+t.AddDate(0, 0, -7).Format(time.DateOnly),
 			),
-			NewKeyboardButton(
+			NewCallbackButton(
 				"Следующая неделя",
 				"schedule:"+t.AddDate(0, 0, 7).Format(time.DateOnly),
 			),
@@ -92,11 +92,11 @@ func scheduleCommand(ctx Context, resp Responder, formatter helpers.Formatter, t
 	return resp.RespondWithKeyboard(keyboard)
 }
 
-var ScheduleCommand = Command(func(ctx Context, resp Responder, formatter helpers.Formatter) error {
+var ScheduleCommand = Command(func(ctx Context, resp *Responder, formatter helpers.Formatter) error {
 	return scheduleCommand(ctx, resp, formatter, time.Now())
 })
 
-var ScheduleCallback = Callback(func(ctx Context, resp Responder, formatter helpers.Formatter, data []string) error {
+var ScheduleCallback = Callback(func(ctx Context, resp *Responder, formatter helpers.Formatter, data []string) error {
 	time, _ := time.Parse(time.DateOnly, data[0])
 	return scheduleCommand(ctx, resp, formatter, time)
 })

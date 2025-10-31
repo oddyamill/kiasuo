@@ -1,36 +1,41 @@
 package commands
 
 import (
+	"log/slog"
 	"strconv"
 	"time"
 
 	"github.com/kiasuo/bot/internal/client"
 	"github.com/kiasuo/bot/internal/database"
 	"github.com/kiasuo/bot/internal/helpers"
+	"github.com/kiasuo/bot/internal/webapp"
 )
 
-func marksCommand(ctx Context, resp Responder, formatter helpers.Formatter, periodID int) error {
+func marksCommand(ctx Context, resp *Responder, formatter helpers.Formatter, periodID int) error {
 	periods, err := ctx.GetClient().GetStudyPeriods()
 
 	if err != nil {
 		return err
 	}
 
-	row := KeyboardRow{}
+	periodsRow := KeyboardRow{}
 	now := time.Now()
 	var period *client.StudyPeriod
 
 	for _, p := range *periods {
-		row = append(row, NewKeyboardButton(p.Text, "marks:"+strconv.Itoa(p.ID)))
+		periodsRow = append(periodsRow, NewCallbackButton(p.Text, "marks:"+strconv.Itoa(p.ID)))
 
 		if periodID == p.ID || (periodID == 0 && p.Match(now)) {
 			period = &p
 		}
 	}
 
-	row = append(row, NewKeyboardButton("Настройки", "settings:marks"))
+	periodsRow = append(periodsRow, NewCallbackButton("Настройки", "settings:marks"))
 
-	keyboard := Keyboard{row}
+	keyboard := Keyboard{
+		periodsRow,
+		KeyboardRow{NewWebappButton("Подробнее", webapp.MarksURL())},
+	}
 
 	if period == nil {
 		return resp.Write("Каникулы?").RespondWithKeyboard(keyboard)
@@ -87,17 +92,17 @@ func marksCommand(ctx Context, resp Responder, formatter helpers.Formatter, peri
 	}
 
 	if err = ctx.User.SetLastMarksCommand(ctx.Context(), periodID, time.Now()); err != nil {
-		return err
+		slog.Warn(err.Error(), "command", "marks")
 	}
 
 	return resp.RespondWithKeyboard(keyboard)
 }
 
-var MarksCommand = Command(func(ctx Context, resp Responder, formatter helpers.Formatter) error {
+var MarksCommand = Command(func(ctx Context, resp *Responder, formatter helpers.Formatter) error {
 	return marksCommand(ctx, resp, formatter, 0)
 })
 
-var MarksCallback = Callback(func(ctx Context, resp Responder, formatter helpers.Formatter, data []string) error {
+var MarksCallback = Callback(func(ctx Context, resp *Responder, formatter helpers.Formatter, data []string) error {
 	id, _ := strconv.Atoi(data[0])
 	return marksCommand(ctx, resp, formatter, id)
 })

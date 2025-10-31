@@ -1,61 +1,69 @@
 package commands
 
 import (
+	"context"
+	"errors"
 	"fmt"
 	"strings"
 
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"github.com/go-telegram/bot"
+	"github.com/go-telegram/bot/models"
 )
 
-type Responder interface {
-	Write(template string, a ...any) Responder
-	Respond() error
-	RespondWithKeyboard(keyboard Keyboard) error
+type Responder struct {
+	builder  strings.Builder
+	keyboard Keyboard
+	Bot      *bot.Bot
+	Update   models.Update
 }
 
-type TelegramResponder struct {
-	Builder  strings.Builder
-	Keyboard Keyboard
-	Bot      tgbotapi.BotAPI
-	Update   tgbotapi.Update
-}
-
-func (r *TelegramResponder) Write(template string, a ...any) Responder {
+func (r *Responder) Write(template string, a ...any) *Responder {
 	text := fmt.Sprintf(template, a...)
-	r.Builder.WriteString(text)
+	r.builder.WriteString(text)
 	return r
 }
 
-func (r *TelegramResponder) Respond() error {
-	var msg tgbotapi.Chattable
-	markup := ParseTelegramKeyboard(r.Keyboard)
+func (r *Responder) Respond() error {
+	return r.respond()
+}
 
-	if r.Update.Message != nil {
-		msg = tgbotapi.MessageConfig{
-			BaseChat: tgbotapi.BaseChat{
-				ChatID:      r.Update.Message.Chat.ID,
-				ReplyMarkup: markup,
-			},
-			Text:      r.Builder.String(),
-			ParseMode: tgbotapi.ModeMarkdown,
-		}
-	} else if r.Update.CallbackQuery != nil {
-		msg = tgbotapi.EditMessageTextConfig{
-			BaseEdit: tgbotapi.BaseEdit{
-				ChatID:      r.Update.CallbackQuery.Message.Chat.ID,
-				MessageID:   r.Update.CallbackQuery.Message.MessageID,
-				ReplyMarkup: markup,
-			},
-			Text:      r.Builder.String(),
-			ParseMode: tgbotapi.ModeMarkdown,
-		}
+func (r *Responder) RespondWithKeyboard(keyboard Keyboard) error {
+	r.keyboard = keyboard
+	return r.respond()
+}
+
+func (r *Responder) respond() error {
+	switch {
+	case r.Update.Message != nil:
+		return r.sendMessage()
+	case r.Update.CallbackQuery != nil:
+		return r.editMessage()
+	default:
+		return errors.New("unsupported Update type")
+	}
+}
+
+func (r *Responder) sendMessage() error {
+	msg := &bot.SendMessageParams{
+		ChatID:      r.Update.Message.Chat.ID,
+		Text:        r.builder.String(),
+		ReplyMarkup: r.keyboard.Parse(),
+		ParseMode:   models.ParseModeMarkdownV1,
 	}
 
-	_, err := r.Bot.Send(msg)
+	_, err := r.Bot.SendMessage(context.Background(), msg)
 	return err
 }
 
-func (r *TelegramResponder) RespondWithKeyboard(keyboard Keyboard) error {
-	r.Keyboard = keyboard
-	return r.Respond()
+func (r *Responder) editMessage() error {
+	msg := &bot.EditMessageTextParams{
+		ChatID:      r.Update.CallbackQuery.Message.Message.Chat.ID,
+		MessageID:   r.Update.CallbackQuery.Message.Message.ID,
+		Text:        r.builder.String(),
+		ReplyMarkup: r.keyboard.Parse(),
+		ParseMode:   models.ParseModeMarkdownV1,
+	}
+
+	_, err := r.Bot.EditMessageText(context.Background(), msg)
+	return err
 }

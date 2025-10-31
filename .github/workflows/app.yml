@@ -134,6 +134,7 @@ jobs:
           APP_IMAGE_REF: ${{ fromJSON(steps.meta.outputs.json).tags[0] }}
           WORKER_AUTH: ${{ secrets.CLOUDFLARE_WORKER_AUTH }}
           ADMIN_ID: ${{ secrets.ADMIN_ID }}
+          WEBAPP_URL: ${{ vars.WEBAPP_URL }}
         run: |
           docker pull $APP_IMAGE_REF
           docker stack deploy -c compose.yaml -d kiasuo

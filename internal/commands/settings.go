@@ -11,16 +11,16 @@ import (
 
 const SettingsCommandName = "settings"
 
-var SettingsCommand = Command(func(ctx Context, resp Responder, formatter helpers.Formatter) error {
+var SettingsCommand = Command(func(ctx Context, resp *Responder, formatter helpers.Formatter) error {
 	user := ctx.User
 
 	keyboard := Keyboard{
 		KeyboardRow{
-			NewKeyboardButton(
+			NewCallbackButton(
 				"Выбрать ученика",
 				"settings:userStudents",
 			),
-			NewKeyboardButton(
+			NewCallbackButton(
 				helpers.If(user.HasFlag(database.UserFlagCache), "Отключить", "Включить")+" кэширование",
 				"settings:cache",
 			),
@@ -32,7 +32,7 @@ var SettingsCommand = Command(func(ctx Context, resp Responder, formatter helper
 		RespondWithKeyboard(keyboard)
 })
 
-var SettingsCallback = Callback(func(ctx Context, resp Responder, formatter helpers.Formatter, data []string) error {
+var SettingsCallback = Callback(func(ctx Context, resp *Responder, formatter helpers.Formatter, data []string) error {
 	// shitcode
 	switch data[0] {
 	case "userStudents":
@@ -58,7 +58,7 @@ func getNameAcronym(child client.Child) string {
 	return child.LastName + " " + string([]rune(child.FirstName)[0]) + ". " + string([]rune(child.MiddleName)[0]) + "."
 }
 
-func getUserStudents(ctx Context, resp Responder) error {
+func getUserStudents(ctx Context, resp *Responder) error {
 	user, err := ctx.GetClient().GetUser()
 
 	if err != nil {
@@ -73,7 +73,7 @@ func getUserStudents(ctx Context, resp Responder) error {
 
 	for _, child := range user.Children {
 		keyboard = append(keyboard, KeyboardRow{
-			NewKeyboardButton(
+			NewCallbackButton(
 				getName(child), "settings:userStudent:"+strconv.Itoa(child.ID)+":"+getNameAcronym(child),
 			),
 		})
@@ -82,7 +82,7 @@ func getUserStudents(ctx Context, resp Responder) error {
 	return resp.Write("Выберите ученика из списка:").RespondWithKeyboard(keyboard)
 }
 
-func updateUserStudent(ctx Context, resp Responder, formatter helpers.Formatter, data []string) error {
+func updateUserStudent(ctx Context, resp *Responder, formatter helpers.Formatter, data []string) error {
 	studentID, err := strconv.Atoi(data[1])
 	studentNameAcronym := data[2]
 
@@ -99,7 +99,7 @@ func updateUserStudent(ctx Context, resp Responder, formatter helpers.Formatter,
 		Respond()
 }
 
-func updateCache(ctx Context, response Responder) error {
+func updateCache(ctx Context, resp *Responder) error {
 	val := !ctx.User.HasFlag(database.UserFlagCache)
 	err := ctx.User.SetFlag(ctx.Context(), database.UserFlagCache, val)
 
@@ -108,29 +108,29 @@ func updateCache(ctx Context, response Responder) error {
 	}
 
 	if val {
-		return response.Write("Кэширование успешно включено!").Respond()
+		return resp.Write("Кэширование успешно включено!").Respond()
 	}
 
 	ok := ctx.GetClient().PurgeCache()
-	return response.Write("Кэширование успешно отключено." + helpers.If(ok, " Кэш очищен.", "")).Respond()
+	return resp.Write("Кэширование успешно отключено." + helpers.If(ok, " Кэш очищен.", "")).Respond()
 }
 
-func getMarks(ctx Context, resp Responder, formatter helpers.Formatter) error {
+func getMarks(ctx Context, resp *Responder, formatter helpers.Formatter) error {
 	user := ctx.User
 
 	keyboard := Keyboard{
 		KeyboardRow{
-			NewKeyboardButton(
+			NewCallbackButton(
 				helpers.If(user.HasFlag(database.UserFlagShowPasses), "Скрывать", "Отображать")+" пропуски",
 				"settings:showPasses",
 			),
-			NewKeyboardButton(
+			NewCallbackButton(
 				helpers.If(user.HasFlag(database.UserFlagShowEmptyLessons), "Скрывать", "Отображать")+" пустые предметы",
 				"settings:showEmptyLessons",
 			),
 		},
 		KeyboardRow{
-			NewKeyboardButton("Назад", "marks:0"),
+			NewCallbackButton("Назад", "marks:0"),
 		},
 	}
 
@@ -139,7 +139,7 @@ func getMarks(ctx Context, resp Responder, formatter helpers.Formatter) error {
 		RespondWithKeyboard(keyboard)
 }
 
-func updateMarks(ctx Context, resp Responder, formatter helpers.Formatter, data []string) error {
+func updateMarks(ctx Context, resp *Responder, formatter helpers.Formatter, data []string) error {
 	var flag database.UserFlag
 
 	switch data[0] {

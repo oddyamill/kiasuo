@@ -4,13 +4,14 @@ import (
 	"errors"
 	"log/slog"
 
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"github.com/go-telegram/bot"
+	"github.com/go-telegram/bot/models"
 	"github.com/kiasuo/bot/internal/client"
 	"github.com/kiasuo/bot/internal/database"
 	"github.com/kiasuo/bot/internal/helpers"
 )
 
-type Command func(Context, Responder, helpers.Formatter) error
+type Command func(Context, *Responder, helpers.Formatter) error
 
 var commandMap = map[string]Command{
 	AdminCommandName:    AdminCommand,
@@ -58,20 +59,20 @@ var publicCommands = []commandConfig{
 	},
 }
 
-func ParseTelegramCommands() tgbotapi.SetMyCommandsConfig {
-	commands := make([]tgbotapi.BotCommand, 0)
+func ParseTelegramCommands() *bot.SetMyCommandsParams {
+	commands := make([]models.BotCommand, 0)
 
 	for _, config := range publicCommands {
-		commands = append(commands, tgbotapi.BotCommand{
+		commands = append(commands, models.BotCommand{
 			Command:     config.Name,
 			Description: config.Description,
 		})
 	}
 
-	return tgbotapi.NewSetMyCommands(commands...)
+	return &bot.SetMyCommandsParams{Commands: commands}
 }
 
-type Callback func(Context, Responder, helpers.Formatter, []string) error
+type Callback func(Context, *Responder, helpers.Formatter, []string) error
 
 var callbackMap = map[string]Callback{
 	"settings": SettingsCallback,
@@ -79,7 +80,7 @@ var callbackMap = map[string]Callback{
 	"marks":    MarksCallback,
 }
 
-func HandleCommand(ctx Context, resp Responder, fmt helpers.Formatter) {
+func HandleCommand(ctx Context, resp *Responder, fmt helpers.Formatter) {
 	command := commandMap[ctx.Command]
 
 	if command == nil {
@@ -94,7 +95,7 @@ func HandleCommand(ctx Context, resp Responder, fmt helpers.Formatter) {
 	}
 }
 
-func HandleCallback(ctx Context, resp Responder, fmt helpers.Formatter, data []string) {
+func HandleCallback(ctx Context, resp *Responder, fmt helpers.Formatter, data []string) {
 	callback := callbackMap[ctx.Command]
 
 	if callback == nil {
@@ -109,18 +110,20 @@ func HandleCallback(ctx Context, resp Responder, fmt helpers.Formatter, data []s
 	}
 }
 
-func handleError(ctx Context, resp Responder, err error) {
-	if !errors.Is(err, client.ErrExpiredToken) {
+func handleError(ctx Context, resp *Responder, err error) {
+	switch {
+	case errors.Is(err, client.ErrExpiredToken):
+		err = ctx.User.SetState(ctx.Context(), database.UserStatePending)
+
+		if err != nil {
+			slog.Warn("failed to set user state", "error", err)
+		}
+
+		_ = resp.Write("Ваш токен истек. Используйте /start для получении информации").Respond()
+		break
+	case errors.Is(err, client.ErrServerError):
+		_ = resp.Write("Сервер КИАСУО не отвечает… Попробуйте позже…").Respond()
+	default:
 		slog.Error("error while handling command", "command", ctx.Command, "error", err)
-		return
 	}
-
-	err = ctx.User.SetState(ctx.Context(), database.UserStatePending)
-
-	if err != nil {
-		slog.Warn("failed to set user state", "error", err)
-		return
-	}
-
-	_ = resp.Write("Ваш токен истек. Используйте /start для получении информации").Respond()
 }

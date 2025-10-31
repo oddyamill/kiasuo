@@ -41,7 +41,7 @@ func request[T any](req *http.Request) (*T, error) {
 		break
 	case http.StatusUnauthorized:
 		return nil, ErrInvalidToken
-	case http.StatusInternalServerError:
+	case http.StatusInternalServerError, http.StatusBadGateway, http.StatusGatewayTimeout:
 		return nil, ErrServerError
 	case http.StatusNoContent:
 		return nil, nil

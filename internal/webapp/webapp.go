@@ -1,13 +1,8 @@
 package webapp
 
 import (
-	"crypto/hmac"
-	"crypto/sha256"
-	"encoding/hex"
-	"net/url"
-	"strings"
-
 	"github.com/kiasuo/bot/internal/client"
+	"github.com/kiasuo/bot/internal/helpers"
 )
 
 type StudentPage struct {
@@ -23,32 +18,16 @@ type MarksPage struct {
 	LastMarksSeenAt  int64                `json:"lastMarksSeenAt"`
 }
 
-func ValidateTelegramInit(botToken string, data string) (url.Values, bool) {
-	appData, err := url.ParseQuery(data)
+var publicUrl string
 
-	if err != nil {
-		return nil, false
+func init() {
+	if !helpers.IsTesting() {
+		return
 	}
 
-	hash := appData.Get("hash")
-
-	if hash == "" {
-		return nil, false
-	}
-
-	appData.Del("hash")
-	appDataToCheck, _ := url.QueryUnescape(strings.ReplaceAll(appData.Encode(), "&", "\n"))
-	secretKey := hmacHash([]byte(botToken), []byte("WebAppData"))
-
-	if hex.EncodeToString(hmacHash([]byte(appDataToCheck), secretKey)) != hash {
-		return nil, false
-	}
-
-	return appData, true
+	publicUrl = helpers.GetEnv("WEBAPP_URL")
 }
 
-func hmacHash(data, key []byte) []byte {
-	h := hmac.New(sha256.New, key)
-	_, _ = h.Write(data)
-	return h.Sum(nil)
+func MarksURL() string {
+	return publicUrl + "/webapp/marks"
 }
