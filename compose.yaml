@@ -29,7 +29,7 @@ services:
     restart: unless-stopped
     command: >
       sh -c "mkdir -p /run/redis-socket && chown -R redis:redis /run/redis-socket &&
-             exec redis-server --unixsocket /run/redis-socket/redis.sock --unixsocketperm 777 --port 0 --save 60 1"
+             exec redis-server --loglevel warning --unixsocket /run/redis-socket/redis.sock --unixsocketperm 777 --port 0 --save 60 1"
     volumes:
       - redis-data:/data
       - redis-socket:/run/redis-socket
