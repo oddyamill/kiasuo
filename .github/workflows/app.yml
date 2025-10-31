@@ -136,4 +136,4 @@ jobs:
           ADMIN_ID: ${{ secrets.ADMIN_ID }}
         run: |
           docker pull $APP_IMAGE_REF
-          docker stack deploy -c compose.yaml kiasuo
+          docker stack deploy -c compose.yaml -d kiasuo

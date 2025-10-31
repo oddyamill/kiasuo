@@ -15,8 +15,6 @@ services:
       - kiasuo-telegram
       - kiasuo-crypto
       - kiasuo-http-telegram
-    expose:
-      - 39814
     ports:
       - "127.0.0.1:39814:39814"
     depends_on:
@@ -26,7 +24,9 @@ services:
   redis:
     image: redis:alpine
     restart: unless-stopped
-    command: --unixsocket /run/redis-socket/redis.sock --unixsocketperm 777 --port 0 --save 60 1
+    command: >
+      sh -c "mkdir -p /run/redis-socket && chown -R redis:redis /run/redis-socket &&
+             exec redis-server --unixsocket /run/redis-socket/redis.sock --unixsocketperm 777 --port 0 --save 60 1"
     volumes:
       - redis-data:/data
       - redis-socket:/run/redis-socket
