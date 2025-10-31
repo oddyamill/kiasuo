@@ -1,8 +1,6 @@
 package commands
 
 import (
-	"log"
-
 	"github.com/go-telegram/bot/models"
 	"github.com/kiasuo/bot/internal/version"
 )
@@ -33,8 +31,6 @@ func (k Keyboard) Parse() models.ReplyMarkup {
 					URL: button.WebAppURL,
 				}
 			}
-
-			log.Printf("keyboard: %v\n", inlineKeyboardButton)
 
 			buttons = append(buttons, inlineKeyboardButton)
 		}

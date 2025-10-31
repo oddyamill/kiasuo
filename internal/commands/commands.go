@@ -53,10 +53,6 @@ var publicCommands = []commandConfig{
 		Name:        "teachers",
 		Description: "Список учителей",
 	},
-	{
-		Name:        "stop",
-		Description: "Остановить",
-	},
 }
 
 func ParseTelegramCommands() *bot.SetMyCommandsParams {

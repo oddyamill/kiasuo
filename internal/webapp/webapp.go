@@ -28,6 +28,10 @@ func init() {
 	publicUrl = helpers.GetEnv("WEBAPP_URL")
 }
 
+func URL() string {
+	return publicUrl
+}
+
 func MarksURL() string {
 	return publicUrl + "/webapp/marks"
 }

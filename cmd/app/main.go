@@ -47,7 +47,7 @@ func (app *App) internalWebhookHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *App) internalWebappCors(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Access-Control-Allow-Origin", "https://brand-new-kiasuo-webapp-indev.oddya.ru")
+	w.Header().Set("Access-Control-Allow-Origin", webapp.URL())
 	w.Header().Set("Access-Control-Allow-Methods", "GET")
 	w.Header().Set("Access-Control-Allow-Headers", "Telegram-Init")
 }
