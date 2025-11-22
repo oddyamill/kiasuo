@@ -31,6 +31,7 @@ export function humanizeLesson(lesson: string): string {
 		case "основы религиозных культур и светской этики":
 			return "ОРКСЭ"
 		case "иностранный язык (английский язык)":
+		case "иностранный (английский) язык":
 			return "Английский язык"
 		default:
 			return lesson

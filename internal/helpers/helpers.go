@@ -86,7 +86,7 @@ func HumanizeLesson(lesson string) string {
 		return "МХК"
 	case "основы религиозных культур и светской этики":
 		return "ОРКСЭ"
-	case "иностранный язык (английский язык)":
+	case "иностранный язык (английский язык)", "иностранный (английский) язык":
 		return "Английский язык"
 	default:
 		return lesson
