@@ -30,7 +30,7 @@ jobs:
   #   if: github.event_name != 'pull_request'
   #   steps:
   #     - name: Checkout Repo
-  #       uses: actions/checkout@v5
+  #       uses: actions/checkout@v6
   #     - name: Deploy
   #       uses: cloudflare/wrangler-action@v3
   #       with:
@@ -52,7 +52,7 @@ jobs:
     if: github.event_name != 'pull_request'
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           sparse-checkout: "**/*.tf"
           sparse-checkout-cone-mode: false
