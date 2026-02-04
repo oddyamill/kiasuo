@@ -5,8 +5,8 @@ go 1.24.6
 toolchain go1.24.9
 
 require (
-	github.com/go-telegram/bot v1.17.0
-	github.com/redis/go-redis/v9 v9.9.0
+	github.com/go-telegram/bot v1.18.0
+	github.com/redis/go-redis/v9 v9.17.3
 )
 
 require (
