@@ -83,7 +83,7 @@ jobs:
             TARGETAPP=${{ matrix.target }}
             TARGETVERSION=${{ env.COMMIT_SHA }}
       - name: Attest
-        uses: actions/attest-build-provenance@v3
+        uses: actions/attest-build-provenance@v4
         with:
           subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-${{ matrix.target }}
           subject-digest: ${{ steps.build-and-push.outputs.digest }}
